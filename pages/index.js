@@ -34,7 +34,7 @@ const reservasExistentes = [
 const DATOS_BANCARIOS = `
 CUENTAS BANCARIAS PARA TRANSFERENCIA / RESERVA ($150 USD):
 
-• Banco Popular Dominicano (Dólares USD)
+• Banco Popular Dominicano (Pesos DOP)
   Cuenta de Ahorros/Corriente: [Ingresar Número de Cuenta USD]
   Titular: Monaco Luxury Rent a Car
 

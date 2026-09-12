@@ -33,9 +33,10 @@ const vehiculos = [
 
 const DATOS_BANCARIOS = `
 CUENTAS BANCARIAS PARA TRANSFERENCIA / RESERVA ($150 USD):
-• Banco Popular Dominicano (Dólares USD): Cta. Ahorros N° 123456789
+• Banco Popular Dominicano (Pesos DOP): Cta. Ahorros N° 123456789
 • Banreservas / BHD (Pesos DOP): Cta. Corriente N° 987654321
-* Titular: Monaco Luxury Rent a Car. Enviar comprobante vía WhatsApp.
+• Zelle (Dólares USD): Landra2916@gmail.com
+* Titular: Landra Guzman, Freddy Rodriguez. Enviar comprobante vía WhatsApp.
 `;
 
 const TEXTO_CONTRATO = `

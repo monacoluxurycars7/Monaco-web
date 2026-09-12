@@ -7,20 +7,28 @@ const vehiculos = [
     id: 'kia-sportage-lx-2020',
     nombre: 'Kia Sportage LX 2020',
     imagen: '/kia.jpeg',
-    precios: { base: 50, medio: 45, largo: 40 }
+    precios: { base: 50, medio: 45, largo: 40 },
+    seguroFullPrecios: { corto: 30, medio: 25, largo: 20 } // 3-5 días: $30, 5-10 días: $25, 11+ días: $20
   },
   {
     id: 'jeep-cherokee-latitude-2019',
     nombre: 'Jeep Cherokee Latitude 2019',
     imagen: '/jeep.jpg',
-    precios: { base: 55, medio: 50, largo: 45 }
+    precios: { base: 55, medio: 50, largo: 45 },
+    seguroFullPrecios: { corto: 30, medio: 25, largo: 20 } // 3-5 días: $30, 5-10 días: $25, 11+ días: $20
   },
   {
     id: 'kia-seltos-2021',
     nombre: 'Kia Seltos 2021',
     imagen: '/kia.jpeg',
-    precios: { base: 55, medio: 50, largo: 45 }
+    precios: { base: 55, medio: 50, largo: 45 },
+    seguroFullPrecios: { corto: 40, medio: 35, largo: 30 } // 3-5 días: $40, 5-10 días: $35, 11+ días: $30
   }
+];
+
+// SIMULACIÓN DE RESERVAS (Sustituir por lectura de Base de Datos / Supabase)
+const reservasExistentes = [
+  { vehiculoId: 'kia-sportage-lx-2020', inicio: '2026-10-01', fin: '2026-10-05' }
 ];
 
 const DATOS_BANCARIOS = `
@@ -64,7 +72,7 @@ export default function Home() {
   const [email, setEmail] = useState('');
   const [aceptaContrato, setAceptaContrato] = useState(false);
 
-  // Cálculo de días y precio
+  // Cálculo de días
   const calcularDias = () => {
     if (!fechaInicio || !fechaFin) return 0;
     const inicio = new Date(fechaInicio);
@@ -76,20 +84,52 @@ export default function Home() {
 
   const dias = calcularDias();
 
+  // Validación de solapamiento de fechas reservadas
+  const estaReservado = () => {
+    if (!vehiculoSeleccionado || !fechaInicio || !fechaFin) return false;
+    const inicioSel = new Date(fechaInicio);
+    const finSel = new Date(fechaFin);
+
+    return reservasExistentes.some((r) => {
+      if (r.vehiculoId !== vehiculoSeleccionado.id) return false;
+      const rInicio = new Date(r.inicio);
+      const rFin = new Date(r.fin);
+      return inicioSel <= rFin && finSel >= rInicio;
+    });
+  };
+
+  // Precios del vehículo según días
   const obtenerPrecioPorDia = (v) => {
     if (!v) return 0;
     if (dias >= 11) return v.precios.largo;
-    if (dias >= 4) return v.precios.medio;
+    if (dias >= 5) return v.precios.medio;
     return v.precios.base;
   };
 
+  // Precios del Seguro Full según rango de días
+  const obtenerPrecioSeguroPorDia = (v) => {
+    if (!v || !seguroFull) return 0;
+    if (dias >= 11) return v.seguroFullPrecios.largo;
+    if (dias >= 5) return v.seguroFullPrecios.medio;
+    return v.seguroFullPrecios.corto;
+  };
+
   const precioPorDia = obtenerPrecioPorDia(vehiculoSeleccionado);
+  const precioSeguroPorDia = obtenerPrecioSeguroPorDia(vehiculoSeleccionado);
   const costoRenta = dias * precioPorDia;
-  const costoSeguro = seguroFull ? dias * 15 : 0;
+  const costoSeguro = dias * precioSeguroPorDia;
   const costoTotal = costoRenta + costoSeguro;
 
   const handleSubmitReserva = async (e) => {
     e.preventDefault();
+    if (dias < 3) {
+      alert('El alquiler mínimo es de 3 días.');
+      return;
+    }
+    if (estaReservado()) {
+      alert('El vehículo ya se encuentra reservado en el rango de fechas seleccionado. Por favor escoge otras fechas.');
+      return;
+    }
     if (!aceptaContrato) {
       alert('Debes aceptar el contrato de arrendamiento para continuar.');
       return;
@@ -108,7 +148,8 @@ export default function Home() {
       fecha_fin: fechaFin,
       dias_totales: dias,
       precio_por_dia: precioPorDia,
-      seguro_full: seguroFull ? 'SI (Exonerado de depósito)' : 'NO (Depósito $400 USD)',
+      seguro_full: seguroFull ? `SI (USD $${precioSeguroPorDia}/día)` : 'NO (Depósito $400 USD)',
+      costo_seguro_total: costoSeguro,
       costo_total: costoTotal,
       monto_reserva: 150,
       cuentas_bancarias: DATOS_BANCARIOS,
@@ -123,11 +164,14 @@ export default function Home() {
         process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY
       );
 
-      alert(`¡Reserva iniciada con éxito!\n\nSe ha enviado un correo con los detalles y las cuentas bancarias a: ${email}\n\nPor favor realiza la transferencia de USD $150.00 para confirmar la reserva y envía el comprobante por WhatsApp.`);
+      // Guardar la nueva reserva en el estado local
+      reservasExistentes.push({ vehiculoId: vehiculoSeleccionado.id, inicio: fechaInicio, fin: fechaFin });
+
+      alert(`¡Reserva realizada con éxito!\n\nSe ha enviado la confirmación a: ${email}\nEl vehículo ha quedado bloqueado para esas fechas.`);
       setVehiculoSeleccionado(null);
     } catch (error) {
       console.error('Error al enviar el correo:', error);
-      alert('La reserva se procesó en pantalla, pero hubo un error con EmailJS. Por favor contáctanos por WhatsApp para enviarte las cuentas bancarias.');
+      alert('Hubo un detalle al enviar el correo. Por favor contáctanos por WhatsApp.');
     } finally {
       setEnviando(false);
     }
@@ -167,7 +211,7 @@ export default function Home() {
       {/* BANNER PRINCIPAL */}
       <section style={{ textAlign: 'center', padding: '3rem 1rem', backgroundColor: '#1e293b' }}>
         <h2 style={{ fontSize: '2rem', color: '#f8fafc', marginBottom: '0.5rem' }}>Reserva tu Auto en Santo Domingo</h2>
-        <p style={{ color: '#94a3b8', maxWidth: '600px', margin: '0 auto' }}>Ubicados en Gazcue. Renta fácil, rápida y segura con la mejor atención personalizada.</p>
+        <p style={{ color: '#94a3b8', maxWidth: '600px', margin: '0 auto' }}>Ubicados en Gazcue. Renta mínima de 3 días. Rápida y segura con la mejor atención personalizada.</p>
       </section>
 
       {/* CATÁLOGO DE VEHÍCULOS */}
@@ -181,23 +225,29 @@ export default function Home() {
               <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
                 <h4 style={{ fontSize: '1.25rem', margin: '0 0 1rem 0', color: '#fff' }}>{v.nombre}</h4>
                 
-                <div style={{ backgroundColor: '#0f172a', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
+                <div style={{ backgroundColor: '#0f172a', padding: '1rem', borderRadius: '8px', marginBottom: '1rem', fontSize: '0.85rem' }}>
+                  <p style={{ margin: '0 0 0.5rem 0', color: '#f59e0b', fontWeight: 'bold' }}>Tarifas por Día (Mínimo 3 Días):</p>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.3rem' }}>
-                    <span>1 - 3 Días:</span>
-                    <strong style={{ color: '#f59e0b' }}>USD ${v.precios.base}/día</strong>
+                    <span>3 - 5 Días:</span>
+                    <strong>USD ${v.precios.base}/día</strong>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.3rem' }}>
-                    <span>4 - 10 Días:</span>
-                    <strong style={{ color: '#f59e0b' }}>USD ${v.precios.medio}/día</strong>
+                    <span>5 - 10 Días:</span>
+                    <strong>USD ${v.precios.medio}/día</strong>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                     <span>11+ Días:</span>
-                    <strong style={{ color: '#f59e0b' }}>USD ${v.precios.largo}/día</strong>
+                    <strong>USD ${v.precios.largo}/día</strong>
                   </div>
                 </div>
 
+                <div style={{ backgroundColor: '#0f172a', padding: '0.8rem', borderRadius: '8px', marginBottom: '1.5rem', fontSize: '0.8rem', border: '1px solid #334155' }}>
+                  <p style={{ margin: '0 0 0.3rem 0', color: '#38bdf8', fontWeight: 'bold' }}>Seguro Full Opcional:</p>
+                  <div>3-5 días: ${v.seguroFullPrecios.corto}/día | 5-10 días: ${v.seguroFullPrecios.medio}/día | 11+ días: ${v.seguroFullPrecios.largo}/día</div>
+                </div>
+
                 <button 
-                  onClick={() => setVehiculoSeleccionado(v)} 
+                  onClick={() => { setVehiculoSeleccionado(v); setSeguroFull(false); }} 
                   style={{ width: '100%', padding: '0.75rem', backgroundColor: '#f59e0b', color: '#0f172a', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '1rem', cursor: 'pointer', marginTop: 'auto' }}
                 >
                   Reservar este Auto
@@ -208,7 +258,7 @@ export default function Home() {
         </div>
       </main>
 
-      {/* MODAL DE RESERVA CON CALENDARIO, CUENTAS BANCARIAS Y FORMULARIO */}
+      {/* MODAL DE RESERVA */}
       {vehiculoSeleccionado && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.8)', display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '1rem', zIndex: 100 }}>
           <div style={{ backgroundColor: '#1e293b', padding: '2rem', borderRadius: '12px', maxWidth: '550px', width: '100%', maxHeight: '90vh', overflowY: 'auto', border: '1px solid #334155' }}>
@@ -245,6 +295,15 @@ export default function Home() {
                 </div>
               </div>
 
+              {/* ALERTA FECHAS OCUPADAS O RENTA MÍNIMA */}
+              {dias > 0 && dias < 3 && (
+                <p style={{ color: '#ef4444', fontSize: '0.85rem', margin: 0, fontWeight: 'bold' }}>⚠️ El tiempo mínimo de renta es de 3 días.</p>
+              )}
+
+              {estaReservado() && (
+                <p style={{ color: '#ef4444', fontSize: '0.85rem', margin: 0, fontWeight: 'bold' }}>🚫 Este vehículo ya está reservado en las fechas seleccionadas.</p>
+              )}
+
               <div>
                 <label style={{ display: 'block', fontSize: '0.85rem', color: '#94a3b8', marginBottom: '0.3rem' }}>Tipo de Cliente:</label>
                 <select value={tipoCliente} onChange={(e) => setTipoCliente(e.target.value)} style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid #334155', backgroundColor: '#0f172a', color: '#fff' }}>
@@ -256,9 +315,13 @@ export default function Home() {
               <div style={{ backgroundColor: '#0f172a', padding: '1rem', borderRadius: '8px' }}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', color: '#fff' }}>
                   <input type="checkbox" checked={seguroFull} onChange={(e) => setSeguroFull(e.target.checked)} />
-                  <strong>Deseo contratar Seguro Full (+USD $15/día)</strong>
+                  <strong>Deseo contratar Seguro Full</strong>
                 </label>
-                <p style={{ margin: '0.5rem 0 0 1.5rem', fontSize: '0.8rem', color: '#94a3b8' }}>Exonera el depósito de garantía de USD $400. En caso de siniestro solo pagas el deducible.</p>
+                {dias >= 3 && (
+                  <p style={{ margin: '0.5rem 0 0 1.5rem', fontSize: '0.8rem', color: '#38bdf8' }}>
+                    Costo Seguro Full: <strong>USD ${precioSeguroPorDia}/día</strong> para {dias} días (Exonera el depósito de $400 USD).
+                  </p>
+                )}
               </div>
 
               <div>
@@ -277,22 +340,22 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* RESUMEN DE COSTOS Y DATOS DE TRANSFERENCIA */}
-              {dias > 0 && (
+              {/* RESUMEN DE COSTOS CON SEGURO INCLUIDO Y CUENTAS */}
+              {dias >= 3 && !estaReservado() && (
                 <div style={{ backgroundColor: '#0f172a', padding: '1rem', borderRadius: '8px', border: '1px solid #f59e0b', fontSize: '0.9rem' }}>
                   <p style={{ margin: '0 0 0.3rem 0' }}>Días de Alquiler: <strong>{dias} día(s)</strong></p>
-                  <p style={{ margin: '0 0 0.3rem 0' }}>Precio por Día: <strong>USD ${precioPorDia}</strong></p>
-                  <p style={{ margin: '0 0 0.3rem 0' }}>Depósito Requerido: <strong>{seguroFull ? 'Exonerado (Seguro Full)' : 'USD $400.00'}</strong></p>
-                  <h4 style={{ margin: '0.5rem 0', color: '#f59e0b', fontSize: '1.1rem' }}>Total Estimado: USD ${costoTotal}</h4>
+                  <p style={{ margin: '0 0 0.3rem 0' }}>Renta del Auto: <strong>USD ${costoRenta}</strong> (${precioPorDia}/día)</p>
+                  <p style={{ margin: '0 0 0.3rem 0' }}>Seguro Full: <strong>{seguroFull ? `USD $${costoSeguro} ($${precioSeguroPorDia}/día)` : 'No Incluido ($0)'}</strong></p>
+                  <p style={{ margin: '0 0 0.3rem 0' }}>Depósito: <strong>{seguroFull ? 'Exonerado' : 'USD $400.00'}</strong></p>
+                  <h4 style={{ margin: '0.5rem 0', color: '#f59e0b', fontSize: '1.2rem' }}>TOTAL CON SEGURO: USD ${costoTotal}</h4>
                   
                   <hr style={{ borderColor: '#334155', margin: '0.8rem 0' }} />
 
-                  {/* CUENTAS BANCARIAS */}
                   <h5 style={{ margin: '0 0 0.5rem 0', color: '#38bdf8', fontSize: '0.95rem' }}>💳 Pago de Reserva mediante Transferencia (USD $150.00)</h5>
                   <div style={{ backgroundColor: '#1e293b', padding: '0.75rem', borderRadius: '6px', fontSize: '0.8rem', color: '#cbd5e1', lineHeight: '1.4' }}>
                     <p style={{ margin: '0 0 0.3rem 0' }}><strong>• Banco Popular (USD):</strong> Cta. Ahorros N° <code>123456789</code></p>
                     <p style={{ margin: '0 0 0.3rem 0' }}><strong>• Banreservas / BHD (DOP):</strong> Cta. Corriente N° <code>987654321</code></p>
-                    <p style={{ margin: '0', color: '#f59e0b', fontSize: '0.75rem' }}><em>* Titular: Monaco Luxury Rent a Car. Enviar comprobante por WhatsApp tras completar el formulario.</em></p>
+                    <p style={{ margin: '0', color: '#f59e0b', fontSize: '0.75rem' }}><em>* Titular: Monaco Luxury Rent a Car. Enviar comprobante por WhatsApp tras completar la reserva.</em></p>
                   </div>
                 </div>
               )}
@@ -307,8 +370,8 @@ export default function Home() {
 
               <button 
                 type="submit" 
-                disabled={enviando}
-                style={{ padding: '0.75rem', backgroundColor: enviando ? '#64748b' : '#f59e0b', color: '#0f172a', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '1rem', cursor: enviando ? 'not-allowed' : 'pointer', marginTop: '0.5rem' }}
+                disabled={enviando || dias < 3 || estaReservado()}
+                style={{ padding: '0.75rem', backgroundColor: (enviando || dias < 3 || estaReservado()) ? '#64748b' : '#f59e0b', color: '#0f172a', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '1rem', cursor: (enviando || dias < 3 || estaReservado()) ? 'not-allowed' : 'pointer', marginTop: '0.5rem' }}
               >
                 {enviando ? 'Procesando reserva...' : 'Confirmar Reserva e Instrucciones de Pago'}
               </button>

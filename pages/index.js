@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Head from 'next/head';
 import emailjs from '@emailjs/browser';
+import { db } from '../biblioteca/firebase';
+import { collection, addDoc, onSnapshot } from 'firebase/firestore';
 
 const vehiculos = [
   {
@@ -8,33 +10,31 @@ const vehiculos = [
     nombre: 'Kia Sportage LX 2020',
     imagen: '/kia.jpeg',
     precios: { base: 50, medio: 45, largo: 40 },
-    seguroFullPrecios: { corto: 30, medio: 25, largo: 20 } // 3-5 días: $30, 5-10 días: $25, 11+ días: $20
+    seguroFullPrecios: { corto: 30, medio: 25, largo: 20 },
+    disponible: true
   },
   {
     id: 'jeep-cherokee-latitude-2019',
     nombre: 'Jeep Cherokee Latitude 2019',
     imagen: '/jeep.jpg',
     precios: { base: 55, medio: 50, largo: 45 },
-    seguroFullPrecios: { corto: 30, medio: 25, largo: 20 } // 3-5 días: $30, 5-10 días: $25, 11+ días: $20
+    seguroFullPrecios: { corto: 30, medio: 25, largo: 20 },
+    disponible: true
   },
   {
     id: 'kia-seltos-2021',
     nombre: 'Kia Seltos 2021',
     imagen: '/kia.jpeg',
     precios: { base: 55, medio: 50, largo: 45 },
-    seguroFullPrecios: { corto: 40, medio: 35, largo: 30 } // 3-5 días: $40, 5-10 días: $35, 11+ días: $30
+    seguroFullPrecios: { corto: 40, medio: 35, largo: 30 },
+    disponible: false // Seltos no disponible
   }
-];
-
-// SIMULACIÓN DE RESERVAS (Sustituir por lectura de Base de Datos / Supabase)
-const reservasExistentes = [
-  { vehiculoId: 'kia-sportage-lx-2020', inicio: '2026-10-01', fin: '2026-10-05' }
 ];
 
 const DATOS_BANCARIOS = `
 CUENTAS BANCARIAS PARA TRANSFERENCIA / RESERVA ($150 USD):
 
-• Banco Popular Dominicano (Pesos DOP)
+• Banco Popular Dominicano (Dólares USD)
   Cuenta de Ahorros/Corriente: [Ingresar Número de Cuenta USD]
   Titular: Monaco Luxury Rent a Car
 
@@ -42,7 +42,7 @@ CUENTAS BANCARIAS PARA TRANSFERENCIA / RESERVA ($150 USD):
   Cuenta: [Ingresar Número de Cuenta DOP]
   Titular: Monaco Luxury Rent a Car
 
-* Nota: Enviar comprobante de pago vía WhatsApp (+1 849-847-1138 / +1 829-679-2686) para validar la reserva.
+* Nota: Enviar comprobante de pago vía WhatsApp (+1 829-425-7986 / +1 973-289-4797) para validar la reserva.
 `;
 
 const TEXTO_CONTRATO = `
@@ -53,7 +53,7 @@ CONTRATO DE ARRENDAMIENTO DE VEHÍCULO - MONACO LUXURY RENT A CAR
 4. HORARIOS: Devolución a la misma hora de entrega. Tolerancia excedida (>4 hrs) aplica recargo de 1 día adicional.
 5. MULTAS: El cliente asume total responsabilidad por infracciones y multas de tránsito.
 6. CONDICIONES: Vehículo se entrega y devuelve en óptimas condiciones y con mismo nivel de combustible. Prohibido subarrendar o actividades ilícitas.
-7. ACEPTACIÓN DIGITAL: Al confirmar, el cliente acepta íntegramente este contrato.
+7. ACEPTACIÓN DIGITAL: Al confirmar y firmar digitalmente, el cliente acepta íntegramente este contrato.
 `;
 
 export default function Home() {
@@ -61,6 +61,9 @@ export default function Home() {
   const [mostrarModalWS, setMostrarModalWS] = useState(false);
   const [mostrarModalContrato, setMostrarModalContrato] = useState(false);
   const [enviando, setEnviando] = useState(false);
+
+  // Estado para reservas guardadas en Firebase
+  const [reservasExistentes, setReservasExistentes] = useState([]);
 
   // Formulario
   const [fechaInicio, setFechaInicio] = useState('');
@@ -71,6 +74,67 @@ export default function Home() {
   const [telefono, setTelefono] = useState('');
   const [email, setEmail] = useState('');
   const [aceptaContrato, setAceptaContrato] = useState(false);
+
+  // Estado y Ref para Firma Digital
+  const canvasRef = useRef(null);
+  const [dibujando, setDibujando] = useState(false);
+  const [tieneFirma, setTieneFirma] = useState(false);
+
+  // Escuchar cambios en tiempo real desde Firebase Firestore
+  useEffect(() => {
+    if (!db) return;
+    const unsubscribe = onSnapshot(collection(db, 'reservas'), (snapshot) => {
+      const docs = snapshot.docs.map(doc => doc.data());
+      setReservasExistentes(docs);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // Lógica del Canvas para la Firma
+  const obtenerPosicion = (e) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return { x: 0, y: 0 };
+    const rect = canvas.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    return {
+      x: clientX - rect.left,
+      y: clientY - rect.top
+    };
+  };
+
+  const iniciarDibujo = (e) => {
+    const { x, y } = obtenerPosicion(e);
+    const ctx = canvasRef.current.getContext('2d');
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    setDibujando(true);
+  };
+
+  const dibujar = (e) => {
+    if (!dibujando) return;
+    e.preventDefault();
+    const { x, y } = obtenerPosicion(e);
+    const ctx = canvasRef.current.getContext('2d');
+    ctx.lineTo(x, y);
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    setTieneFirma(true);
+  };
+
+  const detenerDibujo = () => {
+    setDibujando(false);
+  };
+
+  const limpiarFirma = () => {
+    const canvas = canvasRef.current;
+    if (canvas) {
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      setTieneFirma(false);
+    }
+  };
 
   // Cálculo de días
   const calcularDias = () => {
@@ -84,7 +148,7 @@ export default function Home() {
 
   const dias = calcularDias();
 
-  // Validación de solapamiento de fechas reservadas
+  // Verificar si las fechas seleccionadas se solapan con una reserva existente en Firebase
   const estaReservado = () => {
     if (!vehiculoSeleccionado || !fechaInicio || !fechaFin) return false;
     const inicioSel = new Date(fechaInicio);
@@ -127,36 +191,60 @@ export default function Home() {
       return;
     }
     if (estaReservado()) {
-      alert('El vehículo ya se encuentra reservado en el rango de fechas seleccionado. Por favor escoge otras fechas.');
+      alert('El vehículo ya se encuentra reservado en el rango de fechas seleccionado.');
       return;
     }
     if (!aceptaContrato) {
       alert('Debes aceptar el contrato de arrendamiento para continuar.');
       return;
     }
+    if (!tieneFirma) {
+      alert('Debes firmar digitalmente en el recuadro para confirmar tu reserva.');
+      return;
+    }
 
     setEnviando(true);
 
-    const templateParams = {
-      to_email: email,
-      cliente_nombre: nombre,
-      cliente_telefono: telefono,
-      cliente_email: email,
-      tipo_cliente: tipoCliente === 'extranjero' ? 'Extranjero (Pasaporte)' : 'Nacional/Residente (Cédula + Licencia)',
-      vehiculo: vehiculoSeleccionado.nombre,
-      fecha_inicio: fechaInicio,
-      fecha_fin: fechaFin,
-      dias_totales: dias,
-      precio_por_dia: precioPorDia,
-      seguro_full: seguroFull ? `SI (USD $${precioSeguroPorDia}/día)` : 'NO (Depósito $400 USD)',
-      costo_seguro_total: costoSeguro,
-      costo_total: costoTotal,
-      monto_reserva: 150,
-      cuentas_bancarias: DATOS_BANCARIOS,
-      contrato_texto: TEXTO_CONTRATO
-    };
-
     try {
+      // Convertir firma a imagen Base64
+      const firmaUrl = canvasRef.current.toDataURL('image/png');
+
+      // 1. Guardar la reserva con Firma en Firebase Firestore
+      await addDoc(collection(db, 'reservas'), {
+        vehiculoId: vehiculoSeleccionado.id,
+        vehiculoNombre: vehiculoSeleccionado.nombre,
+        inicio: fechaInicio,
+        fin: fechaFin,
+        clienteNombre: nombre,
+        clienteEmail: email,
+        clienteTelefono: telefono,
+        costoTotal: costoTotal,
+        firmaUrl: firmaUrl,
+        fechaCreacion: new Date().toISOString()
+      });
+
+      // 2. Enviar correos de confirmación (Cliente y Monaco) vía EmailJS
+      const templateParams = {
+        to_email: email,
+        monaco_email: 'monacoluxuryrentacar@gmail.com', // Correo receptor de Monaco
+        cliente_nombre: nombre,
+        cliente_telefono: telefono,
+        cliente_email: email,
+        tipo_cliente: tipoCliente === 'extranjero' ? 'Extranjero (Pasaporte)' : 'Nacional/Residente (Cédula + Licencia)',
+        vehiculo: vehiculoSeleccionado.nombre,
+        fecha_inicio: fechaInicio,
+        fecha_fin: fechaFin,
+        dias_totales: dias,
+        precio_por_dia: precioPorDia,
+        seguro_full: seguroFull ? `SI (USD $${precioSeguroPorDia}/día)` : 'NO (Depósito $400 USD)',
+        costo_seguro_total: costoSeguro,
+        costo_total: costoTotal,
+        monto_reserva: 150,
+        cuentas_bancarias: DATOS_BANCARIOS,
+        contrato_texto: TEXTO_CONTRATO,
+        firma_url: firmaUrl // Firma adjunta en el correo
+      };
+
       await emailjs.send(
         process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID,
         process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID,
@@ -164,14 +252,11 @@ export default function Home() {
         process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY
       );
 
-      // Guardar la nueva reserva en el estado local
-      reservasExistentes.push({ vehiculoId: vehiculoSeleccionado.id, inicio: fechaInicio, fin: fechaFin });
-
-      alert(`¡Reserva realizada con éxito!\n\nSe ha enviado la confirmación a: ${email}\nEl vehículo ha quedado bloqueado para esas fechas.`);
+      alert(`¡Reserva realizada y firmada exitosamente!\n\nSe envió una copia digital del contrato a tu correo (${email}) y al sistema de Monaco Luxury.`);
       setVehiculoSeleccionado(null);
     } catch (error) {
-      console.error('Error al enviar el correo:', error);
-      alert('Hubo un detalle al enviar el correo. Por favor contáctanos por WhatsApp.');
+      console.error('Error al procesar la reserva:', error);
+      alert('Ocurrió un error al guardar la reserva. Por favor contacta por WhatsApp.');
     } finally {
       setEnviando(false);
     }
@@ -246,12 +331,21 @@ export default function Home() {
                   <div>3-5 días: ${v.seguroFullPrecios.corto}/día | 5-10 días: ${v.seguroFullPrecios.medio}/día | 11+ días: ${v.seguroFullPrecios.largo}/día</div>
                 </div>
 
-                <button 
-                  onClick={() => { setVehiculoSeleccionado(v); setSeguroFull(false); }} 
-                  style={{ width: '100%', padding: '0.75rem', backgroundColor: '#f59e0b', color: '#0f172a', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '1rem', cursor: 'pointer', marginTop: 'auto' }}
-                >
-                  Reservar este Auto
-                </button>
+                {v.disponible ? (
+                  <button 
+                    onClick={() => { setVehiculoSeleccionado(v); setSeguroFull(false); }} 
+                    style={{ width: '100%', padding: '0.75rem', backgroundColor: '#f59e0b', color: '#0f172a', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '1rem', cursor: 'pointer', marginTop: 'auto' }}
+                  >
+                    Reservar este Auto
+                  </button>
+                ) : (
+                  <button 
+                    disabled
+                    style={{ width: '100%', padding: '0.75rem', backgroundColor: '#ef4444', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '1rem', cursor: 'not-allowed', marginTop: 'auto' }}
+                  >
+                    🚫 No Disponible
+                  </button>
+                )}
               </div>
             </div>
           ))}
@@ -360,6 +454,27 @@ export default function Home() {
                 </div>
               )}
 
+              {/* RECUADRO PARA FIRMA DIGITAL */}
+              <div style={{ backgroundColor: '#0f172a', padding: '1rem', borderRadius: '8px', border: '1px solid #334155' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                  <label style={{ fontSize: '0.85rem', color: '#f59e0b', fontWeight: 'bold' }}>✍️ Firma Digital del Cliente:</label>
+                  <button type="button" onClick={limpiarFirma} style={{ backgroundColor: 'transparent', border: '1px solid #ef4444', color: '#ef4444', padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.75rem', cursor: 'pointer' }}>Limpiar Firma</button>
+                </div>
+                <canvas 
+                  ref={canvasRef} 
+                  width={400} 
+                  height={150} 
+                  onMouseDown={iniciarDibujo}
+                  onMouseMove={dibujar}
+                  onMouseUp={detenerDibujo}
+                  onTouchStart={iniciarDibujo}
+                  onTouchMove={dibujar}
+                  onTouchEnd={detenerDibujo}
+                  style={{ backgroundColor: '#fff', borderRadius: '6px', cursor: 'crosshair', width: '100%', touchAction: 'none' }}
+                />
+                <p style={{ margin: '0.3rem 0 0 0', fontSize: '0.75rem', color: '#94a3b8', textAlign: 'center' }}>Firma con tu dedo en la pantalla o usando el mouse.</p>
+              </div>
+
               {/* CHECKBOX CONTRATO */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <input type="checkbox" id="contrato" checked={aceptaContrato} onChange={(e) => setAceptaContrato(e.target.checked)} required />
@@ -370,25 +485,25 @@ export default function Home() {
 
               <button 
                 type="submit" 
-                disabled={enviando || dias < 3 || estaReservado()}
-                style={{ padding: '0.75rem', backgroundColor: (enviando || dias < 3 || estaReservado()) ? '#64748b' : '#f59e0b', color: '#0f172a', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '1rem', cursor: (enviando || dias < 3 || estaReservado()) ? 'not-allowed' : 'pointer', marginTop: '0.5rem' }}
+                disabled={enviando || dias < 3 || estaReservado() || !tieneFirma}
+                style={{ padding: '0.75rem', backgroundColor: (enviando || dias < 3 || estaReservado() || !tieneFirma) ? '#64748b' : '#f59e0b', color: '#0f172a', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '1rem', cursor: (enviando || dias < 3 || estaReservado() || !tieneFirma) ? 'not-allowed' : 'pointer', marginTop: '0.5rem' }}
               >
-                {enviando ? 'Procesando reserva...' : 'Confirmar Reserva e Instrucciones de Pago'}
+                {enviando ? 'Procesando reserva y firma...' : 'Firmar y Confirmar Reserva'}
               </button>
             </form>
           </div>
         </div>
       )}
 
-      {/* MODAL WHATSAPP */}
+      {/* MODAL WHATSAPP CON NÚMEROS CORREGIDOS */}
       {mostrarModalWS && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.8)', display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '1rem', zIndex: 110 }}>
           <div style={{ backgroundColor: '#1e293b', padding: '2rem', borderRadius: '12px', maxWidth: '400px', width: '100%', border: '1px solid #334155', textAlign: 'center' }}>
             <h3 style={{ color: '#25D366', marginTop: 0 }}>Contactar por WhatsApp</h3>
             <p style={{ fontSize: '0.9rem', color: '#94a3b8' }}>Selecciona uno de nuestros números de atención:</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', margin: '1.5rem 0' }}>
-              <a href="https://wa.me/18498471138" target="_blank" rel="noopener noreferrer" style={{ padding: '0.75rem', backgroundColor: '#25D366', color: '#fff', textDecoration: 'none', borderRadius: '8px', fontWeight: 'bold' }}>📱 WhatsApp Opción 1 (+1 849-847-1138)</a>
-              <a href="https://wa.me/18296792686" target="_blank" rel="noopener noreferrer" style={{ padding: '0.75rem', backgroundColor: '#25D366', color: '#fff', textDecoration: 'none', borderRadius: '8px', fontWeight: 'bold' }}>📱 WhatsApp Opción 2 (+1 829-679-2686)</a>
+              <a href="https://wa.me/18294257986" target="_blank" rel="noopener noreferrer" style={{ padding: '0.75rem', backgroundColor: '#25D366', color: '#fff', textDecoration: 'none', borderRadius: '8px', fontWeight: 'bold' }}>📱 WhatsApp Opción 1 (+1 829-425-7986)</a>
+              <a href="https://wa.me/19732894797" target="_blank" rel="noopener noreferrer" style={{ padding: '0.75rem', backgroundColor: '#25D366', color: '#fff', textDecoration: 'none', borderRadius: '8px', fontWeight: 'bold' }}>📱 WhatsApp Opción 2 (+1 973-289-4797)</a>
             </div>
             <button onClick={() => setMostrarModalWS(false)} style={{ backgroundColor: 'transparent', border: '1px solid #334155', color: '#fff', padding: '0.5rem 1rem', borderRadius: '6px', cursor: 'pointer' }}>Cerrar</button>
           </div>

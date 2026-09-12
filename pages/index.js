@@ -23,6 +23,20 @@ const vehiculos = [
   }
 ];
 
+const DATOS_BANCARIOS = `
+CUENTAS BANCARIAS PARA TRANSFERENCIA / RESERVA ($150 USD):
+
+• Banco Popular Dominicano (Dólares USD)
+  Cuenta de Ahorros/Corriente: [Ingresar Número de Cuenta USD]
+  Titular: Monaco Luxury Rent a Car
+
+• Banco BHD / Banreservas (Pesos DOP)
+  Cuenta: [Ingresar Número de Cuenta DOP]
+  Titular: Monaco Luxury Rent a Car
+
+* Nota: Enviar comprobante de pago vía WhatsApp (+1 849-847-1138 / +1 829-679-2686) para validar la reserva.
+`;
+
 const TEXTO_CONTRATO = `
 CONTRATO DE ARRENDAMIENTO DE VEHÍCULO - MONACO LUXURY RENT A CAR
 1. RESERVA Y PAGOS: Reserva de USD $150.00 NO REEMBOLSABLE. Saldo restante contra entrega.
@@ -97,6 +111,7 @@ export default function Home() {
       seguro_full: seguroFull ? 'SI (Exonerado de depósito)' : 'NO (Depósito $400 USD)',
       costo_total: costoTotal,
       monto_reserva: 150,
+      cuentas_bancarias: DATOS_BANCARIOS,
       contrato_texto: TEXTO_CONTRATO
     };
 
@@ -108,11 +123,11 @@ export default function Home() {
         process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY
       );
 
-      alert(`¡Reserva realizada con éxito!\n\nSe ha enviado un correo de confirmación a: ${email}\nTambién hemos recibido los detalles de la reserva junto con el contrato en Monaco Luxury Rent a Car.`);
+      alert(`¡Reserva iniciada con éxito!\n\nSe ha enviado un correo con los detalles y las cuentas bancarias a: ${email}\n\nPor favor realiza la transferencia de USD $150.00 para confirmar la reserva y envía el comprobante por WhatsApp.`);
       setVehiculoSeleccionado(null);
     } catch (error) {
       console.error('Error al enviar el correo:', error);
-      alert('La reserva fue procesada localmente, pero hubo un detalle al enviar el correo. Por favor contáctanos por WhatsApp.');
+      alert('La reserva se procesó en pantalla, pero hubo un error con EmailJS. Por favor contáctanos por WhatsApp para enviarte las cuentas bancarias.');
     } finally {
       setEnviando(false);
     }
@@ -193,7 +208,7 @@ export default function Home() {
         </div>
       </main>
 
-      {/* MODAL DE RESERVA CON CALENDARIO Y FORMULARIO */}
+      {/* MODAL DE RESERVA CON CALENDARIO, CUENTAS BANCARIAS Y FORMULARIO */}
       {vehiculoSeleccionado && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.8)', display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '1rem', zIndex: 100 }}>
           <div style={{ backgroundColor: '#1e293b', padding: '2rem', borderRadius: '12px', maxWidth: '550px', width: '100%', maxHeight: '90vh', overflowY: 'auto', border: '1px solid #334155' }}>
@@ -262,14 +277,23 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* RESUMEN DE COSTOS */}
+              {/* RESUMEN DE COSTOS Y DATOS DE TRANSFERENCIA */}
               {dias > 0 && (
                 <div style={{ backgroundColor: '#0f172a', padding: '1rem', borderRadius: '8px', border: '1px solid #f59e0b', fontSize: '0.9rem' }}>
                   <p style={{ margin: '0 0 0.3rem 0' }}>Días de Alquiler: <strong>{dias} día(s)</strong></p>
                   <p style={{ margin: '0 0 0.3rem 0' }}>Precio por Día: <strong>USD ${precioPorDia}</strong></p>
                   <p style={{ margin: '0 0 0.3rem 0' }}>Depósito Requerido: <strong>{seguroFull ? 'Exonerado (Seguro Full)' : 'USD $400.00'}</strong></p>
-                  <h4 style={{ margin: '0.5rem 0 0 0', color: '#f59e0b', fontSize: '1.1rem' }}>Total Estimado: USD ${costoTotal}</h4>
-                  <p style={{ margin: '0.3rem 0 0 0', fontSize: '0.75rem', color: '#94a3b8' }}>Se requiere un abono de <strong>USD $150.00</strong> para confirmar la reserva.</p>
+                  <h4 style={{ margin: '0.5rem 0', color: '#f59e0b', fontSize: '1.1rem' }}>Total Estimado: USD ${costoTotal}</h4>
+                  
+                  <hr style={{ borderColor: '#334155', margin: '0.8rem 0' }} />
+
+                  {/* CUENTAS BANCARIAS */}
+                  <h5 style={{ margin: '0 0 0.5rem 0', color: '#38bdf8', fontSize: '0.95rem' }}>💳 Pago de Reserva mediante Transferencia (USD $150.00)</h5>
+                  <div style={{ backgroundColor: '#1e293b', padding: '0.75rem', borderRadius: '6px', fontSize: '0.8rem', color: '#cbd5e1', lineHeight: '1.4' }}>
+                    <p style={{ margin: '0 0 0.3rem 0' }}><strong>• Banco Popular (USD):</strong> Cta. Ahorros N° <code>123456789</code></p>
+                    <p style={{ margin: '0 0 0.3rem 0' }}><strong>• Banreservas / BHD (DOP):</strong> Cta. Corriente N° <code>987654321</code></p>
+                    <p style={{ margin: '0', color: '#f59e0b', fontSize: '0.75rem' }}><em>* Titular: Monaco Luxury Rent a Car. Enviar comprobante por WhatsApp tras completar el formulario.</em></p>
+                  </div>
                 </div>
               )}
 
@@ -286,7 +310,7 @@ export default function Home() {
                 disabled={enviando}
                 style={{ padding: '0.75rem', backgroundColor: enviando ? '#64748b' : '#f59e0b', color: '#0f172a', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '1rem', cursor: enviando ? 'not-allowed' : 'pointer', marginTop: '0.5rem' }}
               >
-                {enviando ? 'Enviando reserva y contrato...' : 'Confirmar Reserva'}
+                {enviando ? 'Procesando reserva...' : 'Confirmar Reserva e Instrucciones de Pago'}
               </button>
             </form>
           </div>
@@ -346,7 +370,7 @@ export default function Home() {
             <h4 style={{ color: '#fff' }}>6. CONDICIONES ADICIONALES E IMPORTANTES</h4>
             <p><strong>6.1. Estado del Vehículo:</strong> El CLIENTE declara recibir el vehículo en perfectas condiciones mecánicas, estéticas y de limpieza, y se compromete a devolverlo en las mismas condiciones exactas en que lo recibió.<br />
             <strong>6.2. Nivel de Combustible:</strong> El vehículo debe ser devuelto con la misma cantidad de combustible con la que fue entregado.<br />
-            <strong>6.3. Uso Permitido y Prohibiciones:</strong> El vehículo solo podrá ser conducido por el CLIENTE o por conductores authorized. Queda prohibido subarrendar, transportar carga pesada, participar en carreras o conducir bajo los efectos del alcohol.<br />
+            <strong>6.3. Uso Permitido y Prohibiciones:</strong> El vehículo solo podrá ser conducido por el CLIENTE o por conductores autorizados. Queda prohibido subarrendar, transportar carga pesada, participar en carreras o conducir bajo los efectos del alcohol.<br />
             <strong>6.4. Llaves y Neumáticos:</strong> La pérdida o daño de llaves o neumáticos no están cubiertos por ningún seguro.<br />
             <strong>6.5. Asistencia:</strong> Notificar inmediatamente a MONACO LUXURY RENT A CAR en un plazo no mayor a 2 horas tras cualquier siniestro.</p>
 

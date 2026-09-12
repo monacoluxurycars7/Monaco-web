@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Head from 'next/head';
 import emailjs from '@emailjs/browser';
-import { db } from '../biblioteca/firebase';
 import { db } from '../lib/firebase';
+import { collection, addDoc, onSnapshot } from 'firebase/firestore';
 
 const vehiculos = [
   {
     id: 'kia-sportage-lx-2020',
     nombre: 'Kia Sportage LX 2020',
     imagen: '/kia.jpeg',
-    precios: { base: 60, medio: 55, largo: 50 },
+    precios: { base: 50, medio: 45, largo: 40 },
     seguroFullPrecios: { corto: 30, medio: 25, largo: 20 },
     disponible: true
   },
@@ -17,7 +17,7 @@ const vehiculos = [
     id: 'jeep-cherokee-latitude-2019',
     nombre: 'Jeep Cherokee Latitude 2019',
     imagen: '/jeep.jpg',
-    precios: { base: 65, medio: 60, largo: 55 },
+    precios: { base: 55, medio: 50, largo: 45 },
     seguroFullPrecios: { corto: 30, medio: 25, largo: 20 },
     disponible: true
   },
@@ -25,9 +25,9 @@ const vehiculos = [
     id: 'kia-seltos-2021',
     nombre: 'Kia Seltos 2021',
     imagen: '/kia.jpeg',
-    precios: { base: 60, medio: 55, largo: 50 },
+    precios: { base: 55, medio: 50, largo: 45 },
     seguroFullPrecios: { corto: 40, medio: 35, largo: 30 },
-    disponible: false // Seltos no disponible
+    disponible: false
   }
 ];
 
@@ -62,10 +62,8 @@ export default function Home() {
   const [mostrarModalContrato, setMostrarModalContrato] = useState(false);
   const [enviando, setEnviando] = useState(false);
 
-  // Estado para reservas guardadas en Firebase
   const [reservasExistentes, setReservasExistentes] = useState([]);
 
-  // Formulario
   const [fechaInicio, setFechaInicio] = useState('');
   const [fechaFin, setFechaFin] = useState('');
   const [tipoCliente, setTipoCliente] = useState('extranjero');
@@ -75,12 +73,10 @@ export default function Home() {
   const [email, setEmail] = useState('');
   const [aceptaContrato, setAceptaContrato] = useState(false);
 
-  // Estado y Ref para Firma Digital
   const canvasRef = useRef(null);
   const [dibujando, setDibujando] = useState(false);
   const [tieneFirma, setTieneFirma] = useState(false);
 
-  // Escuchar cambios en tiempo real desde Firebase Firestore
   useEffect(() => {
     if (!db) return;
     const unsubscribe = onSnapshot(collection(db, 'reservas'), (snapshot) => {
@@ -90,7 +86,6 @@ export default function Home() {
     return () => unsubscribe();
   }, []);
 
-  // Lógica del Canvas para la Firma
   const obtenerPosicion = (e) => {
     const canvas = canvasRef.current;
     if (!canvas) return { x: 0, y: 0 };
@@ -136,7 +131,6 @@ export default function Home() {
     }
   };
 
-  // Cálculo de días
   const calcularDias = () => {
     if (!fechaInicio || !fechaFin) return 0;
     const inicio = new Date(fechaInicio);
@@ -148,7 +142,6 @@ export default function Home() {
 
   const dias = calcularDias();
 
-  // Verificar si las fechas seleccionadas se solapan con una reserva existente en Firebase
   const estaReservado = () => {
     if (!vehiculoSeleccionado || !fechaInicio || !fechaFin) return false;
     const inicioSel = new Date(fechaInicio);
@@ -162,7 +155,6 @@ export default function Home() {
     });
   };
 
-  // Precios del vehículo según días
   const obtenerPrecioPorDia = (v) => {
     if (!v) return 0;
     if (dias >= 11) return v.precios.largo;
@@ -170,7 +162,6 @@ export default function Home() {
     return v.precios.base;
   };
 
-  // Precios del Seguro Full según rango de días
   const obtenerPrecioSeguroPorDia = (v) => {
     if (!v || !seguroFull) return 0;
     if (dias >= 11) return v.seguroFullPrecios.largo;
@@ -206,10 +197,8 @@ export default function Home() {
     setEnviando(true);
 
     try {
-      // Convertir firma a imagen Base64
       const firmaUrl = canvasRef.current.toDataURL('image/png');
 
-      // 1. Guardar la reserva con Firma en Firebase Firestore
       await addDoc(collection(db, 'reservas'), {
         vehiculoId: vehiculoSeleccionado.id,
         vehiculoNombre: vehiculoSeleccionado.nombre,
@@ -223,10 +212,9 @@ export default function Home() {
         fechaCreacion: new Date().toISOString()
       });
 
-      // 2. Enviar correos de confirmación (Cliente y Monaco) vía EmailJS
       const templateParams = {
         to_email: email,
-        monaco_email: 'monacoluxuryrentacar@gmail.com', // Correo receptor de Monaco
+        monaco_email: 'monacoluxuryrentacar@gmail.com',
         cliente_nombre: nombre,
         cliente_telefono: telefono,
         cliente_email: email,
@@ -242,7 +230,7 @@ export default function Home() {
         monto_reserva: 150,
         cuentas_bancarias: DATOS_BANCARIOS,
         contrato_texto: TEXTO_CONTRATO,
-        firma_url: firmaUrl // Firma adjunta en el correo
+        firma_url: firmaUrl
       };
 
       await emailjs.send(
@@ -269,7 +257,6 @@ export default function Home() {
         <meta name="description" content="Alquiler de vehículos de lujo en Santo Domingo" />
       </Head>
 
-      {/* HEADER */}
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 2rem', backgroundColor: '#1e293b', borderBottom: '1px solid #334155' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <img src="/logo.png" alt="Monaco Luxury Logo" style={{ height: '50px', borderRadius: '8px' }} />
@@ -293,13 +280,11 @@ export default function Home() {
         </div>
       </header>
 
-      {/* BANNER PRINCIPAL */}
       <section style={{ textAlign: 'center', padding: '3rem 1rem', backgroundColor: '#1e293b' }}>
         <h2 style={{ fontSize: '2rem', color: '#f8fafc', marginBottom: '0.5rem' }}>Reserva tu Auto en Santo Domingo</h2>
         <p style={{ color: '#94a3b8', maxWidth: '600px', margin: '0 auto' }}>Ubicados en Gazcue. Renta mínima de 3 días. Rápida y segura con la mejor atención personalizada.</p>
       </section>
 
-      {/* CATÁLOGO DE VEHÍCULOS */}
       <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem 1rem' }}>
         <h3 style={{ fontSize: '1.5rem', marginBottom: '1.5rem', color: '#f59e0b', textAlign: 'center' }}>Nuestra Flota</h3>
         
@@ -352,7 +337,6 @@ export default function Home() {
         </div>
       </main>
 
-      {/* MODAL DE RESERVA */}
       {vehiculoSeleccionado && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.8)', display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '1rem', zIndex: 100 }}>
           <div style={{ backgroundColor: '#1e293b', padding: '2rem', borderRadius: '12px', maxWidth: '550px', width: '100%', maxHeight: '90vh', overflowY: 'auto', border: '1px solid #334155' }}>
@@ -363,7 +347,6 @@ export default function Home() {
 
             <form onSubmit={handleSubmitReserva} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               
-              {/* SELECCIÓN CON CALENDARIO */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', backgroundColor: '#0f172a', padding: '1rem', borderRadius: '8px', border: '1px solid #334155' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '0.85rem', color: '#f59e0b', marginBottom: '0.3rem', fontWeight: 'bold' }}>📅 Fecha Inicio:</label>
@@ -389,7 +372,6 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* ALERTA FECHAS OCUPADAS O RENTA MÍNIMA */}
               {dias > 0 && dias < 3 && (
                 <p style={{ color: '#ef4444', fontSize: '0.85rem', margin: 0, fontWeight: 'bold' }}>⚠️ El tiempo mínimo de renta es de 3 días.</p>
               )}
@@ -434,7 +416,6 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* RESUMEN DE COSTOS CON SEGURO INCLUIDO Y CUENTAS */}
               {dias >= 3 && !estaReservado() && (
                 <div style={{ backgroundColor: '#0f172a', padding: '1rem', borderRadius: '8px', border: '1px solid #f59e0b', fontSize: '0.9rem' }}>
                   <p style={{ margin: '0 0 0.3rem 0' }}>Días de Alquiler: <strong>{dias} día(s)</strong></p>
@@ -454,7 +435,6 @@ export default function Home() {
                 </div>
               )}
 
-              {/* RECUADRO PARA FIRMA DIGITAL */}
               <div style={{ backgroundColor: '#0f172a', padding: '1rem', borderRadius: '8px', border: '1px solid #334155' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
                   <label style={{ fontSize: '0.85rem', color: '#f59e0b', fontWeight: 'bold' }}>✍️ Firma Digital del Cliente:</label>
@@ -475,7 +455,6 @@ export default function Home() {
                 <p style={{ margin: '0.3rem 0 0 0', fontSize: '0.75rem', color: '#94a3b8', textAlign: 'center' }}>Firma con tu dedo en la pantalla o usando el mouse.</p>
               </div>
 
-              {/* CHECKBOX CONTRATO */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <input type="checkbox" id="contrato" checked={aceptaContrato} onChange={(e) => setAceptaContrato(e.target.checked)} required />
                 <label htmlFor="contrato" style={{ fontSize: '0.85rem', color: '#cbd5e1' }}>
@@ -495,7 +474,6 @@ export default function Home() {
         </div>
       )}
 
-      {/* MODAL WHATSAPP CON NÚMEROS CORREGIDOS */}
       {mostrarModalWS && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.8)', display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '1rem', zIndex: 110 }}>
           <div style={{ backgroundColor: '#1e293b', padding: '2rem', borderRadius: '12px', maxWidth: '400px', width: '100%', border: '1px solid #334155', textAlign: 'center' }}>
@@ -510,7 +488,6 @@ export default function Home() {
         </div>
       )}
 
-      {/* MODAL CONTRATO */}
       {mostrarModalContrato && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.8)', display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '1rem', zIndex: 120 }}>
           <div style={{ backgroundColor: '#1e293b', padding: '2rem', borderRadius: '12px', maxWidth: '700px', width: '100%', maxHeight: '80vh', overflowY: 'auto', border: '1px solid #334155', textAlign: 'left', fontSize: '0.9rem', lineHeight: '1.5', color: '#cbd5e1' }}>
@@ -562,7 +539,6 @@ export default function Home() {
         </div>
       )}
 
-      {/* FOOTER */}
       <footer style={{ textAlign: 'center', padding: '2rem 1rem', borderTop: '1px solid #334155', color: '#64748b', fontSize: '0.85rem' }}>
         <p>© Monaco Luxury Rent a Car - Gazcue, Santo Domingo. Todos los derechos reservados.</p>
       </footer>

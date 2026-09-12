@@ -90,7 +90,7 @@ MODALIDAD: Aceptación / Términos y Condiciones de Servicio
 6. CONDICIONES ADICIONALES E IMPORTANTES
 6.1. Estado del Vehículo: El CLIENTE declara recibir el vehículo en perfectas condiciones mecánicas, estéticas y de limpieza, y se compromete a devolverlo en las mismas condiciones exactas en que lo recibió.
 6.2. Nivel de Combustible: El vehículo debe ser devuelto con la misma cantidad de combustible con la que fue entregado. De lo contrario, se aplicará un cargo por reabastecimiento.
-6.3. Uso Permitido y Prohibiciones: El vehículo solo podrá ser conducido por el CLIENTE o por conductores adicionales autorizados explícitamente. Queda estrictamente prohibido utilizarlo para subarrendar, transportar carga pesada, participar en carreras, remolcar, realizar actividades ilícitas o conducir bajo los efectos del alcohol o sustancias controladas.
+6.3. Uso Permitido y Prohibiciones: El vehículo solo podrá ser conducido por el CLIENTE o por conductores adicionales autorizados explitícitamente. Queda estrictamente prohibido utilizarlo para subarrendar, transportar carga pesada, participar en carreras, remolcar, realizar actividades ilícitas o conducir bajo los efectos del alcohol o sustancias controladas.
 6.4. Llaves y Neumáticos: La pérdida o daño de las llaves, así como pinchaduras o daños severos en los neumáticos por negligencia, no están cubiertos por ningún seguro y serán facturados directamente al CLIENTE.
 6.5. Asistencia y Reporte de Siniestros: En caso de accidente, avería o robo, el CLIENTE debe notificar inmediatamente a MONACO LUXURY RENT A CAR y a las autoridades policiales en un plazo no mayor a 2 horas.
 
@@ -295,7 +295,7 @@ export default function Home() {
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
       </Head>
 
-      {/* ESTILOS CSS GLOBALES CON DEGRADADO EN BODY */}
+      {/* ESTILOS CSS GLOBALES */}
       <style jsx global>{`
         body {
           background: radial-gradient(circle at top, #1a0002 0%, #050505 50%, #000000 100%) !important;
@@ -378,40 +378,88 @@ export default function Home() {
         </nav>
       </header>
 
-      {/* SECCIÓN HERO Y BUSCADOR */}
-      <section style={{ background: 'linear-gradient(180deg, rgba(26,0,2,0.6) 0%, rgba(13,13,13,0.9) 100%)', padding: '3.5rem 1rem', textAlign: 'center', borderBottom: '1px solid #222' }}>
-        <h2 style={{ fontSize: '2.2rem', color: '#fff', marginBottom: '0.5rem', fontWeight: 'bold' }}>Encuentra el Vehículo Ideal para tu Viaje</h2>
-        <p style={{ color: '#94a3b8', marginBottom: '2rem', fontSize: '1.1rem' }}>Experiencia de movilidad VIP de alto nivel en la República Dominicana</p>
+      {/* SECCIÓN HERO / INICIO CON PRESENTACIÓN COMPLETA */}
+      <section style={{ background: 'linear-gradient(180deg, rgba(30,0,3,0.7) 0%, rgba(10,10,10,0.95) 100%)', padding: '4rem 1.5rem', textAlign: 'center', borderBottom: '1px solid #2a2a2a' }}>
+        <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
+          
+          <h2 style={{ fontSize: '2.8rem', color: '#ffffff', marginBottom: '1.2rem', fontWeight: '900', letterSpacing: '1px', textTransform: 'uppercase' }}>
+            Alquiler de Vehículos en República Dominicana
+          </h2>
+          
+          <p style={{ color: '#e2e8f0', fontSize: '1.2rem', lineHeight: '1.8', maxWidth: '850px', margin: '0 auto 3rem auto', fontWeight: '300' }}>
+            En <strong style={{ color: '#ff0000', fontWeight: 'bold' }}>MONACO LUXURY RENT A CAR</strong> somos una empresa especializada en el alquiler de vehículos de lujo y gama alta, orientada a ofrecer soluciones de movilidad exclusiva, confort y elegancia para ejecutivos, turistas y clientes exigentes.
+          </p>
 
-        <div style={{ maxWidth: '800px', margin: '0 auto', backgroundColor: 'rgba(22, 22, 22, 0.9)', padding: '1.5rem', borderRadius: '12px', border: '1px solid #333', boxShadow: '0 8px 32px rgba(255, 0, 0, 0.08)' }}>
-          <h4 style={{ margin: '0 0 1rem 0', color: '#ff0000', fontSize: '1.1rem', textAlign: 'left' }}>
-            <i className="fa-solid fa-magnifying-glass" style={{ marginRight: '8px' }}></i> Buscar Vehículo por Marca y Modelo
-          </h4>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
-            <div>
-              <label style={{ display: 'block', textTransform: 'uppercase', fontSize: '0.75rem', color: '#aaa', marginBottom: '0.3rem', textAlign: 'left' }}>Marca</label>
-              <select value={busquedaMarca} onChange={(e) => setBusquedaMarca(e.target.value)} style={{ width: '100%' }}>
-                <option value="">Todas las Marcas</option>
-                <option value="KIA">KIA</option>
-                <option value="JEEP">JEEP</option>
-                <option value="CHEVROLET">CHEVROLET</option>
-                <option value="HONDA">HONDA</option>
-                <option value="HYUNDAI">HYUNDAI</option>
-                <option value="AUDI">AUDI</option>
-              </select>
-            </div>
-            <div>
-              <label style={{ display: 'block', textTransform: 'uppercase', fontSize: '0.75rem', color: '#aaa', marginBottom: '0.3rem', textAlign: 'left' }}>Modelo</label>
-              <input type="text" placeholder="Ej: Sportage, Cherokee, Seltos..." value={busquedaModelo} onChange={(e) => setBusquedaModelo(e.target.value)} style={{ width: '100%' }} />
+          {/* TARJETA ¿QUIÉNES SOMOS? */}
+          <div style={{ backgroundColor: 'rgba(18, 18, 18, 0.85)', padding: '2.5rem 2rem', borderRadius: '16px', border: '1px solid #333', boxShadow: '0 10px 30px rgba(0,0,0,0.6)', textAlign: 'left', marginBottom: '3.5rem' }}>
+            <h3 style={{ fontSize: '1.8rem', color: '#ff0000', marginBottom: '1.5rem', textAlign: 'center', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px' }}>
+              ¿Quiénes Somos?
+            </h3>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.8rem' }}>
+              
+              <div style={{ backgroundColor: '#121212', padding: '1.5rem', borderRadius: '10px', borderLeft: '4px solid #ff0000' }}>
+                <h4 style={{ color: '#fff', fontSize: '1.1rem', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <i className="fa-solid fa-gem" style={{ color: '#f59e0b' }}></i> Especialistas en Movilidad Prémium
+                </h4>
+                <p style={{ color: '#cbd5e1', fontSize: '0.95rem', lineHeight: '1.6', margin: 0 }}>
+                  Brindamos un servicio diferencial respaldado por una flota impecable de vehículos modernos y de alta gama, diseñados para garantizar máxima seguridad y estatus en cada trayecto.
+                </p>
+              </div>
+
+              <div style={{ backgroundColor: '#121212', padding: '1.5rem', borderRadius: '10px', borderLeft: '4px solid #ff0000' }}>
+                <h4 style={{ color: '#fff', fontSize: '1.1rem', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <i className="fa-solid fa-[#25D366] fa-user-shield" style={{ color: '#25D366' }}></i> Atención Personalizada e Integral
+                </h4>
+                <p style={{ color: '#cbd5e1', fontSize: '0.95rem', lineHeight: '1.6', margin: 0 }}>
+                  Nos enfocamos en satisfacer las necesidades individuales de cada cliente, ofreciendo entregas personalizadas en aeropuertos, hoteles y residencias, además de atención continua y procesos de reserva fluidos.
+                </p>
+              </div>
+
+              <div style={{ backgroundColor: '#121212', padding: '1.5rem', borderRadius: '10px', borderLeft: '4px solid #ff0000' }}>
+                <h4 style={{ color: '#fff', fontSize: '1.1rem', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <i className="fa-solid fa-handshake" style={{ color: '#3b82f6' }}></i> Compromiso y Transparencia
+                </h4>
+                <p style={{ color: '#cbd5e1', fontSize: '0.95rem', lineHeight: '1.6', margin: 0 }}>
+                  Operamos bajo estándares internacionales de servicio, respaldados por políticas contractuales claras, mantenimientos rigurosos y opciones de cobertura para asegurar una experiencia sin inconvenientes.
+                </p>
+              </div>
+
             </div>
           </div>
+
+          {/* BUSCADOR DE VEHÍCULOS */}
+          <div style={{ backgroundColor: 'rgba(22, 22, 22, 0.9)', padding: '1.8rem', borderRadius: '12px', border: '1px solid #333', boxShadow: '0 8px 32px rgba(255, 0, 0, 0.08)' }}>
+            <h4 style={{ margin: '0 0 1rem 0', color: '#f59e0b', fontSize: '1.1rem', textAlign: 'left', fontWeight: 'bold' }}>
+              <i className="fa-solid fa-magnifying-glass" style={{ marginRight: '8px' }}></i> BUSCAR VEHÍCULO POR MARCA Y MODELO
+            </h4>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
+              <div>
+                <label style={{ display: 'block', textTransform: 'uppercase', fontSize: '0.75rem', color: '#aaa', marginBottom: '0.3rem', textAlign: 'left' }}>Marca</label>
+                <select value={busquedaMarca} onChange={(e) => setBusquedaMarca(e.target.value)} style={{ width: '100%' }}>
+                  <option value="">Todas las Marcas</option>
+                  <option value="KIA">KIA</option>
+                  <option value="JEEP">JEEP</option>
+                  <option value="CHEVROLET">CHEVROLET</option>
+                  <option value="HONDA">HONDA</option>
+                  <option value="HYUNDAI">HYUNDAI</option>
+                  <option value="AUDI">AUDI</option>
+                </select>
+              </div>
+              <div>
+                <label style={{ display: 'block', textTransform: 'uppercase', fontSize: '0.75rem', color: '#aaa', marginBottom: '0.3rem', textAlign: 'left' }}>Modelo</label>
+                <input type="text" placeholder="Ej: Sportage, Cherokee, Seltos..." value={busquedaModelo} onChange={(e) => setBusquedaModelo(e.target.value)} style={{ width: '100%' }} />
+              </div>
+            </div>
+          </div>
+
         </div>
       </section>
 
       {/* SECCIÓN FLOTA DE VEHÍCULOS */}
       <main id="flota" style={{ maxWidth: '1200px', margin: '0 auto', padding: '4rem 1rem' }}>
-        <h3 style={{ color: '#ffffff', textAlign: 'center', marginBottom: '2.5rem', fontSize: '1.8rem', letterSpacing: '1px' }}>
-          NUESTRA FLOTA DE LUJO
+        <h3 style={{ color: '#ffffff', textAlign: 'center', marginBottom: '2.5rem', fontSize: '1.8rem', letterSpacing: '1px', fontWeight: 'bold' }}>
+          NUESTRA FLOTA DISPONIBLE
         </h3>
 
         {vehiculosFiltrados.length === 0 ? (

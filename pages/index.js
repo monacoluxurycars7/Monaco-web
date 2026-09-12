@@ -49,17 +49,6 @@ const vehiculos = [
   }
 ];
 
-const marcasDestacadas = [
-  { nombre: 'CHEVROLET', logo: 'fa-solid fa-car-side' },
-  { nombre: 'KIA', logo: 'fa-solid fa-car' },
-  { nombre: 'AUDI', logo: 'fa-solid fa-shield-halved' },
-  { nombre: 'HONDA', logo: 'fa-solid fa-gauge-high' },
-  { nombre: 'HYUNDAI', logo: 'fa-solid fa-bolt' },
-  { nombre: 'JEEP', logo: 'fa-solid fa-truck-monster' },
-  { nombre: 'MERCEDES', logo: 'fa-solid fa-crown' },
-  { nombre: 'BMW', logo: 'fa-solid fa-star' }
-];
-
 const DATOS_BANCARIOS = `
 CUENTAS BANCARIAS PARA TRANSFERENCIA / RESERVA ($150 USD):
 • Banco Popular Dominicano (Pesos DOP): Cta. Ahorros N° 123456789
@@ -212,7 +201,6 @@ export default function Home() {
   const depositoGarantia = seguroFull ? 0 : 400; 
   const costoTotal = costoRenta + costoSeguro + depositoGarantia;
 
-  // Filtrado de la flota según la búsqueda
   const vehiculosFiltrados = vehiculos.filter((v) => {
     const coincideMarca = busquedaMarca === '' || v.marca.toLowerCase().includes(busquedaMarca.toLowerCase());
     const coincideModelo = busquedaModelo === '' || v.modelo.toLowerCase().includes(busquedaModelo.toLowerCase()) || v.nombre.toLowerCase().includes(busquedaModelo.toLowerCase());
@@ -295,16 +283,23 @@ export default function Home() {
   };
 
   return (
-    <div style={{ backgroundColor: '#050505', color: '#f8fafc', minHeight: '100vh', fontFamily: 'Arial, sans-serif' }}>
+    <div style={{ 
+      background: 'radial-gradient(circle at top, #1a0002 0%, #050505 50%, #000000 100%)', 
+      backgroundAttachment: 'fixed',
+      color: '#f8fafc', 
+      minHeight: '100vh', 
+      fontFamily: 'Arial, sans-serif' 
+    }}>
       <Head>
         <title>Monaco Luxury Rent a Car</title>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
       </Head>
 
-      {/* INSERCIÓN DE ESTILOS CSS GLOBALES */}
+      {/* ESTILOS CSS GLOBALES CON DEGRADADO EN BODY */}
       <style jsx global>{`
         body {
-          background-color: #050505 !important;
+          background: radial-gradient(circle at top, #1a0002 0%, #050505 50%, #000000 100%) !important;
+          background-attachment: fixed !important;
           color: #f8fafc;
           margin: 0;
           padding: 0;
@@ -354,8 +349,8 @@ export default function Home() {
         }
       `}</style>
       
-      {/* HEADER PRINCIPAL CON NAVEGACIÓN */}
-      <header id="inicio" style={{ display: 'flex', flexDirection: 'column', backgroundColor: '#0a0a0a', borderBottom: '1px solid #222', position: 'sticky', top: 0, zIndex: 90 }}>
+      {/* HEADER PRINCIPAL */}
+      <header id="inicio" style={{ display: 'flex', flexDirection: 'column', backgroundColor: 'rgba(10, 10, 10, 0.95)', backdropFilter: 'blur(10px)', borderBottom: '1px solid #222', position: 'sticky', top: 0, zIndex: 90 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 2rem', flexWrap: 'wrap', gap: '1rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
             <img src="/logo.png" alt="Monaco Logo" style={{ height: '40px', objectFit: 'contain' }} />
@@ -372,7 +367,7 @@ export default function Home() {
         </div>
 
         {/* MENÚ DE NAVEGACIÓN */}
-        <nav style={{ backgroundColor: '#111', borderTop: '1px solid #222', padding: '0.75rem 2rem' }}>
+        <nav style={{ backgroundColor: 'rgba(17, 17, 17, 0.8)', borderTop: '1px solid #222', padding: '0.75rem 2rem' }}>
           <ul style={{ display: 'flex', gap: '2rem', listStyle: 'none', margin: 0, padding: 0, justifyContent: 'center', flexWrap: 'wrap' }}>
             <li><a href="#inicio" style={{ color: '#fff', textDecoration: 'none', fontWeight: 'bold', fontSize: '0.9rem' }}>INICIO</a></li>
             <li><a href="#flota" style={{ color: '#fff', textDecoration: 'none', fontWeight: 'bold', fontSize: '0.9rem' }}>NUESTRA FLOTA</a></li>
@@ -383,13 +378,12 @@ export default function Home() {
         </nav>
       </header>
 
-      {/* SECCIÓN HERO Y BUSCADOR PRINCIPAL */}
-      <section style={{ backgroundColor: '#0d0d0d', padding: '3rem 1rem', textAlign: 'center', borderBottom: '1px solid #222' }}>
-        <h2 style={{ fontSize: '2rem', color: '#fff', marginBottom: '0.5rem' }}>Encuentra el Vehículo Ideal para tu Viaje</h2>
-        <p style={{ color: '#94a3b8', marginBottom: '2rem' }}>Experiencia de movilidad VIP de alto nivel en la República Dominicana</p>
+      {/* SECCIÓN HERO Y BUSCADOR */}
+      <section style={{ background: 'linear-gradient(180deg, rgba(26,0,2,0.6) 0%, rgba(13,13,13,0.9) 100%)', padding: '3.5rem 1rem', textAlign: 'center', borderBottom: '1px solid #222' }}>
+        <h2 style={{ fontSize: '2.2rem', color: '#fff', marginBottom: '0.5rem', fontWeight: 'bold' }}>Encuentra el Vehículo Ideal para tu Viaje</h2>
+        <p style={{ color: '#94a3b8', marginBottom: '2rem', fontSize: '1.1rem' }}>Experiencia de movilidad VIP de alto nivel en la República Dominicana</p>
 
-        {/* CUBÍCULO DE BÚSQUEDA DE VEHÍCULOS */}
-        <div style={{ maxWidth: '800px', margin: '0 auto', backgroundColor: '#161616', padding: '1.5rem', borderRadius: '12px', border: '1px solid #333', boxShadow: '0 4px 20px rgba(0,0,0,0.5)' }}>
+        <div style={{ maxWidth: '800px', margin: '0 auto', backgroundColor: 'rgba(22, 22, 22, 0.9)', padding: '1.5rem', borderRadius: '12px', border: '1px solid #333', boxShadow: '0 8px 32px rgba(255, 0, 0, 0.08)' }}>
           <h4 style={{ margin: '0 0 1rem 0', color: '#ff0000', fontSize: '1.1rem', textAlign: 'left' }}>
             <i className="fa-solid fa-magnifying-glass" style={{ marginRight: '8px' }}></i> Buscar Vehículo por Marca y Modelo
           </h4>
@@ -415,8 +409,8 @@ export default function Home() {
       </section>
 
       {/* SECCIÓN FLOTA DE VEHÍCULOS */}
-      <main id="flota" style={{ maxWidth: '1200px', margin: '0 auto', padding: '3rem 1rem' }}>
-        <h3 style={{ color: '#ffffff', textAlign: 'center', marginBottom: '2rem', fontSize: '1.8rem', letterSpacing: '1px' }}>
+      <main id="flota" style={{ maxWidth: '1200px', margin: '0 auto', padding: '4rem 1rem' }}>
+        <h3 style={{ color: '#ffffff', textAlign: 'center', marginBottom: '2.5rem', fontSize: '1.8rem', letterSpacing: '1px' }}>
           NUESTRA FLOTA DE LUJO
         </h3>
 
@@ -426,12 +420,11 @@ export default function Home() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2rem' }}>
             {vehiculosFiltrados.map((v) => {
               return (
-                <div key={v.id} style={{ backgroundColor: '#111', borderRadius: '12px', padding: '1.5rem', border: '1px solid #222', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                <div key={v.id} style={{ backgroundColor: 'rgba(17, 17, 17, 0.85)', borderRadius: '12px', padding: '1.5rem', border: '1px solid #2a2a2a', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxShadow: '0 4px 20px rgba(0,0,0,0.4)' }}>
                   <div>
                     <img src={v.imagen} alt={v.nombre} style={{ width: '100%', height: '200px', objectFit: 'cover', borderRadius: '8px' }} />
                     <h4 style={{ color: '#fff', margin: '1rem 0 0.5rem 0', fontSize: '1.2rem' }}>{v.nombre}</h4>
                     
-                    {/* ESPECIFICACIONES TÉCNICAS */}
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', backgroundColor: '#1a1a1a', padding: '0.75rem', borderRadius: '6px', marginBottom: '1rem', border: '1px solid #2a2a2a', fontSize: '0.82rem' }}>
                       <span style={{ color: '#cbd5e1' }}><i className="fa-solid fa-gas-pump" style={{ color: '#ff0000', marginRight: '5px' }}></i> {v.combustible}</span>
                       <span style={{ color: '#cbd5e1' }}><i className="fa-solid fa-users" style={{ color: '#ff0000', marginRight: '5px' }}></i> {v.pasajeros}</span>
@@ -439,7 +432,7 @@ export default function Home() {
                       <span style={{ color: '#cbd5e1' }}><i className="fa-solid fa-calendar" style={{ color: '#ff0000', marginRight: '5px' }}></i> Año {v.anio}</span>
                     </div>
 
-                    <div style={{ fontSize: '0.9rem', color: '#cbd5e1', marginBottom: '1rem', backgroundColor: '#000', padding: '0.75rem', borderRadius: '6px', border: '1px solid #222' }}>
+                    <div style={{ fontSize: '0.9rem', color: '#cbd5e1', marginBottom: '1rem', backgroundColor: '#090909', padding: '0.75rem', borderRadius: '6px', border: '1px solid #222' }}>
                       <p style={{ margin: '0 0 0.25rem 0', color: '#ff0000', fontWeight: 'bold' }}>Tarifas por Día (Mínimo 3 Días):</p>
                       <p style={{ margin: '0 0 0.15rem 0' }}>• 3-5 Días: USD ${v.precios.base}/día</p>
                       <p style={{ margin: '0 0 0.15rem 0' }}>• 6-10 Días: USD ${v.precios.medio}/día</p>
@@ -581,138 +574,26 @@ export default function Home() {
         </div>
       )}
 
-      {/* MARCAS DE VEHÍCULOS (PRESENTACIÓN SLIDER / GRID) */}
-      <section style={{ backgroundColor: '#080808', padding: '3rem 1rem', borderTop: '1px solid #222', borderBottom: '1px solid #222', textAlign: 'center' }}>
-        <h4 style={{ color: '#aaa', textTransform: 'uppercase', letterSpacing: '2px', fontSize: '0.9rem', marginBottom: '2rem' }}>Marcas que integran nuestro estándar de flota</h4>
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '2.5rem', flexWrap: 'wrap', maxWidth: '1000px', margin: '0 auto' }}>
-          {marcasDestacadas.map((m, idx) => (
-            <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', opacity: 0.8, cursor: 'default' }}>
-              <i className={m.logo} style={{ fontSize: '2rem', color: '#ff0000' }}></i>
-              <span style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#fff', letterSpacing: '1px' }}>{m.nombre}</span>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* SECCIÓN SOBRE NOSOTROS */}
-      <section id="nosotros" style={{ maxWidth: '1200px', margin: '0 auto', padding: '4rem 1rem' }}>
-        <h3 style={{ color: '#ff0000', textAlign: 'center', fontSize: '1.8rem', marginBottom: '2.5rem', letterSpacing: '1px' }}>SOBRE NOSOTROS</h3>
-        
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem', marginBottom: '2rem' }}>
-          <div style={{ backgroundColor: '#111', border: '1px solid #222', padding: '2rem', borderRadius: '12px' }}>
-            <h4 style={{ color: '#fff', fontSize: '1.3rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <i className="fa-solid fa-bullseye" style={{ color: '#ff0000' }}></i> Misión
-            </h4>
-            <p style={{ color: '#cbd5e1', lineHeight: '1.6', fontSize: '0.95rem', margin: 0 }}>
-              Proporcionar una experiencia de movilidad de alto nivel mediante el alquiler de vehículos de lujo y gama alta, garantizando puntualidad, seguridad y una atención personalizada que supere las expectativas de clientes ejecutivos y particulares.
-            </p>
-          </div>
-
-          <div style={{ backgroundColor: '#111', border: '1px solid #222', padding: '2rem', borderRadius: '12px' }}>
-            <h4 style={{ color: '#fff', fontSize: '1.3rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <i className="fa-solid fa-eye" style={{ color: '#ff0000' }}></i> Visión
-            </h4>
-            <p style={{ color: '#cbd5e1', lineHeight: '1.6', fontSize: '0.95rem', margin: 0 }}>
-              Consolidarse como la empresa líder y referente en el mercado de renta de vehículos de lujo, reconocida por la excelencia operativa, la calidad de su flota y la confianza de sus clientes a nivel regional e internacional.
-            </p>
-          </div>
-        </div>
-
-        <div style={{ backgroundColor: '#111', border: '1px solid #222', padding: '2rem', borderRadius: '12px' }}>
-          <h4 style={{ color: '#fff', fontSize: '1.3rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <i className="fa-solid fa-gem" style={{ color: '#ff0000' }}></i> Valores Corporativos
-          </h4>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem' }}>
-            <div>
-              <h5 style={{ color: '#ff0000', margin: '0 0 0.5rem 0', fontSize: '1rem' }}>Excelencia</h5>
-              <p style={{ color: '#cbd5e1', fontSize: '0.9rem', margin: 0 }}>Compromiso constante con la máxima calidad en la flota de vehículos y en el trato al cliente.</p>
-            </div>
-            <div>
-              <h5 style={{ color: '#ff0000', margin: '0 0 0.5rem 0', fontSize: '1rem' }}>Integridad y Transparencia</h5>
-              <p style={{ color: '#cbd5e1', fontSize: '0.9rem', margin: 0 }}>Claridad total en las políticas de alquiler, términos contractuales y responsabilidad contractual.</p>
-            </div>
-            <div>
-              <h5 style={{ color: '#ff0000', margin: '0 0 0.5rem 0', fontSize: '1rem' }}>Puntualidad y Confiabilidad</h5>
-              <p style={{ color: '#cbd5e1', fontSize: '0.9rem', margin: 0 }}>Respeto estricto por el tiempo de los usuarios en la entrega y recepción de las unidades.</p>
-            </div>
-            <div>
-              <h5 style={{ color: '#ff0000', margin: '0 0 0.5rem 0', fontSize: '1rem' }}>Seguridad y Privacidad</h5>
-              <p style={{ color: '#cbd5e1', fontSize: '0.9rem', margin: 0 }}>Protección total de los datos de los clientes y un mantenimiento minucioso de cada vehículo para viajes seguros.</p>
-            </div>
-            <div>
-              <h5 style={{ color: '#ff0000', margin: '0 0 0.5rem 0', fontSize: '1rem' }}>Exclusividad</h5>
-              <p style={{ color: '#cbd5e1', fontSize: '0.9rem', margin: 0 }}>Enfoque orientado a ofrecer detalles de alto confort, estética impecable y un servicio adaptable a necesidades específicas.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* SECCIÓN PREGUNTAS FRECUENTES (FAQ) */}
-      <section id="faq" style={{ backgroundColor: '#0a0a0a', padding: '4rem 1rem', borderTop: '1px solid #222' }}>
-        <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
-          <h3 style={{ color: '#ff0000', textAlign: 'center', fontSize: '1.8rem', marginBottom: '2.5rem', letterSpacing: '1px' }}>PREGUNTAS FRECUENTES</h3>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            <div style={{ backgroundColor: '#111', border: '1px solid #222', padding: '1.5rem', borderRadius: '10px' }}>
-              <h4 style={{ color: '#fff', margin: '0 0 1rem 0', fontSize: '1.1rem', borderBottom: '1px solid #333', paddingBottom: '0.5rem' }}>Requisitos y Reservas</h4>
-              <p style={{ color: '#38bdf8', fontWeight: 'bold', margin: '0.5rem 0 0.25rem 0' }}>¿Cuáles son los requisitos para alquilar un vehículo?</p>
-              <p style={{ color: '#cbd5e1', margin: '0 0 1rem 0', fontSize: '0.9rem' }}>Es necesario presentar documento de identidad o pasaporte vigente, licencia de conducir válida y el pago de reserva.</p>
-
-              <p style={{ color: '#38bdf8', fontWeight: 'bold', margin: '0.5rem 0 0.25rem 0' }}>¿Cuál es la edad mínima para rentar?</p>
-              <p style={{ color: '#cbd5e1', margin: '0 0 1rem 0', fontSize: '0.9rem' }}>La edad mínima requerida es de 25 años. Conductores jóvenes pueden aplicar bajo condiciones especiales.</p>
-
-              <p style={{ color: '#38bdf8', fontWeight: 'bold', margin: '0.5rem 0 0.25rem 0' }}>¿Cómo se confirma una reserva?</p>
-              <p style={{ color: '#cbd5e1', margin: 0, fontSize: '0.9rem' }}>La reserva queda confirmada tras completar la firma digital del acuerdo y realizar el depósito inicial de $150 USD.</p>
-            </div>
-
-            <div style={{ backgroundColor: '#111', border: '1px solid #222', padding: '1.5rem', borderRadius: '10px' }}>
-              <h4 style={{ color: '#fff', margin: '0 0 1rem 0', fontSize: '1.1rem', borderBottom: '1px solid #333', paddingBottom: '0.5rem' }}>Pagos, Depósitos y Cobertura</h4>
-              <p style={{ color: '#38bdf8', fontWeight: 'bold', margin: '0.5rem 0 0.25rem 0' }}>¿Por qué se requiere un depósito de garantía y cuándo se devuelve?</p>
-              <p style={{ color: '#cbd5e1', margin: '0 0 1rem 0', fontSize: '0.9rem' }}>El depósito de $400 USD garantiza la cobertura de posibles eventualidades y se devuelve al finalizar la inspección del vehículo. Si adquieres Seguro Full, no pagas este depósito.</p>
-
-              <p style={{ color: '#38bdf8', fontWeight: 'bold', margin: '0.5rem 0 0.25rem 0' }}>¿Qué incluyen las opciones de seguro?</p>
-              <p style={{ color: '#cbd5e1', margin: '0 0 1rem 0', fontSize: '0.9rem' }}>Ofrecemos seguro de tránsito básico obligatorio y opción de Seguro Full (cobertura total contra daños colisionables y exención de depósito).</p>
-
-              <p style={{ color: '#38bdf8', fontWeight: 'bold', margin: '0.5rem 0 0.25rem 0' }}>¿Quién es responsable de las multas de tránsito?</p>
-              <p style={{ color: '#cbd5e1', margin: 0, fontSize: '0.9rem' }}>El titular del alquiler es el único responsable de cualquier infracción o multa incurrida durante el periodo de renta.</p>
-            </div>
-
-            <div style={{ backgroundColor: '#111', border: '1px solid #222', padding: '1.5rem', borderRadius: '10px' }}>
-              <h4 style={{ color: '#fff', margin: '0 0 1rem 0', fontSize: '1.1rem', borderBottom: '1px solid #333', paddingBottom: '0.5rem' }}>Uso y Devolución del Vehículo</h4>
-              <p style={{ color: '#38bdf8', fontWeight: 'bold', margin: '0.5rem 0 0.25rem 0' }}>¿Se puede entregar o devolver el vehículo en el aeropuerto o en una ubicación personalizada?</p>
-              <p style={{ color: '#cbd5e1', margin: '0 0 1rem 0', fontSize: '0.9rem' }}>Sí, contamos con servicio de entrega VIP y recogida personalizada en aeropuertos, hoteles o residencias previa coordinación.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* FOOTER / CONTACTO */}
-      <footer id="contacto" style={{ backgroundColor: '#000', borderTop: '1px solid #222', padding: '3rem 1rem', textAlign: 'center', color: '#888', fontSize: '0.9rem' }}>
-        <p style={{ color: '#fff', fontWeight: 'bold', fontSize: '1.1rem', marginBottom: '0.5rem' }}>MONACO LUXURY RENT A CAR</p>
-        <p style={{ margin: '0 0 1rem 0' }}>República Dominicana | Atención VIP 24/7</p>
-        <p style={{ margin: 0, fontSize: '0.8rem', color: '#555' }}>© {new Date().getFullYear()} Monaco Luxury Rent a Car. Todos los derechos reservados.</p>
-      </footer>
-
-      {/* MODAL WHATSAPP */}
+      {/* MODAL CONTACTO WHATSAPP */}
       {mostrarModalWS && (
         <div className="modal-overlay">
           <div className="modal-content" style={{ textAlign: 'center' }}>
-            <h3 style={{ color: '#25D366' }}><i className="fa-brands fa-whatsapp"></i> Atención VIP WhatsApp</h3>
-            <p style={{ color: '#ccc' }}>Elige un representante para asistencia personalizada:</p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', margin: '1.5rem 0' }}>
-              <a href="https://wa.me/18090000000?text=Hola,%20deseo%20información%20sobre%20un%20vehículo" target="_blank" rel="noopener noreferrer" style={{ backgroundColor: '#25D366', color: '#fff', textDecoration: 'none', padding: '0.75rem', borderRadius: '8px', fontWeight: 'bold' }}>
-                Contactar Asesor 1
-              </a>
-              <a href="https://wa.me/18090000001?text=Hola,%20deseo%20información%20sobre%20un%20vehículo" target="_blank" rel="noopener noreferrer" style={{ backgroundColor: '#25D366', color: '#fff', textDecoration: 'none', padding: '0.75rem', borderRadius: '8px', fontWeight: 'bold' }}>
-                Contactar Asesor 2
-              </a>
-            </div>
-            <button onClick={() => setMostrarModalWS(false)} style={{ padding: '0.5rem 1rem', backgroundColor: '#333', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
+            <h3 style={{ color: '#25D366' }}><i className="fa-brands fa-whatsapp"></i> Atención VIP por WhatsApp</h3>
+            <p>Comunícate directamente con nuestros ejecutivos para atención inmediata o consultas personalizadas.</p>
+            <a href="https://wa.me/18090000000" target="_blank" rel="noopener noreferrer" style={{ display: 'block', width: '100%', padding: '0.75rem', backgroundColor: '#25D366', color: '#fff', textDecoration: 'none', borderRadius: '6px', fontWeight: 'bold', margin: '1rem 0' }}>
+              Iniciar Chat en WhatsApp
+            </a>
+            <button onClick={() => setMostrarModalWS(false)} style={{ width: '100%', padding: '0.75rem', backgroundColor: '#333', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
               Cerrar
             </button>
           </div>
         </div>
       )}
+
+      {/* FOOTER */}
+      <footer style={{ borderTop: '1px solid #222', padding: '2rem 1rem', textAlign: 'center', color: '#666', backgroundColor: '#050505' }}>
+        <p style={{ margin: 0, fontSize: '0.9rem' }}>&copy; {new Date().getFullYear()} MONACO LUXURY RENT A CAR. Todos los derechos reservados.</p>
+      </footer>
     </div>
   );
 }

@@ -6,7 +6,7 @@ const vehiculos = [
     id: 'kia-sportage-lx-2020',
     nombre: 'Kia Sportage LX 2020',
     imagen: '/kia.jpeg',
-    precios: { base: 60, medio: 55, largo: 50 }
+    precios: { base: 55, medio: 50, largo: 45 }
   },
   {
     id: 'jeep-cherokee-latitude-2019',

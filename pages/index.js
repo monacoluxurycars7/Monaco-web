@@ -24,7 +24,7 @@ const vehiculos = [
   {
     id: 'kia-seltos-2021',
     nombre: 'Kia Seltos 2021',
-    imagen: '/kia.jpeg',
+    imagen: 'kiaseltos.jpn.jpeg',
     precios: { base: 55, medio: 50, largo: 45 },
     seguroFullPrecios: { corto: 40, medio: 35, largo: 30 },
     disponible: true

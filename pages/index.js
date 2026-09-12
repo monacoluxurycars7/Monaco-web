@@ -42,7 +42,7 @@ const vehiculos = [
     combustible: 'Gasolina',
     pasajeros: '5 Personas',
     transmision: 'Automática',
-    imagen: 'kiaseltos.jpn.jpeg',
+    imagen: '/kiaseltos.jpn.jpeg',
     precios: { base: 55, medio: 50, largo: 45 },
     seguroFullPrecios: { corto: 40, medio: 35, largo: 30 },
     disponible: true
@@ -209,7 +209,7 @@ export default function Home() {
   const precioSeguroPorDia = vehiculoSeleccionado && seguroFull ? (dias >= 11 ? vehiculoSeleccionado.seguroFullPrecios.largo : dias >= 5 ? vehiculoSeleccionado.seguroFullPrecios.medio : vehiculoSeleccionado.seguroFullPrecios.corto) : 0;
   const costoRenta = dias * precioPorDia;
   const costoSeguro = dias * precioSeguroPorDia;
-  const depositoGarantia = 400; 
+  const depositoGarantia = seguroFull ? 0 : 400; 
   const costoTotal = costoRenta + costoSeguro + depositoGarantia;
 
   // Filtrado de la flota según la búsqueda
@@ -295,14 +295,67 @@ export default function Home() {
   };
 
   return (
-    <div style={{ backgroundColor: '#000000', color: '#f8fafc', minHeight: '100vh', fontFamily: 'Arial, sans-serif' }}>
+    <div style={{ backgroundColor: '#050505', color: '#f8fafc', minHeight: '100vh', fontFamily: 'Arial, sans-serif' }}>
       <Head>
         <title>Monaco Luxury Rent a Car</title>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
       </Head>
+
+      {/* INSERCIÓN DE ESTILOS CSS GLOBALES */}
+      <style jsx global>{`
+        body {
+          background-color: #050505 !important;
+          color: #f8fafc;
+          margin: 0;
+          padding: 0;
+        }
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"],
+        input[type="date"],
+        select,
+        textarea {
+          background-color: #121212 !important;
+          color: #ffffff !important;
+          border: 1px solid #333333 !important;
+          border-radius: 6px;
+          padding: 0.75rem;
+          outline: none;
+        }
+        input:focus, select:focus, textarea:focus {
+          border-color: #ff0000 !important;
+          box-shadow: 0 0 8px rgba(255, 0, 0, 0.4);
+        }
+        ::-webkit-calendar-picker-indicator {
+          filter: invert(1);
+        }
+        .modal-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100vw;
+          height: 100vh;
+          background-color: rgba(0, 0, 0, 0.85);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          z-index: 1000;
+        }
+        .modal-content {
+          background-color: #111;
+          border: 1px solid #333;
+          border-radius: 12px;
+          padding: 2rem;
+          max-width: 600px;
+          width: 90%;
+          max-height: 90vh;
+          overflow-y: auto;
+          color: #fff;
+        }
+      `}</style>
       
       {/* HEADER PRINCIPAL CON NAVEGACIÓN */}
-      <header id="inicio" style={{ display: 'flex', flexDirection: 'column', backgroundColor: '#0a0a0a', borderBottom: '1px solid #222', sticky: 'top', position: 'sticky', top: 0, zIndex: 90 }}>
+      <header id="inicio" style={{ display: 'flex', flexDirection: 'column', backgroundColor: '#0a0a0a', borderBottom: '1px solid #222', position: 'sticky', top: 0, zIndex: 90 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 2rem', flexWrap: 'wrap', gap: '1rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
             <img src="/logo.png" alt="Monaco Logo" style={{ height: '40px', objectFit: 'contain' }} />
@@ -343,7 +396,7 @@ export default function Home() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
             <div>
               <label style={{ display: 'block', textTransform: 'uppercase', fontSize: '0.75rem', color: '#aaa', marginBottom: '0.3rem', textAlign: 'left' }}>Marca</label>
-              <select value={busquedaMarca} onChange={(e) => setBusquedaMarca(e.target.value)} style={{ width: '100%', padding: '0.75rem', backgroundColor: '#000', color: '#fff', border: '1px solid #444', borderRadius: '6px' }}>
+              <select value={busquedaMarca} onChange={(e) => setBusquedaMarca(e.target.value)} style={{ width: '100%' }}>
                 <option value="">Todas las Marcas</option>
                 <option value="KIA">KIA</option>
                 <option value="JEEP">JEEP</option>
@@ -355,7 +408,7 @@ export default function Home() {
             </div>
             <div>
               <label style={{ display: 'block', textTransform: 'uppercase', fontSize: '0.75rem', color: '#aaa', marginBottom: '0.3rem', textAlign: 'left' }}>Modelo</label>
-              <input type="text" placeholder="Ej: Sportage, Cherokee, Seltos..." value={busquedaModelo} onChange={(e) => setBusquedaModelo(e.target.value)} style={{ width: '100%', padding: '0.75rem', backgroundColor: '#000', color: '#fff', border: '1px solid #444', borderRadius: '6px' }} />
+              <input type="text" placeholder="Ej: Sportage, Cherokee, Seltos..." value={busquedaModelo} onChange={(e) => setBusquedaModelo(e.target.value)} style={{ width: '100%' }} />
             </div>
           </div>
         </div>
@@ -403,6 +456,130 @@ export default function Home() {
           </div>
         )}
       </main>
+
+      {/* FORMULARIO MODAL DE RESERVA */}
+      {vehiculoSeleccionado && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3 style={{ color: '#ff0000', marginTop: 0 }}>Reservar {vehiculoSeleccionado.nombre}</h3>
+            <form onSubmit={handleSubmitReserva} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.8rem', color: '#aaa', marginBottom: '0.2rem' }}>Tipo de Cliente:</label>
+                <select value={tipoCliente} onChange={(e) => setTipoCliente(e.target.value)} style={{ width: '100%' }}>
+                  <option value="extranjero">Extranjero (Requiere Pasaporte)</option>
+                  <option value="nacional">Nacional / Residente (Cédula + Licencia)</option>
+                </select>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.8rem', color: '#aaa', marginBottom: '0.2rem' }}>Fecha de Inicio:</label>
+                  <input type="date" value={fechaInicio} onChange={(e) => setFechaInicio(e.target.value)} required style={{ width: '100%' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.8rem', color: '#aaa', marginBottom: '0.2rem' }}>Fecha de Fin:</label>
+                  <input type="date" value={fechaFin} onChange={(e) => setFechaFin(e.target.value)} required style={{ width: '100%' }} />
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.8rem', color: '#aaa', marginBottom: '0.2rem' }}>Nombre Completo:</label>
+                <input type="text" value={nombre} onChange={(e) => setNombre(e.target.value)} required placeholder="Juan Pérez" style={{ width: '100%' }} />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.8rem', color: '#aaa', marginBottom: '0.2rem' }}>Dirección de Residencia en RD:</label>
+                <input type="text" value={direccionRD} onChange={(e) => setDireccionRD(e.target.value)} required placeholder="Ej. Av. Winston Churchill, Cap Cana, etc." style={{ width: '100%' }} />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.8rem', color: '#aaa', marginBottom: '0.2rem' }}>Teléfono / WhatsApp:</label>
+                  <input type="tel" value={telefono} onChange={(e) => setTelefono(e.target.value)} required placeholder="+1 809 000 0000" style={{ width: '100%' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.8rem', color: '#aaa', marginBottom: '0.2rem' }}>Correo Electrónico:</label>
+                  <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="cliente@email.com" style={{ width: '100%' }} />
+                </div>
+              </div>
+
+              <div style={{ backgroundColor: '#1a1a1a', padding: '1rem', borderRadius: '8px', border: '1px solid #333' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                  <input type="checkbox" checked={seguroFull} onChange={(e) => setSeguroFull(e.target.checked)} />
+                  <span style={{ fontWeight: 'bold', color: '#f59e0b' }}>Añadir Seguro Full / Cobertura Total</span>
+                </label>
+                <p style={{ fontSize: '0.8rem', color: '#aaa', margin: '0.5rem 0 0 0' }}>
+                  Añade cobertura completa contra accidentes y quedas exento de dejar el depósito de $400 USD.
+                </p>
+              </div>
+
+              {dias > 0 && (
+                <div style={{ backgroundColor: '#000', padding: '1rem', borderRadius: '8px', border: '1px solid #222', fontSize: '0.9rem' }}>
+                  <p style={{ margin: '0 0 0.5rem 0', color: '#ff0000', fontWeight: 'bold' }}>Resumen de Costos ({dias} Días):</p>
+                  <p style={{ margin: '0 0 0.2rem 0' }}>• Renta: USD ${costoRenta}</p>
+                  {seguroFull && <p style={{ margin: '0 0 0.2rem 0' }}>• Seguro Full: USD ${costoSeguro}</p>}
+                  {!seguroFull && <p style={{ margin: '0 0 0.2rem 0', color: '#aaa' }}>• Depósito de Garantía: USD $400 (Reembolsable)</p>}
+                  <p style={{ margin: '0.5rem 0 0 0', fontWeight: 'bold', fontSize: '1.1rem', color: '#25D366' }}>Total Estimado: USD ${costoTotal}</p>
+                </div>
+              )}
+
+              {/* FIRMA DIGITAL */}
+              <div>
+                <label style={{ display: 'block', fontSize: '0.8rem', color: '#aaa', marginBottom: '0.4rem' }}>Firma Digital del Cliente:</label>
+                <div style={{ border: '1px solid #444', backgroundColor: '#fff', borderRadius: '6px', overflow: 'hidden' }}>
+                  <canvas
+                    ref={canvasRef}
+                    width={500}
+                    height={120}
+                    onMouseDown={iniciarDibujo}
+                    onMouseMove={dibujar}
+                    onMouseUp={detenerDibujo}
+                    onMouseLeave={detenerDibujo}
+                    onTouchStart={iniciarDibujo}
+                    onTouchMove={dibujar}
+                    onTouchEnd={detenerDibujo}
+                    style={{ width: '100%', height: '120px', cursor: 'crosshair', touchAction: 'none' }}
+                  />
+                </div>
+                <button type="button" onClick={limpiarFirma} style={{ marginTop: '0.5rem', backgroundColor: '#333', color: '#fff', border: 'none', padding: '0.3rem 0.8rem', borderRadius: '4px', cursor: 'pointer', fontSize: '0.75rem' }}>
+                  Limpiar Firma
+                </button>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <input type="checkbox" id="acepta" checked={aceptaContrato} onChange={(e) => setAceptaContrato(e.target.checked)} required />
+                <label htmlFor="acepta" style={{ fontSize: '0.85rem' }}>
+                  Acepto los <span onClick={() => setMostrarModalContrato(true)} style={{ color: '#ff0000', textDecoration: 'underline', cursor: 'pointer' }}>Términos y Condiciones del Contrato</span>
+                </label>
+              </div>
+
+              <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+                <button type="button" onClick={() => setVehiculoSeleccionado(null)} style={{ flex: 1, padding: '0.75rem', backgroundColor: '#333', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
+                  Cancelar
+                </button>
+                <button type="submit" disabled={enviando} style={{ flex: 2, padding: '0.75rem', backgroundColor: '#ff0000', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: enviando ? 'not-allowed' : 'pointer' }}>
+                  {enviando ? 'Procesando...' : 'Confirmar Reserva ($150 USD)'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL VER CONTRATO COMPLETO */}
+      {mostrarModalContrato && (
+        <div className="modal-overlay">
+          <div className="modal-content" style={{ maxHeight: '80vh' }}>
+            <h3 style={{ color: '#ff0000' }}>Términos y Condiciones del Contrato</h3>
+            <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit', fontSize: '0.85rem', color: '#ccc', backgroundColor: '#000', padding: '1rem', borderRadius: '6px' }}>
+              {TEXTO_CONTRATO}
+            </pre>
+            <button onClick={() => setMostrarModalContrato(false)} style={{ width: '100%', padding: '0.75rem', backgroundColor: '#ff0000', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', marginTop: '1rem' }}>
+              Cerrar y Regresar
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* MARCAS DE VEHÍCULOS (PRESENTACIÓN SLIDER / GRID) */}
       <section style={{ backgroundColor: '#080808', padding: '3rem 1rem', borderTop: '1px solid #222', borderBottom: '1px solid #222', textAlign: 'center' }}>
@@ -479,22 +656,22 @@ export default function Home() {
             <div style={{ backgroundColor: '#111', border: '1px solid #222', padding: '1.5rem', borderRadius: '10px' }}>
               <h4 style={{ color: '#fff', margin: '0 0 1rem 0', fontSize: '1.1rem', borderBottom: '1px solid #333', paddingBottom: '0.5rem' }}>Requisitos y Reservas</h4>
               <p style={{ color: '#38bdf8', fontWeight: 'bold', margin: '0.5rem 0 0.25rem 0' }}>¿Cuáles son los requisitos para alquilar un vehículo?</p>
-              <p style={{ color: '#cbd5e1', margin: '0 0 1rem 0', fontSize: '0.9rem' }}>Es necesario presentar documento de identidad o pasaporte vigente, licencia de conducir válida y una tarjeta de crédito a nombre del titular para el depósito de garantía.</p>
+              <p style={{ color: '#cbd5e1', margin: '0 0 1rem 0', fontSize: '0.9rem' }}>Es necesario presentar documento de identidad o pasaporte vigente, licencia de conducir válida y el pago de reserva.</p>
 
               <p style={{ color: '#38bdf8', fontWeight: 'bold', margin: '0.5rem 0 0.25rem 0' }}>¿Cuál es la edad mínima para rentar?</p>
-              <p style={{ color: '#cbd5e1', margin: '0 0 1rem 0', fontSize: '0.9rem' }}>La edad mínima requerida es de 25 años. Conductores entre 21 y 24 años pueden aplicar sujetos a condiciones especiales o cargos adicionales de seguro.</p>
+              <p style={{ color: '#cbd5e1', margin: '0 0 1rem 0', fontSize: '0.9rem' }}>La edad mínima requerida es de 25 años. Conductores jóvenes pueden aplicar bajo condiciones especiales.</p>
 
               <p style={{ color: '#38bdf8', fontWeight: 'bold', margin: '0.5rem 0 0.25rem 0' }}>¿Cómo se confirma una reserva?</p>
-              <p style={{ color: '#cbd5e1', margin: 0, fontSize: '0.9rem' }}>La reserva queda confirmada tras la firma del acuerdo digital y el pago del anticipo o depósito correspondiente.</p>
+              <p style={{ color: '#cbd5e1', margin: 0, fontSize: '0.9rem' }}>La reserva queda confirmada tras completar la firma digital del acuerdo y realizar el depósito inicial de $150 USD.</p>
             </div>
 
             <div style={{ backgroundColor: '#111', border: '1px solid #222', padding: '1.5rem', borderRadius: '10px' }}>
               <h4 style={{ color: '#fff', margin: '0 0 1rem 0', fontSize: '1.1rem', borderBottom: '1px solid #333', paddingBottom: '0.5rem' }}>Pagos, Depósitos y Cobertura</h4>
               <p style={{ color: '#38bdf8', fontWeight: 'bold', margin: '0.5rem 0 0.25rem 0' }}>¿Por qué se requiere un depósito de garantía y cuándo se devuelve?</p>
-              <p style={{ color: '#cbd5e1', margin: '0 0 1rem 0', fontSize: '0.9rem' }}>El depósito garantiza el cumplimiento del contrato y cubre posibles eventualidades (multas, faltantes de combustible o deducibles). Se retiene temporalmente en la tarjeta de crédito y se libera tras la inspección final del vehículo al devolverlo.</p>
+              <p style={{ color: '#cbd5e1', margin: '0 0 1rem 0', fontSize: '0.9rem' }}>El depósito de $400 USD garantiza la cobertura de posibles eventualidades y se devuelve al finalizar la inspección del vehículo. Si adquieres Seguro Full, no pagas este depósito.</p>
 
               <p style={{ color: '#38bdf8', fontWeight: 'bold', margin: '0.5rem 0 0.25rem 0' }}>¿Qué incluyen las opciones de seguro?</p>
-              <p style={{ color: '#cbd5e1', margin: '0 0 1rem 0', fontSize: '0.9rem' }}>Ofrecemos desde cobertura básica de responsabilidad civil hasta protecciones prémium contra daños colisionables y robo con deducible reducido.</p>
+              <p style={{ color: '#cbd5e1', margin: '0 0 1rem 0', fontSize: '0.9rem' }}>Ofrecemos seguro de tránsito básico obligatorio y opción de Seguro Full (cobertura total contra daños colisionables y exención de depósito).</p>
 
               <p style={{ color: '#38bdf8', fontWeight: 'bold', margin: '0.5rem 0 0.25rem 0' }}>¿Quién es responsable de las multas de tránsito?</p>
               <p style={{ color: '#cbd5e1', margin: 0, fontSize: '0.9rem' }}>El titular del alquiler es el único responsable de cualquier infracción o multa incurrida durante el periodo de renta.</p>
@@ -504,202 +681,35 @@ export default function Home() {
               <h4 style={{ color: '#fff', margin: '0 0 1rem 0', fontSize: '1.1rem', borderBottom: '1px solid #333', paddingBottom: '0.5rem' }}>Uso y Devolución del Vehículo</h4>
               <p style={{ color: '#38bdf8', fontWeight: 'bold', margin: '0.5rem 0 0.25rem 0' }}>¿Se puede entregar o devolver el vehículo en el aeropuerto o en una ubicación personalizada?</p>
               <p style={{ color: '#cbd5e1', margin: '0 0 1rem 0', fontSize: '0.9rem' }}>Sí, contamos con servicio de entrega VIP y recogida personalizada en aeropuertos, hoteles o residencias previa coordinación.</p>
-
-              <p style={{ color: '#38bdf8', fontWeight: 'bold', margin: '0.5rem 0 0.25rem 0' }}>¿Qué sucede si me retraso en la devolución?</p>
-              <p style={{ color: '#cbd5e1', margin: '0 0 1rem 0', fontSize: '0.9rem' }}>Existe un margen de tolerancia de 30 minutos. Trascurrido este periodo, se aplican cargos adicionales por hora o la tarifa correspondiente a un día extra de renta.</p>
-
-              <p style={{ color: '#38bdf8', fontWeight: 'bold', margin: '0.5rem 0 0.25rem 0' }}>¿Pueden conducir otras personas el vehículo?</p>
-              <p style={{ color: '#cbd5e1', margin: 0, fontSize: '0.9rem' }}>Solo están autorizados los conductores registrados explícitamente en el contrato de alquiler que hayan presentado su documentación requerida.</p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* SECCIÓN CONTACTO Y PIE DE PÁGINA */}
-      <footer id="contacto" style={{ backgroundColor: '#050505', borderTop: '1px solid #222', padding: '4rem 1rem 2rem 1rem' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2.5rem', marginBottom: '3rem' }}>
-          
-          <div>
-            <h4 style={{ color: '#ff0000', fontSize: '1.2rem', marginBottom: '1rem' }}>MONACO LUXURY RENT A CAR</h4>
-            <p style={{ color: '#94a3b8', fontSize: '0.9rem', lineHeight: '1.5' }}>
-              Experiencia VIP y alquiler de vehículos de lujo en la República Dominicana. Garantía de elegancia, confort y respuesta inmediata.
-            </p>
-            <p style={{ color: '#fff', fontSize: '0.9rem' }}>
-              <i className="fa-brands fa-instagram" style={{ color: '#E1306C', marginRight: '8px' }}></i> @Monacoluxuryrentacar
-            </p>
-          </div>
-
-          <div>
-            <h4 style={{ color: '#fff', fontSize: '1.1rem', marginBottom: '1rem' }}>Información de Contacto</h4>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0, color: '#cbd5e1', fontSize: '0.9rem', display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-              <li><i className="fa-solid fa-location-dot" style={{ color: '#ff0000', marginRight: '8px' }}></i> C/ Felix Mariano Lluveres #16, Gazcue, Santo Domingo, RD</li>
-              <li><i className="fa-solid fa-phone" style={{ color: '#ff0000', marginRight: '8px' }}></i> Teléfono: 829-425-7986 / 1-973-289-4797</li>
-              <li><i className="fa-brands fa-whatsapp" style={{ color: '#25D366', marginRight: '8px' }}></i> WhatsApp VIP (24/7): +1 (809) 555-0100</li>
-              <li><i className="fa-solid fa-envelope" style={{ color: '#ff0000', marginRight: '8px' }}></i> monacoluxurycars7@gmail.com</li>
-              <li><i className="fa-solid fa-globe" style={{ color: '#ff0000', marginRight: '8px' }}></i> https://monacoluxuryrentacar.vercel.app/</li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 style={{ color: '#fff', fontSize: '1.1rem', marginBottom: '1rem' }}>Horarios y Asistencia</h4>
-            <p style={{ color: '#cbd5e1', fontSize: '0.9rem', margin: '0 0 0.5rem 0' }}><strong>Lunes a Sábado:</strong> 8:00 AM – 10:00 PM</p>
-            <p style={{ color: '#cbd5e1', fontSize: '0.9rem', margin: '0 0 1rem 0' }}><strong>Domingos y Feriados:</strong> 9:00 AM – 8:00 PM<br/><span style={{ fontSize: '0.8rem', color: '#aaa' }}>(Atención y entregas programadas 24/7 previo acuerdo)</span></p>
-            <div style={{ backgroundColor: '#111', padding: '0.75rem', borderRadius: '6px', border: '1px solid #222' }}>
-              <p style={{ color: '#ef4444', fontWeight: 'bold', margin: 0, fontSize: '0.85rem' }}>
-                <i className="fa-solid fa-headset" style={{ marginRight: '6px' }}></i> Asistencia en Carretera 24/7:
-              </p>
-              <p style={{ color: '#fff', margin: '0.2rem 0 0 0', fontWeight: 'bold' }}>829-425-7986</p>
-            </div>
-          </div>
-
-        </div>
-
-        <div style={{ borderTop: '1px solid #1a1a1a', paddingTop: '1.5rem', textAlign: 'center', color: '#666', fontSize: '0.8rem' }}>
-          © {new Date().getFullYear()} MONACO LUXURY RENT A CAR. Todos los derechos reservados.
-        </div>
+      {/* FOOTER / CONTACTO */}
+      <footer id="contacto" style={{ backgroundColor: '#000', borderTop: '1px solid #222', padding: '3rem 1rem', textAlign: 'center', color: '#888', fontSize: '0.9rem' }}>
+        <p style={{ color: '#fff', fontWeight: 'bold', fontSize: '1.1rem', marginBottom: '0.5rem' }}>MONACO LUXURY RENT A CAR</p>
+        <p style={{ margin: '0 0 1rem 0' }}>República Dominicana | Atención VIP 24/7</p>
+        <p style={{ margin: 0, fontSize: '0.8rem', color: '#555' }}>© {new Date().getFullYear()} Monaco Luxury Rent a Car. Todos los derechos reservados.</p>
       </footer>
 
-      {/* MODAL DE RESERVA */}
-      {vehiculoSeleccionado && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.85)', display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '1rem', zIndex: 100 }}>
-          <div style={{ backgroundColor: '#111', padding: '2rem', borderRadius: '12px', maxWidth: '600px', width: '100%', maxHeight: '90vh', overflowY: 'auto', border: '1px solid #333' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-              <h3 style={{ color: '#ff0000', margin: 0 }}>Reservar {vehiculoSeleccionado.nombre}</h3>
-              <button onClick={() => setVehiculoSeleccionado(null)} style={{ background: 'none', border: 'none', color: '#fff', fontSize: '1.5rem', cursor: 'pointer' }}>✕</button>
-            </div>
-
-            <form onSubmit={handleSubmitReserva} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <div>
-                <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.9rem' }}>Fecha Inicio:</label>
-                <input type="date" value={fechaInicio} onChange={(e) => setFechaInicio(e.target.value)} required style={{ width: '100%', padding: '0.5rem', backgroundColor: '#fff', color: '#000', border: '1px solid #333', borderRadius: '6px' }} />
-              </div>
-              <div>
-                <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.9rem' }}>Fecha Entrega:</label>
-                <input type="date" value={fechaFin} min={fechaInicio} onChange={(e) => setFechaFin(e.target.value)} required style={{ width: '100%', padding: '0.5rem', backgroundColor: '#fff', color: '#000', border: '1px solid #333', borderRadius: '6px' }} />
-              </div>
-
-              {fechaInicio && fechaFin && dias > 0 && dias < 3 && (
-                <div style={{ backgroundColor: '#7f1d1d', color: '#fca5a5', padding: '0.75rem', borderRadius: '6px', fontSize: '0.9rem', fontWeight: 'bold' }}>
-                  ⚠️ El alquiler mínimo es de 3 días. Por favor selecciona un periodo mayor.
-                </div>
-              )}
-
-              {estaReservado() && (
-                <div style={{ backgroundColor: '#7f1d1d', color: '#fca5a5', padding: '0.75rem', borderRadius: '6px', fontSize: '0.9rem', fontWeight: 'bold' }}>
-                  ❌ Las fechas seleccionadas ya se encuentran ocupadas para este vehículo. Elige otras fechas.
-                </div>
-              )}
-
-              <div style={{ backgroundColor: '#000', padding: '0.75rem', borderRadius: '6px', border: '1px solid #333' }}>
-                <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '0.5rem' }}>
-                  <input type="checkbox" checked={seguroFull} onChange={(e) => setSeguroFull(e.target.checked)} />
-                  <span style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>Agregar Seguro Full (${precioSeguroPorDia} USD / día)</span>
-                </label>
-              </div>
-
-              {dias >= 3 && !estaReservado() && (
-                <div style={{ backgroundColor: '#000', padding: '0.75rem', borderRadius: '6px', fontSize: '0.9rem', border: '1px solid #333', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  <p style={{ margin: 0 }}>Duración: <strong>{dias} días</strong></p>
-                  <p style={{ margin: 0 }}>Subtotal Renta: <strong>${costoRenta} USD</strong></p>
-                  {seguroFull && <p style={{ margin: 0 }}>Seguro Full: <strong>${costoSeguro} USD</strong></p>}
-                  <p style={{ margin: 0, color: '#38bdf8' }}>Depósito de Garantía (Reembolsable): <strong>${depositoGarantia} USD</strong></p>
-                  <p style={{ margin: 0, color: '#ff0000', fontWeight: 'bold', fontSize: '1.1rem' }}>Total Estimado: ${costoTotal} USD</p>
-                  
-                  <div style={{ marginTop: '0.5rem', paddingTop: '0.5rem', borderTop: '1px dashed #333' }}>
-                    <pre style={{ color: '#cbd5e1', whiteSpace: 'pre-wrap', fontFamily: 'inherit', margin: 0, fontSize: '0.8rem' }}>{DATOS_BANCARIOS}</pre>
-                  </div>
-                </div>
-              )}
-
-              <div>
-                <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.9rem' }}>Nombre Completo:</label>
-                <input type="text" value={nombre} onChange={(e) => setNombre(e.target.value)} required style={{ width: '100%', padding: '0.5rem', backgroundColor: '#000', color: '#fff', border: '1px solid #333', borderRadius: '6px' }} />
-              </div>
-
-              {/* CAMPO DE DIRECCIÓN EN REPUBLICA DOMINICANA */}
-              <div>
-                <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.9rem' }}>
-                  Dirección de Residencia en RD (Airbnb, Resort, Casa, Hotel, Torre, etc.):
-                </label>
-                <input 
-                  type="text" 
-                  placeholder="Ej: Resort Hotel Catalonia, Torre Bella Vista Apt 4B, Airbnb en Las Terrenas..." 
-                  value={direccionRD} 
-                  onChange={(e) => setDireccionRD(e.target.value)} 
-                  required 
-                  style={{ width: '100%', padding: '0.5rem', backgroundColor: '#000', color: '#fff', border: '1px solid #333', borderRadius: '6px' }} 
-                />
-              </div>
-
-              <div>
-                <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.9rem' }}>Teléfono:</label>
-                <input type="tel" value={telefono} onChange={(e) => setTelefono(e.target.value)} required style={{ width: '100%', padding: '0.5rem', backgroundColor: '#000', color: '#fff', border: '1px solid #333', borderRadius: '6px' }} />
-              </div>
-
-              <div>
-                <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.9rem' }}>Correo Electrónico:</label>
-                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required style={{ width: '100%', padding: '0.5rem', backgroundColor: '#000', color: '#fff', border: '1px solid #333', borderRadius: '6px' }} />
-              </div>
-
-              <div>
-                <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.9rem', color: '#ff0000', fontWeight: 'bold' }}>Términos del Contrato:</label>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.5rem' }}>
-                  <button type="button" onClick={() => setMostrarModalContrato(true)} style={{ backgroundColor: '#222', color: '#38bdf8', border: '1px solid #333', padding: '0.5rem 1rem', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem', textDecoration: 'underline' }}>
-                    Ver Términos y Condiciones del Contrato
-                  </button>
-                </div>
-              </div>
-
-              <div>
-                <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.9rem' }}>Firma Digital:</label>
-                <canvas ref={canvasRef} width={400} height={150} onMouseDown={iniciarDibujo} onMouseMove={dibujar} onMouseUp={detenerDibujo} onTouchStart={iniciarDibujo} onTouchMove={dibujar} onTouchEnd={detenerDibujo} style={{ backgroundColor: '#fff', borderRadius: '6px', width: '100%', touchAction: 'none' }} />
-                <button type="button" onClick={limpiarFirma} style={{ marginTop: '0.5rem', background: 'none', border: '1px solid #ef4444', color: '#ef4444', padding: '0.2rem 0.5rem', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}>Limpiar Firma</button>
-              </div>
-
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                <input type="checkbox" id="contrato" checked={aceptaContrato} onChange={(e) => setAceptaContrato(e.target.checked)} required />
-                <label htmlFor="contrato" style={{ marginLeft: '0.5rem', fontSize: '0.85rem' }}>Acepto los términos y condiciones del contrato</label>
-              </div>
-
-              <button type="submit" disabled={enviando || dias < 3 || estaReservado()} style={{ padding: '0.75rem', backgroundColor: (dias < 3 || estaReservado()) ? '#475569' : '#ff0000', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: (dias < 3 || estaReservado()) ? 'not-allowed' : 'pointer' }}>
-                {enviando ? 'Procesando Reserva...' : 'Confirmar Reserva'}
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* MODAL DEL CONTRATO */}
-      {mostrarModalContrato && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.9)', display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '1rem', zIndex: 110 }}>
-          <div style={{ backgroundColor: '#111', padding: '2rem', borderRadius: '12px', maxWidth: '650px', width: '100%', maxHeight: '85vh', overflowY: 'auto', border: '1px solid #333' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-              <h3 style={{ color: '#ff0000', margin: 0 }}>Contrato de Arrendamiento</h3>
-              <button onClick={() => setMostrarModalContrato(false)} style={{ background: 'none', border: 'none', color: '#fff', fontSize: '1.5rem', cursor: 'pointer' }}>✕</button>
-            </div>
-            <div style={{ backgroundColor: '#000', border: '1px solid #333', padding: '1rem', borderRadius: '6px', fontSize: '0.85rem', color: '#cbd5e1', whiteSpace: 'pre-wrap', lineHeight: '1.4' }}>
-              {TEXTO_CONTRATO}
-            </div>
-            <button onClick={() => setMostrarModalContrato(false)} style={{ marginTop: '1rem', width: '100%', padding: '0.75rem', backgroundColor: '#ff0000', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>
-              Entendido / Cerrar
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* MODAL DE WHATSAPP */}
+      {/* MODAL WHATSAPP */}
       {mostrarModalWS && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.85)', display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '1rem', zIndex: 100 }}>
-          <div style={{ backgroundColor: '#111', padding: '2rem', borderRadius: '12px', maxWidth: '400px', width: '100%', textAlign: 'center', border: '1px solid #333' }}>
-            <h3 style={{ color: '#25D366', marginTop: 0 }}>Atención por WhatsApp</h3>
-            <p style={{ color: '#cbd5e1', fontSize: '0.95rem', marginBottom: '1.5rem' }}>Comunícate directamente con nuestros asesores en Santo Domingo:</p>
-            <a href="https://wa.me/18294257986" target="_blank" rel="noopener noreferrer" style={{ display: 'block', backgroundColor: '#25D366', color: '#fff', padding: '0.75rem', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', marginBottom: '0.75rem' }}>
-              <i className="fa-brands fa-whatsapp" style={{ marginRight: '8px' }}></i> WhatsApp Línea 1
-            </a>
-            <a href="https://wa.me/19732894797" target="_blank" rel="noopener noreferrer" style={{ display: 'block', backgroundColor: '#25D366', color: '#fff', padding: '0.75rem', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', marginBottom: '1.5rem' }}>
-              <i className="fa-brands fa-whatsapp" style={{ marginRight: '8px' }}></i> WhatsApp Línea 2
-            </a>
-            <button onClick={() => setMostrarModalWS(false)} style={{ background: 'none', border: '1px solid #666', color: '#cbd5e1', padding: '0.5rem 1rem', borderRadius: '6px', cursor: 'pointer' }}>Cerrar</button>
+        <div className="modal-overlay">
+          <div className="modal-content" style={{ textAlign: 'center' }}>
+            <h3 style={{ color: '#25D366' }}><i className="fa-brands fa-whatsapp"></i> Atención VIP WhatsApp</h3>
+            <p style={{ color: '#ccc' }}>Elige un representante para asistencia personalizada:</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', margin: '1.5rem 0' }}>
+              <a href="https://wa.me/18090000000?text=Hola,%20deseo%20información%20sobre%20un%20vehículo" target="_blank" rel="noopener noreferrer" style={{ backgroundColor: '#25D366', color: '#fff', textDecoration: 'none', padding: '0.75rem', borderRadius: '8px', fontWeight: 'bold' }}>
+                Contactar Asesor 1
+              </a>
+              <a href="https://wa.me/18090000001?text=Hola,%20deseo%20información%20sobre%20un%20vehículo" target="_blank" rel="noopener noreferrer" style={{ backgroundColor: '#25D366', color: '#fff', textDecoration: 'none', padding: '0.75rem', borderRadius: '8px', fontWeight: 'bold' }}>
+                Contactar Asesor 2
+              </a>
+            </div>
+            <button onClick={() => setMostrarModalWS(false)} style={{ padding: '0.5rem 1rem', backgroundColor: '#333', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
+              Cerrar
+            </button>
           </div>
         </div>
       )}

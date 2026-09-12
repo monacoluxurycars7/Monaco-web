@@ -9,7 +9,7 @@ const vehiculos = [
     id: 'kia-sportage-lx-2020',
     nombre: 'Kia Sportage LX 2020',
     imagen: '/kia.jpeg',
-    precios: { base: 50, medio: 45, largo: 40 },
+    precios: { base: 60, medio: 55, largo: 50 },
     seguroFullPrecios: { corto: 30, medio: 25, largo: 20 },
     disponible: true
   },
@@ -17,7 +17,7 @@ const vehiculos = [
     id: 'jeep-cherokee-latitude-2019',
     nombre: 'Jeep Cherokee Latitude 2019',
     imagen: '/jeep.jpg',
-    precios: { base: 55, medio: 50, largo: 45 },
+    precios: { base: 65, medio: 60, largo: 55 },
     seguroFullPrecios: { corto: 30, medio: 25, largo: 20 },
     disponible: true
   },
@@ -207,22 +207,31 @@ export default function Home() {
   return (
     <div style={{ backgroundColor: '#0f172a', color: '#f8fafc', minHeight: '100vh', fontFamily: 'Arial, sans-serif' }}>
       <Head><title>Monaco Luxury Rent a Car</title></Head>
+      
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 2rem', backgroundColor: '#1e293b', borderBottom: '1px solid #334155' }}>
         <h1 style={{ fontSize: '1.25rem', color: '#f59e0b', margin: 0 }}>MONACO LUXURY RENT A CAR</h1>
         <button onClick={() => setMostrarModalWS(true)} style={{ backgroundColor: '#25D366', color: '#fff', border: 'none', padding: '0.5rem 1rem', borderRadius: '20px', fontWeight: 'bold', cursor: 'pointer' }}>WhatsApp</button>
       </header>
 
       <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem 1rem' }}>
-        <h3 style={{ color: '#f59e0b', textAlign: 'center' }}>Nuestra Flota</h3>
+        <h3 style={{ color: '#f59e0b', textAlign: 'center', marginBottom: '2rem' }}>Nuestra Flota</h3>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
           {vehiculos.map((v) => (
             <div key={v.id} style={{ backgroundColor: '#1e293b', borderRadius: '12px', padding: '1.5rem', border: '1px solid #334155' }}>
               <img src={v.imagen} alt={v.nombre} style={{ width: '100%', height: '200px', objectFit: 'cover', borderRadius: '8px' }} />
-              <h4 style={{ color: '#fff' }}>{v.nombre}</h4>
+              <h4 style={{ color: '#fff', marginBottom: '0.5rem' }}>{v.nombre}</h4>
+              
+              <div style={{ fontSize: '0.9rem', color: '#cbd5e1', marginBottom: '1rem', backgroundColor: '#0f172a', padding: '0.75rem', borderRadius: '6px' }}>
+                <p style={{ margin: '0 0 0.25rem 0', color: '#f59e0b', fontWeight: 'bold' }}>Tarifas por Día (Mínimo 3 Días):</p>
+                <p style={{ margin: '0 0 0.15rem 0' }}>• 3-5 Días: USD ${v.precios.base}/día</p>
+                <p style={{ margin: '0 0 0.15rem 0' }}>• 6-10 Días: USD ${v.precios.medio}/día</p>
+                <p style={{ margin: '0 0 0.5rem 0' }}>• 11+ Días: USD ${v.precios.largo}/día</p>
+              </div>
+
               {v.disponible ? (
                 <button onClick={() => setVehiculoSeleccionado(v)} style={{ width: '100%', padding: '0.75rem', backgroundColor: '#f59e0b', color: '#0f172a', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>Reservar este Auto</button>
               ) : (
-                <button disabled style={{ width: '100%', padding: '0.75rem', backgroundColor: '#ef4444', color: '#fff', border: 'none', borderRadius: '8px' }}>No Disponible</button>
+                <button disabled style={{ width: '100%', padding: '0.75rem', backgroundColor: '#ef4444', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'not-allowed' }}>No Disponible</button>
               )}
             </div>
           ))}
@@ -231,7 +240,7 @@ export default function Home() {
 
       {vehiculoSeleccionado && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.8)', display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '1rem', zIndex: 100 }}>
-          <div style={{ backgroundColor: '#1e293b', padding: '2rem', borderRadius: '12px', maxWidth: '550px', width: '100%', maxHeight: '90vh', overflowY: 'auto' }}>
+          <div style={{ backgroundColor: '#1e293b', padding: '2rem', borderRadius: '12px', maxWidth: '550px', width: '100%', maxHeight: '90vh', overflowY: 'auto', border: '1px solid #334155' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
               <h3 style={{ color: '#f59e0b', margin: 0 }}>Reservar {vehiculoSeleccionado.nombre}</h3>
               <button onClick={() => setVehiculoSeleccionado(null)} style={{ background: 'none', border: 'none', color: '#fff', fontSize: '1.5rem', cursor: 'pointer' }}>✕</button>
@@ -239,41 +248,62 @@ export default function Home() {
 
             <form onSubmit={handleSubmitReserva} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div>
-                <label>Fecha Inicio:</label>
-                <input type="date" value={fechaInicio} onChange={(e) => setFechaInicio(e.target.value)} required style={{ width: '100%', padding: '0.5rem', backgroundColor: '#0f172a', color: '#fff', borderRadius: '6px' }} />
+                <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.9rem' }}>Fecha Inicio:</label>
+                <input type="date" value={fechaInicio} onChange={(e) => setFechaInicio(e.target.value)} required style={{ width: '100%', padding: '0.5rem', backgroundColor: '#0f172a', color: '#fff', border: '1px solid #334155', borderRadius: '6px' }} />
               </div>
               <div>
-                <label>Fecha Entrega:</label>
-                <input type="date" value={fechaFin} min={fechaInicio} onChange={(e) => setFechaFin(e.target.value)} required style={{ width: '100%', padding: '0.5rem', backgroundColor: '#0f172a', color: '#fff', borderRadius: '6px' }} />
+                <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.9rem' }}>Fecha Entrega:</label>
+                <input type="date" value={fechaFin} min={fechaInicio} onChange={(e) => setFechaFin(e.target.value)} required style={{ width: '100%', padding: '0.5rem', backgroundColor: '#0f172a', color: '#fff', border: '1px solid #334155', borderRadius: '6px' }} />
+              </div>
+
+              {dias > 0 && (
+                <div style={{ backgroundColor: '#0f172a', padding: '0.75rem', borderRadius: '6px', fontSize: '0.9rem' }}>
+                  <p style={{ margin: '0 0 0.25rem 0' }}>Duración: <strong>{dias} días</strong></p>
+                  <p style={{ margin: '0 0 0.25rem 0' }}>Subtotal Renta: <strong>${costoRenta} USD</strong></p>
+                  {seguroFull && <p style={{ margin: '0 0 0.25rem 0' }}>Seguro Full: <strong>${costoSeguro} USD</strong></p>}
+                  <p style={{ margin: 0, color: '#f59e0b', fontWeight: 'bold' }}>Total Estimado: ${costoTotal} USD</p>
+                </div>
+              )}
+
+              <div>
+                <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.9rem' }}>Nombre Completo:</label>
+                <input type="text" value={nombre} onChange={(e) => setNombre(e.target.value)} required style={{ width: '100%', padding: '0.5rem', backgroundColor: '#0f172a', color: '#fff', border: '1px solid #334155', borderRadius: '6px' }} />
               </div>
               <div>
-                <label>Nombre Completo:</label>
-                <input type="text" value={nombre} onChange={(e) => setNombre(e.target.value)} required style={{ width: '100%', padding: '0.5rem', backgroundColor: '#0f172a', color: '#fff', borderRadius: '6px' }} />
+                <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.9rem' }}>Teléfono:</label>
+                <input type="tel" value={telefono} onChange={(e) => setTelefono(e.target.value)} required style={{ width: '100%', padding: '0.5rem', backgroundColor: '#0f172a', color: '#fff', border: '1px solid #334155', borderRadius: '6px' }} />
               </div>
               <div>
-                <label>Teléfono:</label>
-                <input type="tel" value={telefono} onChange={(e) => setTelefono(e.target.value)} required style={{ width: '100%', padding: '0.5rem', backgroundColor: '#0f172a', color: '#fff', borderRadius: '6px' }} />
-              </div>
-              <div>
-                <label>Correo Electrónico:</label>
-                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required style={{ width: '100%', padding: '0.5rem', backgroundColor: '#0f172a', color: '#fff', borderRadius: '6px' }} />
+                <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.9rem' }}>Correo Electrónico:</label>
+                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required style={{ width: '100%', padding: '0.5rem', backgroundColor: '#0f172a', color: '#fff', border: '1px solid #334155', borderRadius: '6px' }} />
               </div>
 
               <div>
-                <label>Firma Digital:</label>
+                <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.9rem' }}>Firma Digital:</label>
                 <canvas ref={canvasRef} width={400} height={150} onMouseDown={iniciarDibujo} onMouseMove={dibujar} onMouseUp={detenerDibujo} onTouchStart={iniciarDibujo} onTouchMove={dibujar} onTouchEnd={detenerDibujo} style={{ backgroundColor: '#fff', borderRadius: '6px', width: '100%', touchAction: 'none' }} />
-                <button type="button" onClick={limpiarFirma} style={{ marginTop: '0.5rem', background: 'none', border: '1px solid #ef4444', color: '#ef4444', padding: '0.2rem 0.5rem', borderRadius: '4px', cursor: 'pointer' }}>Limpiar Firma</button>
+                <button type="button" onClick={limpiarFirma} style={{ marginTop: '0.5rem', background: 'none', border: '1px solid #ef4444', color: '#ef4444', padding: '0.2rem 0.5rem', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}>Limpiar Firma</button>
               </div>
 
-              <div>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
                 <input type="checkbox" id="contrato" checked={aceptaContrato} onChange={(e) => setAceptaContrato(e.target.checked)} required />
-                <label htmlFor="contrato" style={{ marginLeft: '0.5rem', fontSize: '0.85rem' }}>Acepto los términos y condiciones</label>
+                <label htmlFor="contrato" style={{ marginLeft: '0.5rem', fontSize: '0.85rem' }}>Acepto los términos y condiciones del contrato</label>
               </div>
 
               <button type="submit" disabled={enviando} style={{ padding: '0.75rem', backgroundColor: '#f59e0b', color: '#0f172a', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>
-                {enviando ? 'Procesando...' : 'Confirmar Reserva'}
+                {enviando ? 'Procesando Reserva...' : 'Confirmar Reserva'}
               </button>
             </form>
+          </div>
+        </div>
+      )}
+
+      {mostrarModalWS && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.8)', display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '1rem', zIndex: 100 }}>
+          <div style={{ backgroundColor: '#1e293b', padding: '2rem', borderRadius: '12px', maxWidth: '400px', width: '100%', textAlign: 'center', border: '1px solid #334155' }}>
+            <h3 style={{ color: '#25D366', marginTop: 0 }}>Atención por WhatsApp</h3>
+            <p style={{ color: '#cbd5e1', fontSize: '0.95rem' }}>Comunícate directamente con nuestro equipo de atención al cliente en Santo Domingo.</p>
+            <a href="https://wa.me/18090000000" target="_blank" rel="noopener noreferrer" style={{ display: 'block', backgroundColor: '#25D366', color: '#fff', padding: '0.75rem', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', marginBottom: '1rem' }}>Abrir Chat de WhatsApp</a>
+            <button onClick={() => setMostrarModalWS(false)} style={{ background: 'none', border: '1px solid #64748b', color: '#cbd5e1', padding: '0.5rem 1rem', borderRadius: '6px', cursor: 'pointer' }}>Cerrar</button>
           </div>
         </div>
       )}

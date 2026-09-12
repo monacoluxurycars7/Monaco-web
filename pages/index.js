@@ -207,28 +207,22 @@ export default function Home() {
 
   return (
     <div style={{ backgroundColor: '#000000', color: '#f8fafc', minHeight: '100vh', fontFamily: 'Arial, sans-serif' }}>
-      <Head><title>Monaco Luxury Rent a Car</title></Head>
+      <Head>
+        <title>Monaco Luxury Rent a Car</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+      </Head>
       
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 2rem', backgroundColor: '#0a0a0a', borderBottom: '1px solid #222' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <img src="/logo.png" alt="Monaco Logo" style={{ height: '40px', objectFit: 'contain' }} />
           <h1 style={{ fontSize: '1.25rem', color: '#ff0000', margin: 0 }}>MONACO LUXURY RENT A CAR</h1>
         </div>
-        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-          {/* Logo de Instagram SVG limpio */}
-          <a href="https://instagram.com/monacoluxurycars" target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }} title="Instagram">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#E1306C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
-              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-              <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
-            </svg>
+        <div style={{ display: 'flex', gap: '1.2rem', alignItems: 'center' }}>
+          <a href="https://instagram.com/monacoluxurycars" target="_blank" rel="noopener noreferrer" style={{ color: '#E1306C', fontSize: '1.6rem', textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
+            <i className="fa-brands fa-instagram"></i>
           </a>
-          {/* Logo de WhatsApp SVG limpio */}
           <button onClick={() => setMostrarModalWS(true)} style={{ backgroundColor: '#25D366', color: '#fff', border: 'none', padding: '0.5rem 1rem', borderRadius: '20px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
-            </svg>
-            WhatsApp
+            <i className="fa-brands fa-whatsapp" style={{ fontSize: '1.2rem' }}></i> WhatsApp
           </button>
         </div>
       </header>
@@ -274,11 +268,11 @@ export default function Home() {
             <form onSubmit={handleSubmitReserva} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div>
                 <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.9rem' }}>Fecha Inicio:</label>
-                <input type="date" value={fechaInicio} onChange={(e) => setFechaInicio(e.target.value)} required style={{ width: '100%', padding: '0.5rem', backgroundColor: '#000', color: '#fff', border: '1px solid #333', borderRadius: '6px' }} />
+                <input type="date" value={fechaInicio} onChange={(e) => setFechaInicio(e.target.value)} required style={{ width: '100%', padding: '0.5rem', backgroundColor: '#ffffff', color: '#000000', border: '1px solid #333', borderRadius: '6px', fontWeight: 'bold' }} />
               </div>
               <div>
                 <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.9rem' }}>Fecha Entrega:</label>
-                <input type="date" value={fechaFin} min={fechaInicio} onChange={(e) => setFechaFin(e.target.value)} required style={{ width: '100%', padding: '0.5rem', backgroundColor: '#000', color: '#fff', border: '1px solid #333', borderRadius: '6px' }} />
+                <input type="date" value={fechaFin} min={fechaInicio} onChange={(e) => setFechaFin(e.target.value)} required style={{ width: '100%', padding: '0.5rem', backgroundColor: '#ffffff', color: '#000000', border: '1px solid #333', borderRadius: '6px', fontWeight: 'bold' }} />
               </div>
 
               {fechaInicio && fechaFin && dias > 0 && dias < 3 && (
@@ -345,7 +339,7 @@ export default function Home() {
                 <label htmlFor="contrato" style={{ marginLeft: '0.5rem', fontSize: '0.85rem' }}>Acepto los términos y condiciones del contrato</label>
               </div>
 
-              <button type="submit" disabled={enviando || dias < 3 || estaReservado()} style={{ padding: '0.75rem', backgroundColor: (dias < 3 || estaReservado()) ? '#475569' : '#ff0000', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: (dias < 3 || estaReservado()) ? 'not-allowed' : 'pointer' }}>
+              <button type="submit" disabled={enviando || dias < 3 || estaReservado()} style={{ padding: '0.75rem', backgroundColor: (dias < 3 || estaReservado()) ? '#475569' : '#f59e0b', color: '#000', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: (dias < 3 || estaReservado()) ? 'not-allowed' : 'pointer' }}>
                 {enviando ? 'Procesando Reserva...' : 'Confirmar Reserva'}
               </button>
             </form>
@@ -358,8 +352,8 @@ export default function Home() {
           <div style={{ backgroundColor: '#111', padding: '2rem', borderRadius: '12px', maxWidth: '400px', width: '100%', textAlign: 'center', border: '1px solid #333' }}>
             <h3 style={{ color: '#25D366', marginTop: 0 }}>Atención por WhatsApp</h3>
             <p style={{ color: '#cbd5e1', fontSize: '0.95rem', marginBottom: '1.5rem' }}>Comunícate directamente con nuestros asesores en Santo Domingo:</p>
-            <a href="https://wa.me/18090000001" target="_blank" rel="noopener noreferrer" style={{ display: 'block', backgroundColor: '#25D366', color: '#fff', padding: '0.75rem', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', marginBottom: '0.75rem' }}>📱 WhatsApp Línea 1</a>
-            <a href="https://wa.me/18090000002" target="_blank" rel="noopener noreferrer" style={{ display: 'block', backgroundColor: '#25D366', color: '#fff', padding: '0.75rem', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', marginBottom: '1.5rem' }}>📱 WhatsApp Línea 2</a>
+            <a href="https://wa.me/18090000001" target="_blank" rel="noopener noreferrer" style={{ display: 'block', backgroundColor: '#25D366', color: '#fff', padding: '0.75rem', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', marginBottom: '0.75rem' }}><i className="fa-brands fa-whatsapp"></i> WhatsApp Línea 1</a>
+            <a href="https://wa.me/18090000002" target="_blank" rel="noopener noreferrer" style={{ display: 'block', backgroundColor: '#25D366', color: '#fff', padding: '0.75rem', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', marginBottom: '1.5rem' }}><i className="fa-brands fa-whatsapp"></i> WhatsApp Línea 2</a>
             <button onClick={() => setMostrarModalWS(false)} style={{ background: 'none', border: '1px solid #666', color: '#cbd5e1', padding: '0.5rem 1rem', borderRadius: '6px', cursor: 'pointer' }}>Cerrar</button>
           </div>
         </div>

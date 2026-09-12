@@ -190,10 +190,10 @@ export default function Home() {
           process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY
         );
         alert('¡Reserva registrada con éxito! Se envió la confirmación a tu correo.');
-      } catch (emailError) {
-        console.error('Error de EmailJS:', emailError);
-        alert('Reserva guardada en Firebase, pero falló el envío de correo. Revisa tus IDs en Vercel.');
-      }
+     } catch (emailError) {
+  console.error('Error detallado de EmailJS:', emailError);
+  alert('Error de correo: ' + JSON.stringify(emailError));
+}
 
       setVehiculoSeleccionado(null);
     } catch (error) {

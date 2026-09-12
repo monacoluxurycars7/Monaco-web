@@ -51,8 +51,9 @@ const vehiculos = [
 
 const DATOS_BANCARIOS = `
 CUENTAS BANCARIAS PARA TRANSFERENCIA / RESERVA ($150 USD):
-• Banco Popular Dominicano (Pesos DOP): Cta. Ahorros N° 123456789
-• Banreservas / BHD (Pesos DOP): Cta. Corriente N° 987654321
+• Banco Popular Dominicano (Pesos DOP): Cta. Ahorros N° 814423729
+• Banreservas (Pesos DOP): Cta. Corriente N° 9605170252
+• BHD (Pesos DOP): Cta. Corriente N° 39485910015
 • Zelle (Dólares USD): Landra2916@gmail.com
 * Titular: Landra Guzman, Freddy Rodriguez. Enviar comprobante vía WhatsApp.
 `;
@@ -654,7 +655,7 @@ export default function Home() {
               <i className="fa-solid fa-phone" style={{ fontSize: '2rem', color: '#25D366', marginBottom: '0.8rem' }}></i>
               <h4 style={{ color: '#fff', fontSize: '1.1rem', marginBottom: '0.5rem' }}>Teléfonos / WhatsApp</h4>
               <p style={{ color: '#cbd5e1', margin: '0 0 0.3rem 0' }}>
-                <a href="tel:8294277986" style={{ color: '#f59e0b', textDecoration: 'none' }}>+1 (829) 427-7986</a>
+                <a href="tel:8294277986" style={{ color: '#f59e0b', textDecoration: 'none' }}>+1 (829) 425-7986</a>
               </p>
               <p style={{ color: '#cbd5e1', margin: 0 }}>
                 <a href="tel:9732894797" style={{ color: '#f59e0b', textDecoration: 'none' }}>+1 (973) 289-4797</a>
@@ -673,7 +674,7 @@ export default function Home() {
       {/* FOOTER */}
       <footer style={{ backgroundColor: '#050505', padding: '2rem 1rem', textAlign: 'center', borderTop: '1px solid #1a1a1a', fontSize: '0.85rem', color: '#777' }}>
         <p style={{ margin: '0 0 0.5rem 0' }}>&copy; 2026 MONACO LUXURY RENT A CAR. Todos los derechos reservados.</p>
-        <p style={{ margin: 0, color: '#aaa' }}>Contacto: monacoluxurycars7@gmail.com | Tel: 829-427-7986 / 973-289-4797</p>
+        <p style={{ margin: 0, color: '#aaa' }}>Contacto: monacoluxurycars7@gmail.com | Tel: 829-425-7986 / 973-289-4797</p>
       </footer>
 
       {/* MODAL SELECCIÓN WHATSAPP */}

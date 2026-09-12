@@ -90,7 +90,7 @@ MODALIDAD: Aceptación / Términos y Condiciones de Servicio
 6. CONDICIONES ADICIONALES E IMPORTANTES
 6.1. Estado del Vehículo: El CLIENTE declara recibir el vehículo en perfectas condiciones mecánicas, estéticas y de limpieza, y se compromete a devolverlo en las mismas condiciones exactas en que lo recibió.
 6.2. Nivel de Combustible: El vehículo debe ser devuelto con la misma cantidad de combustible con la que fue entregado. De lo contrario, se aplicará un cargo por reabastecimiento.
-6.3. Uso Permitido y Prohibiciones: El vehículo solo podrá ser conducido por el CLIENTE o por conductores adicionales autorizados explitícitamente. Queda estrictamente prohibido utilizarlo para subarrendar, transportar carga pesada, participar en carreras, remolcar, realizar actividades ilícitas o conducir bajo los efectos del alcohol o sustancias controladas.
+6.3. Uso Permitido y Prohibiciones: El vehículo solo podrá ser conducido por el CLIENTE o por conductores adicionales autorizados explitícitamente. Queda strictly prohibido utilizarlo para subarrendar, transportar carga pesada, participar en carreras, remolcar, realizar actividades ilícitas o conducir bajo los efectos del alcohol o sustancias controladas.
 6.4. Llaves y Neumáticos: La pérdida o daño de las llaves, así como pinchaduras o daños severos en los neumáticos por negligencia, no están cubiertos por ningún seguro y serán facturados directamente al CLIENTE.
 6.5. Asistencia y Reporte de Siniestros: En caso de accidente, avería o robo, el CLIENTE debe notificar inmediatamente a MONACO LUXURY RENT A CAR y a las autoridades policiales en un plazo no mayor a 2 horas.
 
@@ -119,6 +119,9 @@ export default function Home() {
   const [telefono, setTelefono] = useState('');
   const [email, setEmail] = useState('');
   const [aceptaContrato, setAceptaContrato] = useState(false);
+
+  // FAQ Accordion State
+  const [faqAbierta, setFaqAbierta] = useState(null);
 
   const canvasRef = useRef(null);
   const [dibujando, setDibujando] = useState(false);
@@ -207,6 +210,10 @@ export default function Home() {
     return coincideMarca && coincideModelo;
   });
 
+  const toggleFaq = (index) => {
+    setFaqAbierta(faqAbierta === index ? null : index);
+  };
+
   const handleSubmitReserva = async (e) => {
     e.preventDefault();
     if (dias < 3) { alert('El alquiler mínimo es de 3 días.'); return; }
@@ -282,6 +289,29 @@ export default function Home() {
     }
   };
 
+  const faqs = [
+    {
+      pregunta: '¿Cuáles son los requisitos principales para rentar un vehículo?',
+      respuesta: 'Ser mayor de 21 años, contar con licencia de conducir vigente y presentar pasaporte (para clientes extranjeros) o cédula y licencia de conducir (para residentes locales).'
+    },
+    {
+      pregunta: '¿Cuál es el tiempo mínimo de alquiler?',
+      respuesta: 'El período mínimo de alquiler es de tres (3) días.'
+    },
+    {
+      pregunta: '¿Cómo funciona la reserva y el depósito de garantía?',
+      respuesta: 'Para garantizar la reserva se requiere un pago anticipado de USD $150.00. Además, si no adquiere el Seguro Full, se requiere dejar un depósito de garantía de USD $400.00 que se reembolsa al devolver el vehículo en perfecto estado.'
+    },
+    {
+      pregunta: '¿Qué cubre el Seguro Full?',
+      respuesta: 'El Seguro Full exonera al cliente de dejar el depósito de garantía de USD $400.00 y cubre los daños mayores en caso de accidente, respondiendo el cliente únicamente por el monto deducible estipulado.'
+    },
+    {
+      pregunta: '¿Tienen entrega y recogida en aeropuertos u hoteles?',
+      respuesta: 'Sí, ofrecemos servicio de entrega y recepción personalizada directamente en los principales aeropuertos, hoteles y residencias en República Dominicana.'
+    }
+  ];
+
   return (
     <div style={{ 
       background: 'radial-gradient(circle at top, #1a0002 0%, #050505 50%, #000000 100%)', 
@@ -297,6 +327,9 @@ export default function Home() {
 
       {/* ESTILOS CSS GLOBALES */}
       <style jsx global>{`
+        html {
+          scroll-behavior: smooth;
+        }
         body {
           background: radial-gradient(circle at top, #1a0002 0%, #050505 50%, #000000 100%) !important;
           background-attachment: fixed !important;
@@ -409,7 +442,7 @@ export default function Home() {
 
               <div style={{ backgroundColor: '#121212', padding: '1.5rem', borderRadius: '10px', borderLeft: '4px solid #ff0000' }}>
                 <h4 style={{ color: '#fff', fontSize: '1.1rem', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <i className="fa-solid fa-[#25D366] fa-user-shield" style={{ color: '#25D366' }}></i> Atención Personalizada e Integral
+                  <i className="fa-solid fa-user-shield" style={{ color: '#25D366' }}></i> Atención Personalizada e Integral
                 </h4>
                 <p style={{ color: '#cbd5e1', fontSize: '0.95rem', lineHeight: '1.6', margin: 0 }}>
                   Nos enfocamos en satisfacer las necesidades individuales de cada cliente, ofreciendo entregas personalizadas en aeropuertos, hoteles y residencias, además de atención continua y procesos de reserva fluidos.
@@ -497,6 +530,136 @@ export default function Home() {
           </div>
         )}
       </main>
+
+      {/* SECCIÓN SOBRE NOSOTROS */}
+      <section id="nosotros" style={{ padding: '4rem 1.5rem', backgroundColor: 'rgba(12, 12, 12, 0.9)', borderTop: '1px solid #222', borderBottom: '1px solid #222' }}>
+        <div style={{ maxWidth: '1000px', margin: '0 auto', textAlign: 'center' }}>
+          <h3 style={{ fontSize: '2rem', color: '#ff0000', marginBottom: '1.5rem', fontWeight: 'bold' }}>
+            SOBRE MONACO LUXURY RENT A CAR
+          </h3>
+          <p style={{ color: '#cbd5e1', fontSize: '1.1rem', lineHeight: '1.8', marginBottom: '2.5rem' }}>
+            Nos consolidamos como el estándar de referencia en la República Dominicana para clientes que demandan exclusividad, discreción y el más alto nivel de servicio en transporte privado y alquiler de vehículos premium.
+          </p>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem', textAlign: 'left' }}>
+            <div style={{ backgroundColor: '#181818', padding: '2rem', borderRadius: '12px', border: '1px solid #2a2a2a' }}>
+              <div style={{ fontSize: '2rem', color: '#f59e0b', marginBottom: '1rem' }}><i className="fa-solid fa-bullseye"></i></div>
+              <h4 style={{ color: '#fff', fontSize: '1.3rem', marginBottom: '0.5rem' }}>Nuestra Misión</h4>
+              <p style={{ color: '#aaa', fontSize: '0.95rem', lineHeight: '1.6' }}>
+                Proporcionar soluciones de movilidad prémium respaldadas por el confort, la puntualidad y la seguridad absoluta, convirtiendo cada trayecto en una experiencia inolvidable.
+              </p>
+            </div>
+
+            <div style={{ backgroundColor: '#181818', padding: '2rem', borderRadius: '12px', border: '1px solid #2a2a2a' }}>
+              <div style={{ fontSize: '2rem', color: '#ff0000', marginBottom: '1rem' }}><i className="fa-solid fa-eye"></i></div>
+              <h4 style={{ color: '#fff', fontSize: '1.3rem', marginBottom: '0.5rem' }}>Nuestra Visión</h4>
+              <p style={{ color: '#aaa', fontSize: '0.95rem', lineHeight: '1.6' }}>
+                Ser reconocidos como la marca líder en rent-a-car de lujo del Caribe, expandiendo continuamente nuestra flota moderna con los más altos estándares éticos y operacionales.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SECCIÓN PREGUNTAS FRECUENTES (FAQ) */}
+      <section id="faq" style={{ padding: '4rem 1.5rem', maxWidth: '900px', margin: '0 auto' }}>
+        <h3 style={{ fontSize: '2rem', color: '#fff', textAlign: 'center', marginBottom: '2.5rem', fontWeight: 'bold' }}>
+          PREGUNTAS FRECUENTES (FAQ)
+        </h3>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          {faqs.map((faq, index) => (
+            <div key={index} style={{ backgroundColor: 'rgba(18, 18, 18, 0.9)', borderRadius: '8px', border: '1px solid #2a2a2a', overflow: 'hidden' }}>
+              <button
+                onClick={() => toggleFaq(index)}
+                style={{
+                  width: '100%',
+                  padding: '1.2rem',
+                  backgroundColor: 'transparent',
+                  color: '#fff',
+                  border: 'none',
+                  textAlign: 'left',
+                  fontSize: '1.05rem',
+                  fontWeight: 'bold',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  justify: 'space-between',
+                  alignItems: 'center'
+                }}
+              >
+                <span>{faq.pregunta}</span>
+                <i className={`fa-solid ${faqAbierta === index ? 'fa-chevron-up' : 'fa-chevron-down'}`} style={{ color: '#ff0000' }}></i>
+              </button>
+              {faqAbierta === index && (
+                <div style={{ padding: '0 1.2rem 1.2rem 1.2rem', color: '#cbd5e1', fontSize: '0.95rem', lineHeight: '1.6', borderTop: '1px solid #222', paddingTop: '1rem' }}>
+                  {faq.respuesta}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* SECCIÓN CONTACTO */}
+      <section id="contacto" style={{ padding: '4rem 1.5rem', backgroundColor: 'rgba(10, 10, 10, 0.95)', borderTop: '1px solid #222' }}>
+        <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+          <h3 style={{ fontSize: '2rem', color: '#ff0000', textAlign: 'center', marginBottom: '3rem', fontWeight: 'bold' }}>
+            CONTÁCTANOS
+          </h3>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2.5rem' }}>
+            
+            {/* INFORMACIÓN DE CONTACTO */}
+            <div style={{ backgroundColor: '#141414', padding: '2rem', borderRadius: '12px', border: '1px solid #2a2a2a' }}>
+              <h4 style={{ color: '#fff', fontSize: '1.4rem', marginBottom: '1.5rem' }}>Atención al Cliente</h4>
+              
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.2rem' }}>
+                <i className="fa-brands fa-whatsapp" style={{ color: '#25D366', fontSize: '1.5rem' }}></i>
+                <div>
+                  <p style={{ margin: 0, fontSize: '0.8rem', color: '#aaa' }}>WhatsApp Directo</p>
+                  <a href="https://wa.me/18090000000" target="_blank" rel="noopener noreferrer" style={{ color: '#fff', textDecoration: 'none', fontWeight: 'bold' }}>+1 (809) 000-0000</a>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.2rem' }}>
+                <i className="fa-brands fa-instagram" style={{ color: '#E1306C', fontSize: '1.5rem' }}></i>
+                <div>
+                  <p style={{ margin: 0, fontSize: '0.8rem', color: '#aaa' }}>Síguenos en Instagram</p>
+                  <a href="https://www.instagram.com/monacoluxuryrentacar/" target="_blank" rel="noopener noreferrer" style={{ color: '#fff', textDecoration: 'none', fontWeight: 'bold' }}>@monacoluxuryrentacar</a>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.2rem' }}>
+                <i className="fa-solid fa-envelope" style={{ color: '#ff0000', fontSize: '1.5rem' }}></i>
+                <div>
+                  <p style={{ margin: 0, fontSize: '0.8rem', color: '#aaa' }}>Correo Electrónico</p>
+                  <a href="mailto:Landra2916@gmail.com" style={{ color: '#fff', textDecoration: 'none', fontWeight: 'bold' }}>Landra2916@gmail.com</a>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <i className="fa-solid fa-location-dot" style={{ color: '#f59e0b', fontSize: '1.5rem' }}></i>
+                <div>
+                  <p style={{ margin: 0, fontSize: '0.8rem', color: '#aaa' }}>Ubicación Principal</p>
+                  <p style={{ margin: 0, color: '#fff', fontWeight: 'bold', fontSize: '0.95rem' }}>Santo Domingo / Entregas en todo RD</p>
+                </div>
+              </div>
+            </div>
+
+            {/* MENSAJE DIRECTO / INFORMACIÓN DE ENTREGAS */}
+            <div style={{ backgroundColor: '#141414', padding: '2rem', borderRadius: '12px', border: '1px solid #2a2a2a', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+              <h4 style={{ color: '#fff', fontSize: '1.4rem', marginBottom: '1rem' }}>Servicio VIP a Domicilio</h4>
+              <p style={{ color: '#ccc', fontSize: '0.95rem', lineHeight: '1.6', marginBottom: '1.5rem' }}>
+                Coordinamos entregas directas y personalizadas en aeropuertos (AILA, Punta Cana, Cibao), villas exclusivas u hoteles boutique. Ponte en contacto con nosotros hoy mismo para consultar disponibilidad especial.
+              </p>
+              <button onClick={() => setMostrarModalWS(true)} style={{ padding: '0.9rem', backgroundColor: '#25D366', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+                <i className="fa-brands fa-whatsapp" style={{ fontSize: '1.2rem' }}></i> Consultar Disponibilidad
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </section>
 
       {/* FORMULARIO MODAL DE RESERVA */}
       {vehiculoSeleccionado && (

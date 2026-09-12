@@ -138,7 +138,7 @@ export default function Home() {
   const precioSeguroPorDia = vehiculoSeleccionado && seguroFull ? (dias >= 11 ? vehiculoSeleccionado.seguroFullPrecios.largo : dias >= 5 ? vehiculoSeleccionado.seguroFullPrecios.medio : vehiculoSeleccionado.seguroFullPrecios.corto) : 0;
   const costoRenta = dias * precioPorDia;
   const costoSeguro = dias * precioSeguroPorDia;
-  const depositoGarantia = 400; // Depósito predeterminado reembolsable
+  const depositoGarantia = 400; 
   const costoTotal = costoRenta + costoSeguro + depositoGarantia;
 
   const handleSubmitReserva = async (e) => {
@@ -206,7 +206,7 @@ export default function Home() {
   };
 
   return (
-    <div style={{ backgroundColor: '#000000', color: '#ff0000', minHeight: '100vh', fontFamily: 'Arial, sans-serif' }}>
+    <div style={{ backgroundColor: '#000000', color: '#f8fafc', minHeight: '100vh', fontFamily: 'Arial, sans-serif' }}>
       <Head><title>Monaco Luxury Rent a Car</title></Head>
       
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 2rem', backgroundColor: '#0a0a0a', borderBottom: '1px solid #222' }}>
@@ -215,17 +215,26 @@ export default function Home() {
           <h1 style={{ fontSize: '1.25rem', color: '#ff0000', margin: 0 }}>MONACO LUXURY RENT A CAR</h1>
         </div>
         <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-          <a href="https://instagram.com/monacoluxurycars" target="_blank" rel="noopener noreferrer" style={{ color: '#E1306C', fontSize: '1.5rem', textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
-            📷
+          {/* Logo de Instagram SVG limpio */}
+          <a href="https://instagram.com/monacoluxurycars" target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }} title="Instagram">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#E1306C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+              <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+            </svg>
           </a>
+          {/* Logo de WhatsApp SVG limpio */}
           <button onClick={() => setMostrarModalWS(true)} style={{ backgroundColor: '#25D366', color: '#fff', border: 'none', padding: '0.5rem 1rem', borderRadius: '20px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            💬 WhatsApp
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+            </svg>
+            WhatsApp
           </button>
         </div>
       </header>
 
       <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem 1rem' }}>
-        <h3 style={{ color: '#ff0000', textAlign: 'center', marginBottom: '2rem' }}>Nuestra Flota</h3>
+        <h3 style={{ color: '#ffffff', textAlign: 'center', marginBottom: '2rem' }}>Nuestra Flota</h3>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
           {vehiculos.map((v) => {
             const ocupado = reservasExistentes.some((r) => r.vehiculoId === v.id && new Date() <= new Date(r.fin));
@@ -237,7 +246,7 @@ export default function Home() {
                 <h4 style={{ color: '#fff', marginBottom: '0.5rem' }}>{v.nombre}</h4>
                 
                 <div style={{ fontSize: '0.9rem', color: '#cbd5e1', marginBottom: '1rem', backgroundColor: '#000', padding: '0.75rem', borderRadius: '6px', border: '1px solid #222' }}>
-                  <p style={{ margin: '0 0 0.25rem 0', color: '#f59e0b', fontWeight: 'bold' }}>Tarifas por Día (Mínimo 3 Días):</p>
+                  <p style={{ margin: '0 0 0.25rem 0', color: '#ff0000', fontWeight: 'bold' }}>Tarifas por Día (Mínimo 3 Días):</p>
                   <p style={{ margin: '0 0 0.15rem 0' }}>• 3-5 Días: USD ${v.precios.base}/día</p>
                   <p style={{ margin: '0 0 0.15rem 0' }}>• 6-10 Días: USD ${v.precios.medio}/día</p>
                   <p style={{ margin: '0 0 0.5rem 0' }}>• 11+ Días: USD ${v.precios.largo}/día</p>
@@ -246,17 +255,11 @@ export default function Home() {
                 {estaDisponibilidadReal ? (
                   <button onClick={() => setVehiculoSeleccionado(v)} style={{ width: '100%', padding: '0.75rem', backgroundColor: '#f59e0b', color: '#000', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>Reservar este Auto</button>
                 ) : (
-                  <button disabled style={{ width: '100%', padding: '0.75rem', backgroundColor: '#ef4444', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'not-allowed', fontWeight: 'bold' }}>No Disponible / Ocupado</button>
+                  <button disabled style={{ width: '100%', padding: '0.75rem', backgroundColor: '#7f1d1d', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'not-allowed', fontWeight: 'bold' }}>No Disponible / Ocupado</button>
                 )}
               </div>
             );
           })}
-        </div>
-
-        {/* Sección de Datos Bancarios Visible */}
-        <div style={{ marginTop: '3rem', backgroundColor: '#111', padding: '1.5rem', borderRadius: '12px', border: '1px solid #222' }}>
-          <h4 style={{ color: '#f59e0b', marginTop: 0 }}>Información Bancaria para Transferencias</h4>
-          <pre style={{ color: '#cbd5e1', whiteSpace: 'pre-wrap', fontFamily: 'inherit', margin: 0, fontSize: '0.9rem' }}>{DATOS_BANCARIOS}</pre>
         </div>
       </main>
 
@@ -264,7 +267,7 @@ export default function Home() {
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.85)', display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '1rem', zIndex: 100 }}>
           <div style={{ backgroundColor: '#111', padding: '2rem', borderRadius: '12px', maxWidth: '600px', width: '100%', maxHeight: '90vh', overflowY: 'auto', border: '1px solid #333' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-              <h3 style={{ color: '#f59e0b', margin: 0 }}>Reservar {vehiculoSeleccionado.nombre}</h3>
+              <h3 style={{ color: '#ff0000', margin: 0 }}>Reservar {vehiculoSeleccionado.nombre}</h3>
               <button onClick={() => setVehiculoSeleccionado(null)} style={{ background: 'none', border: 'none', color: '#fff', fontSize: '1.5rem', cursor: 'pointer' }}>✕</button>
             </div>
 
@@ -278,21 +281,18 @@ export default function Home() {
                 <input type="date" value={fechaFin} min={fechaInicio} onChange={(e) => setFechaFin(e.target.value)} required style={{ width: '100%', padding: '0.5rem', backgroundColor: '#000', color: '#fff', border: '1px solid #333', borderRadius: '6px' }} />
               </div>
 
-              {/* Advertencia y Validación Estricta de 3 Días */}
               {fechaInicio && fechaFin && dias > 0 && dias < 3 && (
                 <div style={{ backgroundColor: '#7f1d1d', color: '#fca5a5', padding: '0.75rem', borderRadius: '6px', fontSize: '0.9rem', fontWeight: 'bold' }}>
                   ⚠️ El alquiler mínimo es de 3 días. Por favor selecciona un periodo mayor.
                 </div>
               )}
 
-              {/* Advertencia si las fechas ya están ocupadas en Firestore */}
               {estaReservado() && (
                 <div style={{ backgroundColor: '#7f1d1d', color: '#fca5a5', padding: '0.75rem', borderRadius: '6px', fontSize: '0.9rem', fontWeight: 'bold' }}>
                   ❌ Las fechas seleccionadas ya se encuentran ocupadas para este vehículo. Elige otras fechas.
                 </div>
               )}
 
-              {/* Opción de Seguro Full */}
               <div style={{ backgroundColor: '#000', padding: '0.75rem', borderRadius: '6px', border: '1px solid #333' }}>
                 <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '0.5rem' }}>
                   <input type="checkbox" checked={seguroFull} onChange={(e) => setSeguroFull(e.target.checked)} />
@@ -301,12 +301,16 @@ export default function Home() {
               </div>
 
               {dias >= 3 && !estaReservado() && (
-                <div style={{ backgroundColor: '#000', padding: '0.75rem', borderRadius: '6px', fontSize: '0.9rem', border: '1px solid #333' }}>
-                  <p style={{ margin: '0 0 0.25rem 0' }}>Duración: <strong>{dias} días</strong></p>
-                  <p style={{ margin: '0 0 0.25rem 0' }}>Subtotal Renta: <strong>${costoRenta} USD</strong></p>
-                  {seguroFull && <p style={{ margin: '0 0 0.25rem 0' }}>Seguro Full: <strong>${costoSeguro} USD</strong></p>}
-                  <p style={{ margin: '0 0 0.25rem 0', color: '#38bdf8' }}>Depósito de Garantía (Reembolsable): <strong>${depositoGarantia} USD</strong></p>
-                  <p style={{ margin: 0, color: '#f59e0b', fontWeight: 'bold', fontSize: '1.1rem' }}>Total Estimado: ${costoTotal} USD</p>
+                <div style={{ backgroundColor: '#000', padding: '0.75rem', borderRadius: '6px', fontSize: '0.9rem', border: '1px solid #333', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <p style={{ margin: 0 }}>Duración: <strong>{dias} días</strong></p>
+                  <p style={{ margin: 0 }}>Subtotal Renta: <strong>${costoRenta} USD</strong></p>
+                  {seguroFull && <p style={{ margin: 0 }}>Seguro Full: <strong>${costoSeguro} USD</strong></p>}
+                  <p style={{ margin: 0, color: '#38bdf8' }}>Depósito de Garantía (Reembolsable): <strong>${depositoGarantia} USD</strong></p>
+                  <p style={{ margin: 0, color: '#ff0000', fontWeight: 'bold', fontSize: '1.1rem' }}>Total Estimado: ${costoTotal} USD</p>
+                  
+                  <div style={{ marginTop: '0.5rem', paddingTop: '0.5rem', borderTop: '1px dashed #333' }}>
+                    <pre style={{ color: '#cbd5e1', whiteSpace: 'pre-wrap', fontFamily: 'inherit', margin: 0, fontSize: '0.8rem' }}>{DATOS_BANCARIOS}</pre>
+                  </div>
                 </div>
               )}
 
@@ -323,9 +327,8 @@ export default function Home() {
                 <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required style={{ width: '100%', padding: '0.5rem', backgroundColor: '#000', color: '#fff', border: '1px solid #333', borderRadius: '6px' }} />
               </div>
 
-              {/* Contrato de Alquiler Legible */}
               <div>
-                <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.9rem', color: '#f59e0b', fontWeight: 'bold' }}>Términos del Contrato:</label>
+                <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.9rem', color: '#ff0000', fontWeight: 'bold' }}>Términos del Contrato:</label>
                 <div style={{ backgroundColor: '#000', border: '1px solid #333', padding: '0.75rem', borderRadius: '6px', fontSize: '0.8rem', color: '#cbd5e1', maxHeight: '120px', overflowY: 'auto', whiteSpace: 'pre-wrap' }}>
                   {TEXTO_CONTRATO}
                 </div>
@@ -342,7 +345,7 @@ export default function Home() {
                 <label htmlFor="contrato" style={{ marginLeft: '0.5rem', fontSize: '0.85rem' }}>Acepto los términos y condiciones del contrato</label>
               </div>
 
-              <button type="submit" disabled={enviando || dias < 3 || estaReservado()} style={{ padding: '0.75rem', backgroundColor: (dias < 3 || estaReservado()) ? '#475569' : '#f59e0b', color: '#000', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: (dias < 3 || estaReservado()) ? 'not-allowed' : 'pointer' }}>
+              <button type="submit" disabled={enviando || dias < 3 || estaReservado()} style={{ padding: '0.75rem', backgroundColor: (dias < 3 || estaReservado()) ? '#475569' : '#ff0000', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: (dias < 3 || estaReservado()) ? 'not-allowed' : 'pointer' }}>
                 {enviando ? 'Procesando Reserva...' : 'Confirmar Reserva'}
               </button>
             </form>
@@ -350,7 +353,6 @@ export default function Home() {
         </div>
       )}
 
-      {/* Modal con los dos números de WhatsApp */}
       {mostrarModalWS && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.85)', display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '1rem', zIndex: 100 }}>
           <div style={{ backgroundColor: '#111', padding: '2rem', borderRadius: '12px', maxWidth: '400px', width: '100%', textAlign: 'center', border: '1px solid #333' }}>

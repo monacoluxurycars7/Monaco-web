@@ -655,7 +655,7 @@ export default function Home() {
               <i className="fa-solid fa-phone" style={{ fontSize: '2rem', color: '#25D366', marginBottom: '0.8rem' }}></i>
               <h4 style={{ color: '#fff', fontSize: '1.1rem', marginBottom: '0.5rem' }}>Teléfonos / WhatsApp</h4>
               <p style={{ color: '#cbd5e1', margin: '0 0 0.3rem 0' }}>
-                <a href="tel:8294277986" style={{ color: '#f59e0b', textDecoration: 'none' }}>+1 (829) 425-7986</a>
+                <a href="tel:8294257986" style={{ color: '#f59e0b', textDecoration: 'none' }}>+1 (829) 425-7986</a>
               </p>
               <p style={{ color: '#cbd5e1', margin: 0 }}>
                 <a href="tel:9732894797" style={{ color: '#f59e0b', textDecoration: 'none' }}>+1 (973) 289-4797</a>

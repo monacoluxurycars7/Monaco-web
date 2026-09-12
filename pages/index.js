@@ -9,7 +9,7 @@ const vehiculos = [
     id: 'kia-sportage-lx-2020',
     nombre: 'Kia Sportage LX 2020',
     imagen: '/kia.jpeg',
-    precios: { base: 60, medio: 55, largo: 50 },
+    precios: { base: 50, medio: 45, largo: 40 },
     seguroFullPrecios: { corto: 30, medio: 25, largo: 20 },
     disponible: true
   },
@@ -17,7 +17,7 @@ const vehiculos = [
     id: 'jeep-cherokee-latitude-2019',
     nombre: 'Jeep Cherokee Latitude 2019',
     imagen: '/jeep.jpg',
-    precios: { base: 65, medio: 60, largo: 55 },
+    precios: { base: 55, medio: 50, largo: 45 },
     seguroFullPrecios: { corto: 30, medio: 25, largo: 20 },
     disponible: true
   },
@@ -25,7 +25,7 @@ const vehiculos = [
     id: 'kia-seltos-2021',
     nombre: 'Kia Seltos 2021',
     imagen: '/kia.jpeg',
-    precios: { base: 60, medio: 55, largo: 50 },
+    precios: { base: 55, medio: 50, largo: 45 },
     seguroFullPrecios: { corto: 40, medio: 35, largo: 30 },
     disponible: false
   }

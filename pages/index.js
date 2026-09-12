@@ -27,7 +27,7 @@ const vehiculos = [
     imagen: '/kia.jpeg',
     precios: { base: 55, medio: 50, largo: 45 },
     seguroFullPrecios: { corto: 40, medio: 35, largo: 30 },
-    disponible: false
+    disponible: true
   }
 ];
 
@@ -159,11 +159,13 @@ export default function Home() {
 
   const estaReservado = () => {
     if (!vehiculoSeleccionado || !fechaInicio || !fechaFin) return false;
-    const inicioSel = new Date(fechaInicio);
-    const finSel = new Date(fechaFin);
+    const inicioSel = new Date(fechaInicio + 'T00:00:00');
+    const finSel = new Date(fechaFin + 'T00:00:00');
     return reservasExistentes.some((r) => {
       if (r.vehiculoId !== vehiculoSeleccionado.id) return false;
-      return inicioSel <= new Date(r.fin) && finSel >= new Date(r.inicio);
+      const rInicio = new Date(r.inicio + 'T00:00:00');
+      const rFin = new Date(r.fin + 'T00:00:00');
+      return inicioSel <= rFin && finSel >= rInicio;
     });
   };
 
@@ -177,7 +179,7 @@ export default function Home() {
   const handleSubmitReserva = async (e) => {
     e.preventDefault();
     if (dias < 3) { alert('El alquiler mínimo es de 3 días.'); return; }
-    if (estaReservado()) { alert('El vehículo ya se encuentra reservado en esas fechas.'); return; }
+    if (estaReservado()) { alert('El vehículo ya se encuentra reservado en esas fechas. Por favor elige otras fechas.'); return; }
     if (!aceptaContrato) { alert('Debes aceptar el contrato.'); return; }
     if (!tieneFirma) { alert('Debes firmar digitalmente.'); return; }
 
@@ -230,6 +232,13 @@ export default function Home() {
       }
 
       setVehiculoSeleccionado(null);
+      setFechaInicio('');
+      setFechaFin('');
+      setNombre('');
+      setTelefono('');
+      setEmail('');
+      setSeguroFull(false);
+      setAceptaContrato(false);
     } catch (error) {
       console.error('Error al guardar:', error);
       alert('Error al guardar la reserva: ' + error.message);
@@ -264,9 +273,6 @@ export default function Home() {
         <h3 style={{ color: '#ffffff', textAlign: 'center', marginBottom: '2rem' }}>Nuestra Flota</h3>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
           {vehiculos.map((v) => {
-            const ocupado = reservasExistentes.some((r) => r.vehiculoId === v.id && new Date() <= new Date(r.fin));
-            const estaDisponibilidadReal = v.disponible && !ocupado;
-
             return (
               <div key={v.id} style={{ backgroundColor: '#111', borderRadius: '12px', padding: '1.5rem', border: '1px solid #222' }}>
                 <img src={v.imagen} alt={v.nombre} style={{ width: '100%', height: '200px', objectFit: 'cover', borderRadius: '8px' }} />
@@ -279,11 +285,7 @@ export default function Home() {
                   <p style={{ margin: '0 0 0.5rem 0' }}>• 11+ Días: USD ${v.precios.largo}/día</p>
                 </div>
 
-                {estaDisponibilidadReal ? (
-                  <button onClick={() => setVehiculoSeleccionado(v)} style={{ width: '100%', padding: '0.75rem', backgroundColor: '#f59e0b', color: '#000', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>Reservar este Auto</button>
-                ) : (
-                  <button disabled style={{ width: '100%', padding: '0.75rem', backgroundColor: '#7f1d1d', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'not-allowed', fontWeight: 'bold' }}>No Disponible / Ocupado</button>
-                )}
+                <button onClick={() => setVehiculoSeleccionado(v)} style={{ width: '100%', padding: '0.75rem', backgroundColor: '#f59e0b', color: '#000', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>Reservar este Auto</button>
               </div>
             );
           })}
@@ -335,7 +337,6 @@ export default function Home() {
                   <p style={{ margin: 0, color: '#38bdf8' }}>Depósito de Garantía (Reembolsable): <strong>${depositoGarantia} USD</strong></p>
                   <p style={{ margin: 0, color: '#ff0000', fontWeight: 'bold', fontSize: '1.1rem' }}>Total Estimado: ${costoTotal} USD</p>
                   
-                  {/* CUENTAS BANCARIAS DENTRO DEL MODAL DEBAJO DEL TOTAL */}
                   <div style={{ marginTop: '0.5rem', paddingTop: '0.5rem', borderTop: '1px dashed #333' }}>
                     <pre style={{ color: '#cbd5e1', whiteSpace: 'pre-wrap', fontFamily: 'inherit', margin: 0, fontSize: '0.8rem' }}>{DATOS_BANCARIOS}</pre>
                   </div>
@@ -383,7 +384,6 @@ export default function Home() {
         </div>
       )}
 
-      {/* MODAL PARA LEER EL CONTRATO */}
       {mostrarModalContrato && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.9)', display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '1rem', zIndex: 110 }}>
           <div style={{ backgroundColor: '#111', padding: '2rem', borderRadius: '12px', maxWidth: '650px', width: '100%', maxHeight: '85vh', overflowY: 'auto', border: '1px solid #333' }}>

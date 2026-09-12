@@ -39,17 +39,50 @@ CUENTAS BANCARIAS PARA TRANSFERENCIA / RESERVA ($150 USD):
 `;
 
 const TEXTO_CONTRATO = `
-CONTRATO DE ARRENDAMIENTO DE VEHÍCULO - MONACO LUXURY RENT A CAR
-1. Reserva de USD $150.00 NO REEMBOLSABLE. Saldo restante contra entrega.
-2. Extranjeros dejan pasaporte original. Nacionales copia de cédula y licencia.
-3. Depósito de garantía: USD $400.00 (Reembolsable si se entrega en las mismas condiciones. Exonerado con Seguro Full).
-4. Devolución a la misma hora. Exceso mayor a 4 hrs cobra un día adicional.
-5. El cliente asume total responsabilidad por multas de tránsito.
+CONTRATO DE ARRENDAMIENTO DE VEHÍCULO
+EMPRESA ARRENDADORA: MONACO LUXURY RENT A CAR
+
+MODALIDAD: Aceptación / Términos y Condiciones de Servicio
+
+1. RESERVA Y PAGOS
+1.1. Monto de Reserva: Para confirmar y garantizar la reserva de un vehículo, el CLIENTE debe realizar un pago inicial de USD $150.00.
+1.2. Política de Cancelación: El monto de la reserva (USD $150.00) NO ES REEMBOLSABLE bajo ninguna circunstancia si el CLIENTE decide cancelar el servicio.
+1.3. Pago del Saldo Restante: El saldo restante del costo total del alquiler debe ser saldado en su totalidad al momento en que MONACO LUXURY RENT A CAR realice la entrega del vehículo al CLIENTE.
+
+2. DOCUMENTACIÓN REQUERIDA Y DEVOLUCIÓN
+2.1. Clientes Extranjeros: Deberán presentar y dejar en custodia su pasaporte original vigente.
+2.2. Clientes Nacionales / Residentes: Deberán entregar copia fotostática legible de su cédula de identidad y electoral y de su licencia de conducir vigente.
+2.3. Devolución de Documentos: Los documentos entregados en custodia serán devueltos al CLIENTE únicamente tras la inspección final y devolución satisfactoria del vehículo.
+
+3. DEPÓSITO DE GARANTÍA Y OPCIONES DE SEGURO
+3.1. Seguro Básico de Tránsito: Todos los vehículos incluyen un seguro de tránsito obligatorio únicamente para circular legalmente. Este seguro no cubre daños físicos ni pérdidas materiales en caso de accidente.
+3.2. Depósito de Garantía: Salvo que se adquiera la cobertura completa, el CLIENTE debe dejar un depósito de garantía de USD $400.00.
+3.3. Responsabilidad por Daños: Si el vehículo sufre daños o accidentes y el CLIENTE no cuenta con seguro full, el CLIENTE se hace totalmente responsable por los costos de reparación. Si el monto de los daños supera los USD $400.00 del depósito, el CLIENTE está obligado a pagar la diferencia restante.
+3.4. Seguro Full (Cobertura Total Exclusiva): Si el CLIENTE contrata la opción de Seguro Full directamente con MONACO LUXURY RENT A CAR: queda totalmente exonerado del depósito de garantía de USD $400.00, y en caso de accidente o siniestro, el CLIENTE solo responderá por el pago del monto correspondiente al deducible del seguro.
+
+4. TIEMPO DE RENTA, HORARIOS Y PENALIZACIONES
+4.1. Hora de Entrega: El vehículo debe ser devuelto a la misma hora exacta en la que fue entregado por MONACO LUXURY RENT A CAR.
+4.2. Tolerancia y Recargos: Se otorga un margen máximo de tolerancia. Si la devolución del vehículo se retrasa por más de cuatro (4) horas respecto a la hora pactada, se cobrará automáticamente un (1) día completo adicional de renta.
+
+5. MULTAS Y INFRACCIONES DE TRÁNSITO
+5.1. El CLIENTE asume la responsabilidad total y exclusiva por cualquier multa, sanción, fotomulta o infracción de tránsito emitida por las autoridades correspondientes durante el período en que el vehículo estuvo bajo su posesión.
+5.2. En caso de que las multas sean notificadas con posterioridad a la entrega del vehículo, MONACO LUXURY RENT A CAR queda facultada para realizar el cobro o reclamo correspondiente al CLIENTE.
+
+6. CONDICIONES ADICIONALES E IMPORTANTES
+6.1. Estado del Vehículo: El CLIENTE declara recibir el vehículo en perfectas condiciones mecánicas, estéticas y de limpieza, y se compromete a devolverlo en las mismas condiciones exactas en que lo recibió.
+6.2. Nivel de Combustible: El vehículo debe ser devuelto con la misma cantidad de combustible con la que fue entregado. De lo contrario, se aplicará un cargo por reabastecimiento.
+6.3. Uso Permitido y Prohibiciones: El vehículo solo podrá ser conducido por el CLIENTE o por conductores adicionales autorizados explícitamente. Queda estrictamente prohibido utilizarlo para subarrendar, transportar carga pesada, participar en carreras, remolcar, realizar actividades ilícitas o conducir bajo los efectos del alcohol o sustancias controladas.
+6.4. Llaves y Neumáticos: La pérdida o daño de las llaves, así como pinchaduras o daños severos en los neumáticos por negligencia, no están cubiertos por ningún seguro y serán facturados directamente al CLIENTE.
+6.5. Asistencia y Reporte de Siniestros: En caso de accidente, avería o robo, el CLIENTE debe notificar inmediatamente a MONACO LUXURY RENT A CAR y a las autoridades policiales en un plazo no mayor a 2 horas.
+
+7. ACEPTACIÓN DIGITAL
+Al realizar el pago de la reserva o al tomar posesión del vehículo, el CLIENTE confirma que ha leído, comprendido y aceptado la totalidad de los términos, condiciones y políticas expuestas en este contrato digital emitido por MONACO LUXURY RENT A CAR.
 `;
 
 export default function Home() {
   const [vehiculoSeleccionado, setVehiculoSeleccionado] = useState(null);
   const [mostrarModalWS, setMostrarModalWS] = useState(false);
+  const [mostrarModalContrato, setMostrarModalContrato] = useState(false);
   const [enviando, setEnviando] = useState(false);
   const [reservasExistentes, setReservasExistentes] = useState([]);
 
@@ -217,8 +250,8 @@ export default function Home() {
           <img src="/logo.png" alt="Monaco Logo" style={{ height: '40px', objectFit: 'contain' }} />
           <h1 style={{ fontSize: '1.25rem', color: '#ff0000', margin: 0 }}>MONACO LUXURY RENT A CAR</h1>
         </div>
-        <div style={{ display: 'flex', gap: '1.2rem', alignItems: 'center' }}>
-          <a href="https://instagram.com/monacoluxurycars" target="_blank" rel="noopener noreferrer" style={{ color: '#E1306C', fontSize: '1.6rem', textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+          <a href="https://instagram.com/monacoluxurycars" target="_blank" rel="noopener noreferrer" style={{ color: '#E1306C', fontSize: '1.5rem', textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
             <i className="fa-brands fa-instagram"></i>
           </a>
           <button onClick={() => setMostrarModalWS(true)} style={{ backgroundColor: '#25D366', color: '#fff', border: 'none', padding: '0.5rem 1rem', borderRadius: '20px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -268,11 +301,11 @@ export default function Home() {
             <form onSubmit={handleSubmitReserva} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div>
                 <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.9rem' }}>Fecha Inicio:</label>
-                <input type="date" value={fechaInicio} onChange={(e) => setFechaInicio(e.target.value)} required style={{ width: '100%', padding: '0.5rem', backgroundColor: '#ffffff', color: '#000000', border: '1px solid #333', borderRadius: '6px', fontWeight: 'bold' }} />
+                <input type="date" value={fechaInicio} onChange={(e) => setFechaInicio(e.target.value)} required style={{ width: '100%', padding: '0.5rem', backgroundColor: '#fff', color: '#000', border: '1px solid #333', borderRadius: '6px' }} />
               </div>
               <div>
                 <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.9rem' }}>Fecha Entrega:</label>
-                <input type="date" value={fechaFin} min={fechaInicio} onChange={(e) => setFechaFin(e.target.value)} required style={{ width: '100%', padding: '0.5rem', backgroundColor: '#ffffff', color: '#000000', border: '1px solid #333', borderRadius: '6px', fontWeight: 'bold' }} />
+                <input type="date" value={fechaFin} min={fechaInicio} onChange={(e) => setFechaFin(e.target.value)} required style={{ width: '100%', padding: '0.5rem', backgroundColor: '#fff', color: '#000', border: '1px solid #333', borderRadius: '6px' }} />
               </div>
 
               {fechaInicio && fechaFin && dias > 0 && dias < 3 && (
@@ -302,6 +335,7 @@ export default function Home() {
                   <p style={{ margin: 0, color: '#38bdf8' }}>Depósito de Garantía (Reembolsable): <strong>${depositoGarantia} USD</strong></p>
                   <p style={{ margin: 0, color: '#ff0000', fontWeight: 'bold', fontSize: '1.1rem' }}>Total Estimado: ${costoTotal} USD</p>
                   
+                  {/* CUENTAS BANCARIAS DENTRO DEL MODAL DEBAJO DEL TOTAL */}
                   <div style={{ marginTop: '0.5rem', paddingTop: '0.5rem', borderTop: '1px dashed #333' }}>
                     <pre style={{ color: '#cbd5e1', whiteSpace: 'pre-wrap', fontFamily: 'inherit', margin: 0, fontSize: '0.8rem' }}>{DATOS_BANCARIOS}</pre>
                   </div>
@@ -323,8 +357,10 @@ export default function Home() {
 
               <div>
                 <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.9rem', color: '#ff0000', fontWeight: 'bold' }}>Términos del Contrato:</label>
-                <div style={{ backgroundColor: '#000', border: '1px solid #333', padding: '0.75rem', borderRadius: '6px', fontSize: '0.8rem', color: '#cbd5e1', maxHeight: '120px', overflowY: 'auto', whiteSpace: 'pre-wrap' }}>
-                  {TEXTO_CONTRATO}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.5rem' }}>
+                  <button type="button" onClick={() => setMostrarModalContrato(true)} style={{ backgroundColor: '#222', color: '#38bdf8', border: '1px solid #333', padding: '0.5rem 1rem', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem', textDecoration: 'underline' }}>
+                    Ver Términos y Condiciones del Contrato
+                  </button>
                 </div>
               </div>
 
@@ -339,10 +375,28 @@ export default function Home() {
                 <label htmlFor="contrato" style={{ marginLeft: '0.5rem', fontSize: '0.85rem' }}>Acepto los términos y condiciones del contrato</label>
               </div>
 
-              <button type="submit" disabled={enviando || dias < 3 || estaReservado()} style={{ padding: '0.75rem', backgroundColor: (dias < 3 || estaReservado()) ? '#475569' : '#f59e0b', color: '#000', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: (dias < 3 || estaReservado()) ? 'not-allowed' : 'pointer' }}>
+              <button type="submit" disabled={enviando || dias < 3 || estaReservado()} style={{ padding: '0.75rem', backgroundColor: (dias < 3 || estaReservado()) ? '#475569' : '#ff0000', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: (dias < 3 || estaReservado()) ? 'not-allowed' : 'pointer' }}>
                 {enviando ? 'Procesando Reserva...' : 'Confirmar Reserva'}
               </button>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL PARA LEER EL CONTRATO */}
+      {mostrarModalContrato && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.9)', display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '1rem', zIndex: 110 }}>
+          <div style={{ backgroundColor: '#111', padding: '2rem', borderRadius: '12px', maxWidth: '650px', width: '100%', maxHeight: '85vh', overflowY: 'auto', border: '1px solid #333' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <h3 style={{ color: '#ff0000', margin: 0 }}>Contrato de Arrendamiento</h3>
+              <button onClick={() => setMostrarModalContrato(false)} style={{ background: 'none', border: 'none', color: '#fff', fontSize: '1.5rem', cursor: 'pointer' }}>✕</button>
+            </div>
+            <div style={{ backgroundColor: '#000', border: '1px solid #333', padding: '1rem', borderRadius: '6px', fontSize: '0.85rem', color: '#cbd5e1', whiteSpace: 'pre-wrap', lineHeight: '1.4' }}>
+              {TEXTO_CONTRATO}
+            </div>
+            <button onClick={() => setMostrarModalContrato(false)} style={{ marginTop: '1rem', width: '100%', padding: '0.75rem', backgroundColor: '#ff0000', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>
+              Entendido / Cerrar
+            </button>
           </div>
         </div>
       )}
@@ -352,8 +406,12 @@ export default function Home() {
           <div style={{ backgroundColor: '#111', padding: '2rem', borderRadius: '12px', maxWidth: '400px', width: '100%', textAlign: 'center', border: '1px solid #333' }}>
             <h3 style={{ color: '#25D366', marginTop: 0 }}>Atención por WhatsApp</h3>
             <p style={{ color: '#cbd5e1', fontSize: '0.95rem', marginBottom: '1.5rem' }}>Comunícate directamente con nuestros asesores en Santo Domingo:</p>
-            <a href="https://wa.me/18090000001" target="_blank" rel="noopener noreferrer" style={{ display: 'block', backgroundColor: '#25D366', color: '#fff', padding: '0.75rem', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', marginBottom: '0.75rem' }}><i className="fa-brands fa-whatsapp"></i> WhatsApp Línea 1</a>
-            <a href="https://wa.me/18090000002" target="_blank" rel="noopener noreferrer" style={{ display: 'block', backgroundColor: '#25D366', color: '#fff', padding: '0.75rem', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', marginBottom: '1.5rem' }}><i className="fa-brands fa-whatsapp"></i> WhatsApp Línea 2</a>
+            <a href="https://wa.me/18090000001" target="_blank" rel="noopener noreferrer" style={{ display: 'block', backgroundColor: '#25D366', color: '#fff', padding: '0.75rem', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', marginBottom: '0.75rem' }}>
+              <i className="fa-brands fa-whatsapp" style={{ marginRight: '8px' }}></i> WhatsApp Línea 1
+            </a>
+            <a href="https://wa.me/18090000002" target="_blank" rel="noopener noreferrer" style={{ display: 'block', backgroundColor: '#25D366', color: '#fff', padding: '0.75rem', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', marginBottom: '1.5rem' }}>
+              <i className="fa-brands fa-whatsapp" style={{ marginRight: '8px' }}></i> WhatsApp Línea 2
+            </a>
             <button onClick={() => setMostrarModalWS(false)} style={{ background: 'none', border: '1px solid #666', color: '#cbd5e1', padding: '0.5rem 1rem', borderRadius: '6px', cursor: 'pointer' }}>Cerrar</button>
           </div>
         </div>

@@ -686,8 +686,8 @@ export default function Home() {
             </h3>
             <p style={{ color: '#aaa', fontSize: '0.9rem', marginBottom: '1.5rem' }}>Selecciona con cuál de nuestras líneas oficiales deseas comunicarte:</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <a href="https://wa.me/18294277986" target="_blank" rel="noopener noreferrer" style={{ padding: '0.8rem', backgroundColor: '#25D366', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold' }}>
-                Línea 1: +1 (829) 427-7986
+              <a href="https://wa.me/18294257986" target="_blank" rel="noopener noreferrer" style={{ padding: '0.8rem', backgroundColor: '#25D366', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold' }}>
+                Línea 1: +1 (829) 425-7986
               </a>
               <a href="https://wa.me/19732894797" target="_blank" rel="noopener noreferrer" style={{ padding: '0.8rem', backgroundColor: '#25D366', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold' }}>
                 Línea 2: +1 (973) 289-4797

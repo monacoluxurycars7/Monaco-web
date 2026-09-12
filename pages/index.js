@@ -206,13 +206,13 @@ export default function Home() {
   };
 
   return (
-    <div style={{ backgroundColor: '#000000', color: '#f8fafc', minHeight: '100vh', fontFamily: 'Arial, sans-serif' }}>
+    <div style={{ backgroundColor: '#000000', color: '#ff0000', minHeight: '100vh', fontFamily: 'Arial, sans-serif' }}>
       <Head><title>Monaco Luxury Rent a Car</title></Head>
       
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 2rem', backgroundColor: '#0a0a0a', borderBottom: '1px solid #222' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <img src="/logo.png" alt="Monaco Logo" style={{ height: '40px', objectFit: 'contain' }} />
-          <h1 style={{ fontSize: '1.25rem', color: '#f59e0b', margin: 0 }}>MONACO LUXURY RENT A CAR</h1>
+          <h1 style={{ fontSize: '1.25rem', color: '#ff0000', margin: 0 }}>MONACO LUXURY RENT A CAR</h1>
         </div>
         <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
           <a href="https://instagram.com/monacoluxurycars" target="_blank" rel="noopener noreferrer" style={{ color: '#E1306C', fontSize: '1.5rem', textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
@@ -225,7 +225,7 @@ export default function Home() {
       </header>
 
       <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem 1rem' }}>
-        <h3 style={{ color: '#f59e0b', textAlign: 'center', marginBottom: '2rem' }}>Nuestra Flota</h3>
+        <h3 style={{ color: '#ff0000', textAlign: 'center', marginBottom: '2rem' }}>Nuestra Flota</h3>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
           {vehiculos.map((v) => {
             const ocupado = reservasExistentes.some((r) => r.vehiculoId === v.id && new Date() <= new Date(r.fin));

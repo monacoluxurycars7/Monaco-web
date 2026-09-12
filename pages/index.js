@@ -1,31 +1,44 @@
 import React, { useState } from 'react';
 import Head from 'next/head';
+import emailjs from '@emailjs/browser';
 
 const vehiculos = [
   {
     id: 'kia-sportage-lx-2020',
     nombre: 'Kia Sportage LX 2020',
     imagen: '/kia.jpeg',
-    precios: { base: 50, medio: 45, largo: 40 }
+    precios: { base: 60, medio: 55, largo: 50 }
   },
   {
     id: 'jeep-cherokee-latitude-2019',
     nombre: 'Jeep Cherokee Latitude 2019',
     imagen: '/jeep.jpg',
-    precios: { base: 55, medio: 50, largo: 45 }
+    precios: { base: 65, medio: 60, largo: 55 }
   },
   {
     id: 'kia-seltos-2021',
     nombre: 'Kia Seltos 2021',
     imagen: '/kia.jpeg',
-    precios: { base: 55, medio: 50, largo: 45 }
+    precios: { base: 60, medio: 55, largo: 50 }
   }
 ];
+
+const TEXTO_CONTRATO = `
+CONTRATO DE ARRENDAMIENTO DE VEHÍCULO - MONACO LUXURY RENT A CAR
+1. RESERVA Y PAGOS: Reserva de USD $150.00 NO REEMBOLSABLE. Saldo restante contra entrega.
+2. DOCUMENTACIÓN: Extranjeros dejan pasaporte original. Nacionales/Residentes entregan copia de cédula y licencia.
+3. DEPÓSITO Y SEGURO: Seguro básico no cubre daños físicos. Depósito de garantía: USD $400.00. Con Seguro Full se exonera depósito y solo se paga deducible.
+4. HORARIOS: Devolución a la misma hora de entrega. Tolerancia excedida (>4 hrs) aplica recargo de 1 día adicional.
+5. MULTAS: El cliente asume total responsabilidad por infracciones y multas de tránsito.
+6. CONDICIONES: Vehículo se entrega y devuelve en óptimas condiciones y con mismo nivel de combustible. Prohibido subarrendar o actividades ilícitas.
+7. ACEPTACIÓN DIGITAL: Al confirmar, el cliente acepta íntegramente este contrato.
+`;
 
 export default function Home() {
   const [vehiculoSeleccionado, setVehiculoSeleccionado] = useState(null);
   const [mostrarModalWS, setMostrarModalWS] = useState(false);
   const [mostrarModalContrato, setMostrarModalContrato] = useState(false);
+  const [enviando, setEnviando] = useState(false);
 
   // Formulario
   const [fechaInicio, setFechaInicio] = useState('');
@@ -58,17 +71,51 @@ export default function Home() {
 
   const precioPorDia = obtenerPrecioPorDia(vehiculoSeleccionado);
   const costoRenta = dias * precioPorDia;
-  const costoSeguro = seguroFull ? dias * 15 : 0; // Tarifa referencial de seguro full
+  const costoSeguro = seguroFull ? dias * 15 : 0;
   const costoTotal = costoRenta + costoSeguro;
 
-  const handleSubmitReserva = (e) => {
+  const handleSubmitReserva = async (e) => {
     e.preventDefault();
     if (!aceptaContrato) {
       alert('Debes aceptar el contrato de arrendamiento para continuar.');
       return;
     }
-    alert(`¡Reserva iniciada exitosamente!\n\nVehículo: ${vehiculoSeleccionado.nombre}\nDías: ${dias}\nTotal a pagar: USD $${costoTotal}\nReserva requerida: USD $150.00\n\nNos pondremos en contacto contigo a la brevedad.`);
-    setVehiculoSeleccionado(null);
+
+    setEnviando(true);
+
+    const templateParams = {
+      to_email: email,
+      cliente_nombre: nombre,
+      cliente_telefono: telefono,
+      cliente_email: email,
+      tipo_cliente: tipoCliente === 'extranjero' ? 'Extranjero (Pasaporte)' : 'Nacional/Residente (Cédula + Licencia)',
+      vehiculo: vehiculoSeleccionado.nombre,
+      fecha_inicio: fechaInicio,
+      fecha_fin: fechaFin,
+      dias_totales: dias,
+      precio_por_dia: precioPorDia,
+      seguro_full: seguroFull ? 'SI (Exonerado de depósito)' : 'NO (Depósito $400 USD)',
+      costo_total: costoTotal,
+      monto_reserva: 150,
+      contrato_texto: TEXTO_CONTRATO
+    };
+
+    try {
+      await emailjs.send(
+        process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID,
+        process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID,
+        templateParams,
+        process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY
+      );
+
+      alert(`¡Reserva realizada con éxito!\n\nSe ha enviado un correo de confirmación a: ${email}\nTambién hemos recibido los detalles de la reserva junto con el contrato en Monaco Luxury Rent a Car.`);
+      setVehiculoSeleccionado(null);
+    } catch (error) {
+      console.error('Error al enviar el correo:', error);
+      alert('La reserva fue procesada localmente, pero hubo un detalle al enviar el correo. Por favor contáctanos por WhatsApp.');
+    } finally {
+      setEnviando(false);
+    }
   };
 
   return (
@@ -146,7 +193,7 @@ export default function Home() {
         </div>
       </main>
 
-      {/* MODAL DE RESERVA */}
+      {/* MODAL DE RESERVA CON CALENDARIO Y FORMULARIO */}
       {vehiculoSeleccionado && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.8)', display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '1rem', zIndex: 100 }}>
           <div style={{ backgroundColor: '#1e293b', padding: '2rem', borderRadius: '12px', maxWidth: '550px', width: '100%', maxHeight: '90vh', overflowY: 'auto', border: '1px solid #334155' }}>
@@ -156,14 +203,31 @@ export default function Home() {
             </div>
 
             <form onSubmit={handleSubmitReserva} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <div>
-                <label style={{ display: 'block', fontSize: '0.85rem', color: '#94a3b8', marginBottom: '0.3rem' }}>Fecha de Inicio:</label>
-                <input type="date" value={fechaInicio} onChange={(e) => setFechaInicio(e.target.value)} required style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid #334155', backgroundColor: '#0f172a', color: '#fff' }} />
-              </div>
+              
+              {/* SELECCIÓN CON CALENDARIO */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', backgroundColor: '#0f172a', padding: '1rem', borderRadius: '8px', border: '1px solid #334155' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', color: '#f59e0b', marginBottom: '0.3rem', fontWeight: 'bold' }}>📅 Fecha Inicio:</label>
+                  <input 
+                    type="date" 
+                    value={fechaInicio} 
+                    onChange={(e) => setFechaInicio(e.target.value)} 
+                    required 
+                    style={{ width: '100%', padding: '0.6rem', borderRadius: '6px', border: '1px solid #334155', backgroundColor: '#1e293b', color: '#fff', cursor: 'pointer' }} 
+                  />
+                </div>
 
-              <div>
-                <label style={{ display: 'block', fontSize: '0.85rem', color: '#94a3b8', marginBottom: '0.3rem' }}>Fecha de Fin:</label>
-                <input type="date" value={fechaFin} onChange={(e) => setFechaFin(e.target.value)} required style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid #334155', backgroundColor: '#0f172a', color: '#fff' }} />
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', color: '#f59e0b', marginBottom: '0.3rem', fontWeight: 'bold' }}>📅 Fecha Entrega:</label>
+                  <input 
+                    type="date" 
+                    value={fechaFin} 
+                    min={fechaInicio} 
+                    onChange={(e) => setFechaFin(e.target.value)} 
+                    required 
+                    style={{ width: '100%', padding: '0.6rem', borderRadius: '6px', border: '1px solid #334155', backgroundColor: '#1e293b', color: '#fff', cursor: 'pointer' }} 
+                  />
+                </div>
               </div>
 
               <div>
@@ -217,8 +281,12 @@ export default function Home() {
                 </label>
               </div>
 
-              <button type="submit" style={{ padding: '0.75rem', backgroundColor: '#f59e0b', color: '#0f172a', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '1rem', cursor: 'pointer', marginTop: '0.5rem' }}>
-                Confirmar Reserva
+              <button 
+                type="submit" 
+                disabled={enviando}
+                style={{ padding: '0.75rem', backgroundColor: enviando ? '#64748b' : '#f59e0b', color: '#0f172a', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '1rem', cursor: enviando ? 'not-allowed' : 'pointer', marginTop: '0.5rem' }}
+              >
+                {enviando ? 'Enviando reserva y contrato...' : 'Confirmar Reserva'}
               </button>
             </form>
           </div>
@@ -232,29 +300,15 @@ export default function Home() {
             <h3 style={{ color: '#25D366', marginTop: 0 }}>Contactar por WhatsApp</h3>
             <p style={{ fontSize: '0.9rem', color: '#94a3b8' }}>Selecciona uno de nuestros números de atención:</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', margin: '1.5rem 0' }}>
-              <a 
-                href="https://wa.me/18498471138" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                style={{ padding: '0.75rem', backgroundColor: '#25D366', color: '#fff', textDecoration: 'none', borderRadius: '8px', fontWeight: 'bold' }}
-              >
-                📱 WhatsApp Opción 1 (+1 849-847-1138)
-              </a>
-              <a 
-                href="https://wa.me/18296792686" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                style={{ padding: '0.75rem', backgroundColor: '#25D366', color: '#fff', textDecoration: 'none', borderRadius: '8px', fontWeight: 'bold' }}
-              >
-                📱 WhatsApp Opción 2 (+1 829-679-2686)
-              </a>
+              <a href="https://wa.me/18498471138" target="_blank" rel="noopener noreferrer" style={{ padding: '0.75rem', backgroundColor: '#25D366', color: '#fff', textDecoration: 'none', borderRadius: '8px', fontWeight: 'bold' }}>📱 WhatsApp Opción 1 (+1 849-847-1138)</a>
+              <a href="https://wa.me/18296792686" target="_blank" rel="noopener noreferrer" style={{ padding: '0.75rem', backgroundColor: '#25D366', color: '#fff', textDecoration: 'none', borderRadius: '8px', fontWeight: 'bold' }}>📱 WhatsApp Opción 2 (+1 829-679-2686)</a>
             </div>
             <button onClick={() => setMostrarModalWS(false)} style={{ backgroundColor: 'transparent', border: '1px solid #334155', color: '#fff', padding: '0.5rem 1rem', borderRadius: '6px', cursor: 'pointer' }}>Cerrar</button>
           </div>
         </div>
       )}
 
-      {/* MODAL CONTRATO DE ARRENDAMIENTO */}
+      {/* MODAL CONTRATO */}
       {mostrarModalContrato && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.8)', display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '1rem', zIndex: 120 }}>
           <div style={{ backgroundColor: '#1e293b', padding: '2rem', borderRadius: '12px', maxWidth: '700px', width: '100%', maxHeight: '80vh', overflowY: 'auto', border: '1px solid #334155', textAlign: 'left', fontSize: '0.9rem', lineHeight: '1.5', color: '#cbd5e1' }}>
@@ -292,7 +346,7 @@ export default function Home() {
             <h4 style={{ color: '#fff' }}>6. CONDICIONES ADICIONALES E IMPORTANTES</h4>
             <p><strong>6.1. Estado del Vehículo:</strong> El CLIENTE declara recibir el vehículo en perfectas condiciones mecánicas, estéticas y de limpieza, y se compromete a devolverlo en las mismas condiciones exactas en que lo recibió.<br />
             <strong>6.2. Nivel de Combustible:</strong> El vehículo debe ser devuelto con la misma cantidad de combustible con la que fue entregado.<br />
-            <strong>6.3. Uso Permitido y Prohibiciones:</strong> El vehículo solo podrá ser conducido por el CLIENTE o por conductores adicionales autorizados. Queda prohibido subarrendar, transportar carga pesada, participar en carreras o conducir bajo los efectos del alcohol.<br />
+            <strong>6.3. Uso Permitido y Prohibiciones:</strong> El vehículo solo podrá ser conducido por el CLIENTE o por conductores authorized. Queda prohibido subarrendar, transportar carga pesada, participar en carreras o conducir bajo los efectos del alcohol.<br />
             <strong>6.4. Llaves y Neumáticos:</strong> La pérdida o daño de llaves o neumáticos no están cubiertos por ningún seguro.<br />
             <strong>6.5. Asistencia:</strong> Notificar inmediatamente a MONACO LUXURY RENT A CAR en un plazo no mayor a 2 horas tras cualquier siniestro.</p>
 

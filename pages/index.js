@@ -114,6 +114,7 @@ export default function Home() {
   const [fechaInicio, setFechaInicio] = useState('');
   const [fechaFin, setFechaFin] = useState('');
   const [tipoCliente, setTipoCliente] = useState('extranjero');
+  const [documentoCliente, setDocumentoCliente] = useState('');
   const [seguroFull, setSeguroFull] = useState(false);
   const [nombre, setNombre] = useState('');
   const [direccionRD, setDireccionRD] = useState('');

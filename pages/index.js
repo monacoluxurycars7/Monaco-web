@@ -360,16 +360,16 @@ export default function Home() {
           filter: invert(1);
         }
         .modal-overlay {
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100vw;
-          height: 100vh;
-          background-color: rgba(0, 0, 0, 0.85);
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          z-index: 1000;
+          position: fixed !important;
+          top: 0 !important;
+          left: 0 !important;
+          width: 100vw !important;
+          height: 100vh !important;
+          background-color: rgba(0, 0, 0, 0.85) !important;
+          display: flex !important;
+          justify-content: center !important;
+          align-items: center !important;
+          z-index: 999999 !important;
         }
         .modal-content {
           background-color: #111;
@@ -381,6 +381,8 @@ export default function Home() {
           max-height: 90vh;
           overflow-y: auto;
           color: #fff;
+          position: relative !important;
+          z-index: 1000000 !important;
         }
       `}</style>
       

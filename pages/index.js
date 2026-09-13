@@ -412,7 +412,7 @@ export default function Home() {
             onClick={() => setMenuAbierto(!menuAbierto)} 
             style={{ background: '#222', border: '1px solid #444', color: '#fff', fontSize: '1.2rem', padding: '0.4rem 0.8rem', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 'bold' }}
           >
-            ☰ MENÚ
+            ☰
           </button>
         </div>
 

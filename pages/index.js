@@ -360,16 +360,16 @@ export default function Home() {
           filter: invert(1);
         }
         .modal-overlay {
-          position: fixed !important;
-          top: 0 !important;
-          left: 0 !important;
-          width: 100vw !important;
-          height: 100vh !important;
-          background-color: rgba(0, 0, 0, 0.85) !important;
-          display: flex !important;
-          justify-content: center !important;
-          align-items: center !important;
-          z-index: 999999 !important;
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100vw;
+          height: 100vh;
+          background-color: rgba(0, 0, 0, 0.85);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          z-index: 1000;
         }
         .modal-content {
           background-color: #111;
@@ -381,8 +381,6 @@ export default function Home() {
           max-height: 90vh;
           overflow-y: auto;
           color: #fff;
-          position: relative !important;
-          z-index: 1000000 !important;
         }
       `}</style>
       
@@ -705,7 +703,7 @@ export default function Home() {
 
       {/* MODAL CONTRATO DE ARRENDAMIENTO */}
       {mostrarModalContrato && (
-        <div className="modal-overlay" onClick={() => setMostrarModalContrato(false)} style={{ zIndex: 9999 }}>
+        <div className="modal-overlay" onClick={() => setMostrarModalContrato(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <h3 style={{ color: '#ff0000', marginBottom: '1rem', textAlign: 'center' }}>CONTRATO DE ARRENDAMIENTO</h3>
             <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit', fontSize: '0.85rem', color: '#cbd5e1', lineHeight: '1.6', backgroundColor: '#080808', padding: '1rem', borderRadius: '8px', border: '1px solid #222' }}>
@@ -722,7 +720,7 @@ export default function Home() {
 
       {/* MODAL DE RESERVA Y FIRMA DIGITAL */}
       {vehiculoSeleccionado && (
-        <div className="modal-overlay" onClick={() => setVehiculoSeleccionado(null)} style={{ zIndex: 9999 }}>
+        <div className="modal-overlay" onClick={() => setVehiculoSeleccionado(null)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <h3 style={{ color: '#f59e0b', marginBottom: '0.5rem' }}>Reservar: {vehiculoSeleccionado.nombre}</h3>
             <p style={{ color: '#aaa', fontSize: '0.85rem', marginBottom: '1.5rem' }}>Por favor completa todos los datos requeridos para generar tu solicitud y contrato digital.</p>

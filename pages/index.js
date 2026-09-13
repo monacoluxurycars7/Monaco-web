@@ -774,6 +774,7 @@ export default function Home() {
                   />
                 </div>
               </div>
+
               {/* RESUMEN DE PRECIOS */}
               {dias < 3 ? (
                 <div style={{ backgroundColor: 'rgba(255, 0, 0, 0.1)', padding: '1rem', borderRadius: '8px', border: '1px solid #ff0000', marginTop: '1rem', textAlign: 'center' }}>

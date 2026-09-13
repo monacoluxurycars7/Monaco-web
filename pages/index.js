@@ -323,6 +323,7 @@ export default function Home() {
     }}>
       <Head>
         <title>Monaco Luxury Rent a Car</title>
+        <meta name="google-site-verification" content="UiwtQWYSJxH8WCZgh6tP3l_J6NuP7KJqv5jl417-M5A" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
       </Head>
 

@@ -34,8 +34,8 @@ const vehiculos = [
     disponible: true
   },
   {
-    id: 'kia-seltos-2019',
-    nombre: 'KIA SELTOS 2019',
+    id: 'kia-seltos-2021',
+    nombre: 'KIA SELTOS 2021',
     marca: 'KIA',
     modelo: 'Seltos',
     anio: 2019,

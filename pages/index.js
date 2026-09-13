@@ -701,22 +701,6 @@ export default function Home() {
         </div>
       )}
 
-      {/* MODAL CONTRATO DE ARRENDAMIENTO */}
-      {mostrarModalContrato && (
-        <div className="modal-overlay" onClick={() => setMostrarModalContrato(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <h3 style={{ color: '#ff0000', marginBottom: '1rem', textAlign: 'center' }}>CONTRATO DE ARRENDAMIENTO</h3>
-            <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit', fontSize: '0.85rem', color: '#cbd5e1', lineHeight: '1.6', backgroundColor: '#080808', padding: '1rem', borderRadius: '8px', border: '1px solid #222' }}>
-              {TEXTO_CONTRATO}
-            </pre>
-            <div style={{ textAlign: 'center', marginTop: '1.5rem' }}>
-              <button onClick={() => setMostrarModalContrato(false)} style={{ backgroundColor: '#ff0000', color: '#fff', border: 'none', padding: '0.6rem 1.5rem', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>
-                Entendido / Cerrar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* MODAL DE RESERVA Y FIRMA DIGITAL */}
       {vehiculoSeleccionado && (
@@ -831,6 +815,22 @@ export default function Home() {
                 </label>
               </div>
 
+                {/* MODAL CONTRATO DE ARRENDAMIENTO */}
+      {mostrarModalContrato && (
+        <div className="modal-overlay" onClick={() => setMostrarModalContrato(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h3 style={{ color: '#ff0000', marginBottom: '1rem', textAlign: 'center' }}>CONTRATO DE ARRENDAMIENTO</h3>
+            <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit', fontSize: '0.85rem', color: '#cbd5e1', lineHeight: '1.6', backgroundColor: '#080808', padding: '1rem', borderRadius: '8px', border: '1px solid #222' }}>
+              {TEXTO_CONTRATO}
+            </pre>
+            <div style={{ textAlign: 'center', marginTop: '1.5rem' }}>
+              <button onClick={() => setMostrarModalContrato(false)} style={{ backgroundColor: '#ff0000', color: '#fff', border: 'none', padding: '0.6rem 1.5rem', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>
+                Entendido / Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
               {/* BOTONES ACCIÓN */}
               <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
                 <button type="button" onClick={() => setVehiculoSeleccionado(null)} style={{ flex: 1, padding: '0.75rem', backgroundColor: '#333', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>

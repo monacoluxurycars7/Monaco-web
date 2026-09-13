@@ -38,7 +38,7 @@ const vehiculos = [
     nombre: 'KIA SELTOS 2021',
     marca: 'KIA',
     modelo: 'Seltos',
-    anio: 2019,
+    anio: 2021,
     combustible: 'Gasolina',
     pasajeros: '5 Personas',
     transmision: 'Automática',

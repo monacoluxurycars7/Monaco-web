@@ -45,7 +45,7 @@ const vehiculos = [
     imagen: '/kiaseltos.jpn.jpeg',
     precios: { base: 55, medio: 50, largo: 45 },
     seguroFullPrecios: { corto: 40, medio: 35, largo: 30 },
-    disponible: true
+    disponible: false
   }
 ];
 
@@ -204,6 +204,7 @@ export default function Home() {
   const costoSeguro = dias * precioSeguroPorDia;
   const depositoGarantia = seguroFull ? 0 : 400; 
   const costoTotal = costoRenta + costoSeguro + depositoGarantia;
+  const errorDias = dias < 3;
 
   const vehiculosFiltrados = vehiculos.filter((v) => {
     const coincideMarca = busquedaMarca === '' || v.marca.toLowerCase().includes(busquedaMarca.toLowerCase());
@@ -217,7 +218,6 @@ export default function Home() {
 
   const handleSubmitReserva = async (e) => {
     e.preventDefault();
-    if (dias < 3) { alert('El alquiler mínimo es de 3 días.'); return; }
     if (estaReservado()) { alert('El vehículo ya se encuentra reservado en esas fechas. Por favor elige otras fechas.'); return; }
     if (!direccionRD.trim()) { alert('Por favor ingresa tu dirección de residencia en RD.'); return; }
     if (!aceptaContrato) { alert('Debes aceptar el contrato.'); return; }

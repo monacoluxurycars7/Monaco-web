@@ -240,6 +240,7 @@ export default function Home() {
         clienteTelefono: telefono,
         costoTotal: costoTotal,
         firmaUrl: firmaUrl,
+        documentoCliente: documentoCliente,
         fechaCreacion: new Date().toISOString()
       });
 

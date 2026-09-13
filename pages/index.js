@@ -106,6 +106,8 @@ export default function Home() {
   const [enviando, setEnviando] = useState(false);
   const [reservasExistentes, setReservasExistentes] = useState([]);
 
+  const [menuAbierto, setMenuAbierto] = useState(false);
+
   // Buscador por marca y modelo
   const [busquedaMarca, setBusquedaMarca] = useState('');
   const [busquedaModelo, setBusquedaModelo] = useState('');
@@ -404,17 +406,26 @@ export default function Home() {
           </div>
         </div>
 
-        {/* MENÚ DE NAVEGACIÓN */}
-        <nav style={{ backgroundColor: 'rgba(17, 17, 17, 0.8)', borderTop: '1px solid #222', padding: '0.75rem 2rem' }}>
-          <ul style={{ display: 'flex', gap: '2rem', listStyle: 'none', margin: 0, padding: 0, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <li><a href="#inicio" style={{ color: '#fff', textDecoration: 'none', fontWeight: 'bold', fontSize: '0.9rem' }}>INICIO</a></li>
-            <li><a href="#flota" style={{ color: '#fff', textDecoration: 'none', fontWeight: 'bold', fontSize: '0.9rem' }}>NUESTRA FLOTA</a></li>
-            <li><a href="#nosotros" style={{ color: '#fff', textDecoration: 'none', fontWeight: 'bold', fontSize: '0.9rem' }}>SOBRE NOSOTROS</a></li>
-            <li><a href="#faq" style={{ color: '#fff', textDecoration: 'none', fontWeight: 'bold', fontSize: '0.9rem' }}>PREGUNTAS FRECUENTES</a></li>
-            <li><a href="#contacto" style={{ color: '#fff', textDecoration: 'none', fontWeight: 'bold', fontSize: '0.9rem' }}>CONTACTO</a></li>
-          </ul>
-        </nav>
-      </header>
+        {/* MENÚ DE NAVEGACIÓN CON BOTÓN DE HAMBURGUESA */}
+        <div style={{ background: 'rgba(17, 17, 17, 0.8)', borderTop: '1px solid #222', padding: '0.75rem 2rem', display: 'flex', justifyContent: 'flex-end', position: 'relative' }}>
+          <button 
+            onClick={() => setMenuAbierto(!menuAbierto)} 
+            style={{ background: '#222', border: '1px solid #444', color: '#fff', fontSize: '1.2rem', padding: '0.4rem 0.8rem', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 'bold' }}
+          >
+            ☰ MENÚ
+          </button>
+        </div>
+
+       {menuAbierto && (
+         <div style={{ background: '#141414', borderBottom: '1px solid #333', padding: '1rem 2rem', display: 'flex', flexDirection: 'column', gap: '0.8rem', textAlign: 'center', position: 'absolute', width: '100%', zIndex: 100, boxShadow: '0px 10px 20px rgba(0,0,0,0.5)' }}>
+           <a href="#inicio" onClick={() => setMenuAbierto(false)} style={{ color: '#fff', textDecoration: 'none', fontWeight: 'bold', padding: '0.5rem' }}>INICIO</a>
+           <a href="#flota" onClick={() => setMenuAbierto(false)} style={{ color: '#fff', textDecoration: 'none', fontWeight: 'bold', padding: '0.5rem' }}>NUESTRA FLOTA</a>
+           <a href="#nosotros" onClick={() => setMenuAbierto(false)} style={{ color: '#fff', textDecoration: 'none', fontWeight: 'bold', padding: '0.5rem' }}>SOBRE NOSOTROS</a>
+           <a href="#faq" onClick={() => setMenuAbierto(false)} style={{ color: '#fff', textDecoration: 'none', fontWeight: 'bold', padding: '0.5rem' }}>PREGUNTAS FRECUENTES</a>
+           <a href="#contacto" onClick={() => setMenuAbierto(false)} style={{ color: '#fff', textDecoration: 'none', fontWeight: 'bold', padding: '0.5rem' }}>CONTACTO</a>
+         </div>
+       )}
+     </header>
 
       {/* SECCIÓN HERO / INICIO CON PRESENTACIÓN COMPLETA */}
       <section style={{ background: 'linear-gradient(180deg, rgba(30,0,3,0.7) 0%, rgba(10,10,10,0.95) 100%)', padding: '4rem 1.5rem', textAlign: 'center', borderBottom: '1px solid #2a2a2a' }}>

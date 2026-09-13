@@ -759,6 +759,21 @@ export default function Home() {
                 </div>
               </div>
 
+               <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem', marginTop: '1rem' }}>
+                 <div>
+                   <label style={{ display: 'block', textTransform: 'uppercase', fontSize: '0.75rem', color: '#aaa', marginBottom: '0.3rem' }}>
+                     No. de Cédula o Pasaporte *
+                   </label>
+                   <input 
+                    type="text" 
+                    required 
+                    placeholder="Ingresa el número de tu cédula o pasaporte" 
+                    value={documentoCliente} 
+                    onChange={(e) => setDocumentoCliente(e.target.value)}
+                    style={{ width: '100%', padding: '0.7rem', background: '#222', border: '1px solid #444', color: '#fff', borderRadius: '4px' }}
+                  />
+                </div>
+              </div>
               {/* RESUMEN DE PRECIOS */}
               {dias < 3 ? (
                 <div style={{ backgroundColor: 'rgba(255, 0, 0, 0.1)', padding: '1rem', borderRadius: '8px', border: '1px solid #ff0000', marginTop: '1rem', textAlign: 'center' }}>

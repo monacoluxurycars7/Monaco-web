@@ -254,6 +254,7 @@ export default function Home() {
             cliente_direccion_rd: direccionRD,
             cliente_telefono: telefono,
             tipo_cliente: tipoCliente,
+            documento_cliente: documentoCliente,
             vehiculo: vehiculoSeleccionado.nombre,
             fecha_inicio: fechaInicio,
             fecha_fin: fechaFin,

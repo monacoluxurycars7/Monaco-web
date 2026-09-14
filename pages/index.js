@@ -28,7 +28,7 @@ const vehiculos = [
     combustible: 'Gasolina',
     pasajeros: '5 Personas',
     transmision: 'Automática',
-    imagen: '/jeep.jpeg',
+    imagen: '/jeep2019.jpeg',
     precios: { base: 55, medio: 50, largo: 45 },
     seguroFullPrecios: { corto: 30, medio: 25, largo: 20 },
     disponible: true

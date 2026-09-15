@@ -192,10 +192,10 @@ export default function Home() {
   const dias = calcularDias();
 
   const costoEntrega = 
-    lugarEntrega === 'puntacana' ? 150 :
+    lugarEntrega === 'puntacana' ? 150 : 
     lugarEntrega === 'santiago' ? 100 : 0;
 
-  const costoTotalFinal = costoTotal + costoEntrega;
+  const costoTotalFinal = (costoTotal || 0) + costoEntrega;
 
   const estaReservado = () => {
     if (!vehiculoSeleccionado || !fechaInicio || !fechaFin) return false;

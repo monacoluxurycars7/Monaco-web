@@ -847,7 +847,6 @@ export default function Home() {
                 <p style={{ margin: '0 0 0.2rem' }}>• Depósito Garantía: USD ${depositogarantia} {seguroFull && '(Exonerado)'}</p>
                 <p style={{ margin: '0 0 0.2rem' }}>• Seguro Full: USD ${costoSeguro} (${precioSeguroPorDia}/día)</p>
                 
-                {/* LÍNEA NUEVA DE ENTREGA */}
                 {costoEntrega > 0 && (
                   <p style={{ margin: '0 0 0.2rem' }}>• Entrega / Movilización: USD ${costoEntrega}</p>
                 )}
@@ -856,7 +855,6 @@ export default function Home() {
                   Total Estimado: USD ${costoTotalFinal}
                 </p>
               </div>
-               )}
 
               {/* ÁREA DE FIRMA DIGITAL */}
               <div style={{ marginTop: '0.5rem' }}>

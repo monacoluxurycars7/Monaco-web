@@ -272,10 +272,18 @@ export default function Home() {
             precio_por_dia: precioPorDia,
             seguro_full: seguroFull ? `SI ($${precioSeguroPorDia}/día)` : 'NO',
             costo_total: costoTotal,
-            depositoGarantia: depositoGarantia,
-            lugarEntrega: lugarEntrega === 'puntacana' ? 'Punta Cana (+$150)' : lugarEntrega === 'santiago' ? 'Santiago (+$100)' : 'Santo Domingo (Gratis / A Coordinar)',
-            costoEntrega: costoEntrega,
-            costoTotalFinal: costoTotalFinal,
+            // Mandamos ambas nomenclaturas para que EmailJS la tome sí o sí
+      depositoGarantia: depositoGarantia,
+      deposito_garantia: depositoGarantia,
+      
+      lugarEntrega: lugarEntrega === 'puntacana' ? 'Punta Cana (+$150)' : lugarEntrega === 'santiago' ? 'Santiago (+$100)' : 'Santo Domingo (Gratis / A Coordinar)',
+      lugar_entrega: lugarEntrega === 'puntacana' ? 'Punta Cana (+$150)' : lugarEntrega === 'santiago' ? 'Santiago (+$100)' : 'Santo Domingo (Gratis / A Coordinar)',
+      
+      costoEntrega: costoEntrega,
+      costo_entrega: costoEntrega,
+      
+      costoTotalFinal: costoTotalFinal,
+      costo_total_final: costoTotalFinal,
             monto_reserva: 150,
             cuentas_bancarias: DATOS_BANCARIOS,
             contrato_texto: TEXTO_CONTRATO,

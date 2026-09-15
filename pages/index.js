@@ -841,15 +841,21 @@ export default function Home() {
                   <p style={{ margin: 0, color: '#ff0000', fontWeight: 'bold' }}>⚠️ El vehículo ya se encuentra reservado en esas fechas. Por favor elige otras fechas.</p>
                 </div>
                ) : (
-                 <div style={{ backgroundColor: '#1a1a1a', padding: '1rem', borderRadius: '8px', border: '1px solid #333', marginTop: '1rem' }}>
-                   <p style={{ margin: '0 0 0.3rem', color: '#f59e0b', fontWeight: 'bold' }}>Desglose Estimado ({dias} Días):</p>
-                   <p style={{ margin: '0 0 0.2rem' }}>• Alquiler: USD ${costoRenta} (${precioPorDia}/día)</p>
-                   <p style={{ margin: '0 0 0.2rem' }}>• Seguro Full: USD ${costoSeguro} (${precioSeguroPorDia}/día)</p>
-                   <p style={{ margin: '0 0 0.4rem' }}>• Depósito Garantía: USD ${depositoGarantia} {seguroFull && '(Exonerado)'}</p>
-                   <p style={{ margin: 0, color: '#25d366', fontWeight: 'bold', fontSize: '1.05rem', borderTop: '1px solid #333', paddingTop: '0.5rem' }}>
-                     Total Estimado: USD ${costoTotal}
-                   </p>
-                 </div>
+              <div style={{ backgroundColor: '#1a1a1a', padding: '1rem', borderRadius: '8px', marginTop: '1rem' }}>
+                <p style={{ margin: '0 0 0.3rem', color: '#f59e0b', fontWeight: 'bold' }}>Desglose Estimado ({dias} Días):</p>
+                <p style={{ margin: '0 0 0.2rem' }}>• Alquiler: USD ${costoRenta} (${precioPorDia}/día)</p>
+                <p style={{ margin: '0 0 0.2rem' }}>• Depósito Garantía: USD ${depositogarantia} {seguroFull && '(Exonerado)'}</p>
+                <p style={{ margin: '0 0 0.2rem' }}>• Seguro Full: USD ${costoSeguro} (${precioSeguroPorDia}/día)</p>
+                
+                {/* LÍNEA NUEVA DE ENTREGA */}
+                {costoEntrega > 0 && (
+                  <p style={{ margin: '0 0 0.2rem' }}>• Entrega / Movilización: USD ${costoEntrega}</p>
+                )}
+
+                <p style={{ margin: '0', color: '#25d366', fontWeight: 'bold', fontSize: '1.05rem', borderTop: '1px solid #333', paddingTop: '8px', marginTop: '8px' }}>
+                  Total Estimado: USD ${costoTotalFinal}
+                </p>
+              </div>
                )}
 
               {/* ÁREA DE FIRMA DIGITAL */}

@@ -191,12 +191,6 @@ export default function Home() {
 
   const dias = calcularDias();
 
-  const costoEntrega = 
-    lugarEntrega === 'puntacana' ? 150 : 
-    lugarEntrega === 'santiago' ? 100 : 0;
-
-  const costoTotalFinal = (costoTotal || 0) + costoEntrega;
-
   const estaReservado = () => {
     if (!vehiculoSeleccionado || !fechaInicio || !fechaFin) return false;
     const inicioSel = new Date(fechaInicio + 'T00:00:00');
@@ -216,6 +210,11 @@ export default function Home() {
   const depositoGarantia = seguroFull ? 0 : 400; 
   const costoTotal = costoRenta + costoSeguro + depositoGarantia;
   const errorDias = dias < 3;
+  const costoEntrega = 
+    lugarEntrega === 'puntacana' ? 150 : 
+    lugarEntrega === 'santiago' ? 100 : 0;
+
+  const costoTotalFinal = costoTotal + costoEntrega;
 
   const vehiculosFiltrados = vehiculos.filter((v) => {
     const coincideMarca = busquedaMarca === '' || v.marca.toLowerCase().includes(busquedaMarca.toLowerCase());

@@ -207,8 +207,8 @@ export default function Home() {
   const precioSeguroPorDia = vehiculoSeleccionado && seguroFull ? (dias >= 11 ? vehiculoSeleccionado.seguroFullPrecios.largo : dias >= 5 ? vehiculoSeleccionado.seguroFullPrecios.medio : vehiculoSeleccionado.seguroFullPrecios.corto) : 0;
   const costoRenta = dias * precioPorDia;
   const costoSeguro = dias * precioSeguroPorDia;
-  const depositogarantia = seguroFull ? 0 : 400; 
-  const costoTotal = costoRenta + costoSeguro + depositogarantia;
+  const depositoGarantia = seguroFull ? 0 : 400; 
+  const costoTotal = costoRenta + costoSeguro + depositoGarantia;
   const errorDias = dias < 3;
   const costoEntrega = 
     lugarEntrega === 'puntacana' ? 150 : 
@@ -847,7 +847,7 @@ export default function Home() {
                 <div style={{ backgroundColor: '#1a1a1a', padding: '1rem', borderRadius: '8px', marginTop: '1rem' }}>
                   <p style={{ margin: '0 0 0.3rem', color: '#f59e0b', fontWeight: 'bold' }}>Desglose Estimado ({dias} Días):</p>
                   <p style={{ margin: '0 0 0.2rem' }}>• Alquiler: USD ${costoRenta} (${precioPorDia}/día)</p>
-                  <p style={{ margin: '0 0 0.2rem' }}>• Depósito Garantía: USD ${depositogarantia} {seguroFull && '(Exonerado)'}</p>
+                  <p style={{ margin: '0 0 0.2rem' }}>• Depósito Garantía: USD ${depositoGarantia} {seguroFull && '(Exonerado)'}</p>
                   <p style={{ margin: '0 0 0.2rem' }}>• Seguro Full: USD ${costoSeguro} (${precioSeguroPorDia}/día)</p>
                   
                   {costoEntrega > 0 && (

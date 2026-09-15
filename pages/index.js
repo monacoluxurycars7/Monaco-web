@@ -855,7 +855,6 @@ export default function Home() {
                   Total Estimado: USD ${costoTotalFinal}
                 </p>
               </div>
-
               {/* ÁREA DE FIRMA DIGITAL */}
               <div style={{ marginTop: '0.5rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.3rem' }}>

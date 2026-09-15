@@ -123,6 +123,8 @@ export default function Home() {
   const [telefono, setTelefono] = useState('');
   const [email, setEmail] = useState('');
   const [aceptaContrato, setAceptaContrato] = useState(false);
+  const [lugarEntrega, setLugarEntrega] = useState('aero-americas');
+  const [otraDireccionEntrega, setOtraDireccionEntrega] = useState('');
 
   // FAQ Accordion State
   const [faqAbierta, setFaqAbierta] = useState(null);
@@ -188,6 +190,12 @@ export default function Home() {
   };
 
   const dias = calcularDias();
+
+  const costoEntrega = 
+    lugarEntrega === 'puntacana' ? 150 :
+    lugarEntrega === 'santiago' ? 100 : 0;
+
+  const costoTotalFinal = costoTotal + costoEntrega;
 
   const estaReservado = () => {
     if (!vehiculoSeleccionado || !fechaInicio || !fechaFin) return false;
@@ -788,6 +796,40 @@ export default function Home() {
                   />
                 </div>
               </div>
+
+           {/* SECCIÓN DE LUGAR DE ENTREGA */}
+<div style={{ background: '#141414', border: '1px solid #333', padding: '1.5rem', borderRadius: '10px', marginBottom: '1.5rem' }}>
+  <label style={{ display: 'block', textTransform: 'uppercase', fontSize: '0.8rem', color: '#ff0000', marginBottom: '0.5rem', fontWeight: 'bold' }}>
+    Lugar de Entrega / Retiro del Vehículo *
+  </label>
+  <select 
+    value={lugarEntrega}
+    onChange={(e) => setLugarEntrega(e.target.value)}
+    style={{ width: '100%', padding: '0.7rem', background: '#222', border: '1px solid #444', color: '#fff', borderRadius: '6px', marginBottom: '1rem' }}
+  >
+    <option value="aero-americas">Aeropuerto Internacional de las Américas (Gratis)</option>
+    <option value="aero-isabela">Aeropuerto Internacional La Isabela - JBQ (Gratis)</option>
+    <option value="puntacana">Aeropuerto de Punta Cana (Costo: $150 USD)</option>
+    <option value="santiago">Aeropuerto de Santiago (Costo: $100 USD)</option>
+    <option value="santo-domingo">Otra dirección en Santo Domingo (Gratis)</option>
+  </select>
+
+  {/* Si eligen otra dirección en Santo Domingo, aparece este campo */}
+  {lugarEntrega === 'santo-domingo' && (
+    <div style={{ marginTop: '0.8rem' }}>
+      <label style={{ display: 'block', fontSize: '0.75rem', color: '#aaa', marginBottom: '0.3rem' }}>
+        Especifica la dirección de entrega (Si es diferente a donde te hospedarás):
+      </label>
+      <input 
+        type="text"
+        placeholder="Ej: Calle Principal #12, Piantini, Santo Domingo"
+        value={otraDireccionEntrega}
+        onChange={(e) => setOtraDireccionEntrega(e.target.value)}
+        style={{ width: '100%', padding: '0.6rem', background: '#222', border: '1px solid #444', color: '#fff', borderRadius: '4px' }}
+      />
+    </div>
+  )}
+</div>
 
               {/* RESUMEN DE PRECIOS */}
               {dias < 3 ? (

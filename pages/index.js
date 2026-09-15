@@ -833,28 +833,29 @@ export default function Home() {
 
               {/* RESUMEN DE PRECIOS */}
               {dias < 3 ? (
-                <div style={{ backgroundColor: 'rgba(255, 0, 0, 0.1)', padding: '1rem', borderRadius: '8px', border: '1px solid #ff0000', marginTop: '1rem', textAlign: 'center' }}>
-                  <p style={{ margin: 0, color: '#ff0000', fontWeight: 'bold' }}>⚠️ El alquiler es de mínimo 3 días. Por favor selecciona un rango mayor.</p>
+                <div style={{ backgroundColor: 'rgba(255, 0, 0, 0.1)', padding: '1rem', borderRadius: '8px', border: '1px solid #ff0000' }}>
+                  <p style={{ margin: 0, color: '#ff0000', fontWeight: 'bold' }}>⚠️ El alquiler es de mínimo 3 días. Por favor selecciona fechas válidas.</p>
                 </div>
               ) : estaReservado() ? (
-                <div style={{ backgroundColor: 'rgba(255, 0, 0, 0.1)', padding: '1rem', borderRadius: '8px', border: '1px solid #ff0000', marginTop: '1rem', textAlign: 'center' }}>
-                  <p style={{ margin: 0, color: '#ff0000', fontWeight: 'bold' }}>⚠️ El vehículo ya se encuentra reservado en esas fechas. Por favor elige otras fechas.</p>
+                <div style={{ backgroundColor: 'rgba(255, 0, 0, 0.1)', padding: '1rem', borderRadius: '8px', border: '1px solid #ff0000' }}>
+                  <p style={{ margin: 0, color: '#ff0000', fontWeight: 'bold' }}>⚠️ El vehículo ya se encuentra reservado en esas fechas. Por favor elige otros días.</p>
                 </div>
-               ) : (
-              <div style={{ backgroundColor: '#1a1a1a', padding: '1rem', borderRadius: '8px', marginTop: '1rem' }}>
-                <p style={{ margin: '0 0 0.3rem', color: '#f59e0b', fontWeight: 'bold' }}>Desglose Estimado ({dias} Días):</p>
-                <p style={{ margin: '0 0 0.2rem' }}>• Alquiler: USD ${costoRenta} (${precioPorDia}/día)</p>
-                <p style={{ margin: '0 0 0.2rem' }}>• Depósito Garantía: USD ${depositogarantia} {seguroFull && '(Exonerado)'}</p>
-                <p style={{ margin: '0 0 0.2rem' }}>• Seguro Full: USD ${costoSeguro} (${precioSeguroPorDia}/día)</p>
-                
-                {costoEntrega > 0 && (
-                  <p style={{ margin: '0 0 0.2rem' }}>• Entrega / Movilización: USD ${costoEntrega}</p>
-                )}
+              ) : (
+                <div style={{ backgroundColor: '#1a1a1a', padding: '1rem', borderRadius: '8px', marginTop: '1rem' }}>
+                  <p style={{ margin: '0 0 0.3rem', color: '#f59e0b', fontWeight: 'bold' }}>Desglose Estimado ({dias} Días):</p>
+                  <p style={{ margin: '0 0 0.2rem' }}>• Alquiler: USD ${costoRenta} (${precioPorDia}/día)</p>
+                  <p style={{ margin: '0 0 0.2rem' }}>• Depósito Garantía: USD ${depositogarantia} {seguroFull && '(Exonerado)'}</p>
+                  <p style={{ margin: '0 0 0.2rem' }}>• Seguro Full: USD ${costoSeguro} (${precioSeguroPorDia}/día)</p>
+                  
+                  {costoEntrega > 0 && (
+                    <p style={{ margin: '0 0 0.2rem' }}>• Entrega / Movilización: USD ${costoEntrega}</p>
+                  )}
 
-                <p style={{ margin: '0', color: '#25d366', fontWeight: 'bold', fontSize: '1.05rem', borderTop: '1px solid #333', paddingTop: '8px', marginTop: '8px' }}>
-                  Total Estimado: USD ${costoTotalFinal}
-                </p>
-              </div>
+                  <p style={{ margin: '0', color: '#25d366', fontWeight: 'bold', fontSize: '1.05rem', borderTop: '1px solid #333', paddingTop: '8px', marginTop: '8px' }}>
+                    Total Estimado: USD ${costoTotalFinal}
+                  </p>
+                </div>
+              )}
               {/* ÁREA DE FIRMA DIGITAL */}
               <div style={{ marginTop: '0.5rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.3rem' }}>

@@ -207,8 +207,8 @@ export default function Home() {
   const precioSeguroPorDia = vehiculoSeleccionado && seguroFull ? (dias >= 11 ? vehiculoSeleccionado.seguroFullPrecios.largo : dias >= 5 ? vehiculoSeleccionado.seguroFullPrecios.medio : vehiculoSeleccionado.seguroFullPrecios.corto) : 0;
   const costoRenta = dias * precioPorDia;
   const costoSeguro = dias * precioSeguroPorDia;
-  const depositoGarantia = seguroFull ? 0 : 400; 
-  const costoTotal = costoRenta + costoSeguro + depositoGarantia;
+  const depositogarantia = seguroFull ? 0 : 400; 
+  const costoTotal = costoRenta + costoSeguro + depositogarantia;
   const errorDias = dias < 3;
   const costoEntrega = 
     lugarEntrega === 'puntacana' ? 150 : 

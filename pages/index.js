@@ -556,9 +556,24 @@ export default function Home() {
                     </div>
                   </div>
 
-                  <button onClick={() => setVehiculoSeleccionado(v)} style={{ width: '100%', padding: '0.75rem', backgroundColor: '#f59e0b', color: '#000', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '1rem' }}>
-                    Reservar este Auto
-                  </button>
+                 <button 
+  onClick={() => v.disponible && setVehiculoSeleccionado(v)} 
+  disabled={!v.disponible}
+  style={{ 
+    width: '100%', 
+    padding: '0.75rem', 
+    backgroundColor: v.disponible ? '#f59e0b' : '#dc2626', 
+    color: '#fff', 
+    border: 'none', 
+    borderRadius: '8px', 
+    fontWeight: 'bold', 
+    cursor: v.disponible ? 'pointer' : 'not-allowed', 
+    fontSize: '1rem',
+    opacity: v.disponible ? 1 : 0.9
+  }}
+>
+  {v.disponible ? 'Reservar este Auto' : 'No disponible'}
+</button>
                 </div>
               );
             })}

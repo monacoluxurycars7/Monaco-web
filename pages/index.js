@@ -31,7 +31,7 @@ const vehiculos = [
     imagen: '/jeep2019.jpeg',
     precios: { base: 55, medio: 50, largo: 45 },
     seguroFullPrecios: { corto: 30, medio: 25, largo: 20 },
-    disponible: true
+    disponible: false
   },
   {
     id: 'kia-seltos-2021',

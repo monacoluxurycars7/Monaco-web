@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { initializeApp, getApps } from 'firebase/app';
 import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
-import { getFirestore, collection, onSnapshot, doc, updateDoc } from 'firebase/firestore';
+import { getFirestore, collection, onSnapshot } from 'firebase/firestore';
 import { useRouter } from 'next/router';
 
 const firebaseConfig = {
@@ -20,8 +20,6 @@ export default function AdminDashboard() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [reservations, setReservations] = useState([]);
-  const [cars, setCars] = useState([]);
-  const [activeTab, setActiveTab] = useState('reservations');
   const router = useRouter();
 
   useEffect(() => {
@@ -39,41 +37,19 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     if (!user) return;
-    
-    // Escuchar colección 'reservas' en Firestore
     const unsubscribeRes = onSnapshot(collection(db, 'reservas'), (snapshot) => {
       const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setReservations(docs);
     });
-
-    // Escuchar colección 'cars' o 'vehiculos'
-    const unsubscribeCars = onSnapshot(collection(db, 'cars'), (snapshot) => {
-      const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setCars(docs);
-    });
-
-    return () => {
-      unsubscribeRes();
-      unsubscribeCars();
-    };
+    return () => unsubscribeRes();
   }, [user]);
-
-  const toggleCarAvailability = async (carId, currentStatus) => {
-    try {
-      const carRef = doc(db, 'cars', carId);
-      await updateDoc(carRef, { available: !currentStatus });
-    } catch (err) {
-      console.error("Error al actualizar vehículo:", err);
-    }
-  };
 
   if (loading) return <p style={{ color: '#fff', textAlign: 'center', marginTop: '50px' }}>Cargando panel...</p>;
 
   return (
     <div style={{ padding: '20px', color: '#fff', minHeight: '100vh', backgroundColor: '#0a0a0a', fontFamily: 'sans-serif' }}>
-      {/* Encabezado */}
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #333', paddingBottom: '15px' }}>
-        <h1 style={{ fontSize: '20px', margin: 0 }}>Monaco Luxury - Panel de Control</h1>
+        <h1 style={{ fontSize: '20px' }}>Monaco Luxury - Panel de Control</h1>
         <button 
           onClick={() => signOut(getAuth(app))}
           style={{ padding: '8px 16px', backgroundColor: '#e53935', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
@@ -82,103 +58,64 @@ export default function AdminDashboard() {
         </button>
       </header>
 
-      {/* Pestañas de navegación */}
-      <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
-        <button 
-          onClick={() => setActiveTab('reservations')}
-          style={{ padding: '10px 20px', backgroundColor: activeTab === 'reservations' ? '#d4af37' : '#222', color: activeTab === 'reservations' ? '#000' : '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
-        >
-          Reservas ({reservations.length})
-        </button>
-        <button 
-          onClick={() => setActiveTab('cars')}
-          style={{ padding: '10px 20px', backgroundColor: activeTab === 'cars' ? '#d4af37' : '#222', color: activeTab === 'cars' ? '#000' : '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
-        >
-          Vehículos ({cars.length})
-        </button>
-      </div>
-
-      {/* Vista de Reservas */}
-      {activeTab === 'reservations' && (
-        <section style={{ marginTop: '25px' }}>
-          <h2>Detalles de Reservas Recibidas</h2>
-          {reservations.length === 0 ? (
-            <p style={{ color: '#888', marginTop: '15px' }}>No hay reservas registradas en Firestore aún.</p>
-          ) : (
-            <div style={{ overflowX: 'auto', marginTop: '15px' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', backgroundColor: '#111', fontSize: '13px' }}>
-                <thead>
-                  <tr style={{ borderBottom: '2px solid #333', color: '#d4af37', whiteSpace: 'nowrap' }}>
-                    <th style={{ padding: '10px' }}>Cliente</th>
-                    <th style={{ padding: '10px' }}>Tipo Cliente</th>
-                    <th style={{ padding: '10px' }}>Documento</th>
-                    <th style={{ padding: '10px' }}>Vehículo</th>
-                    <th style={{ padding: '10px' }}>Inicio</th>
-                    <th style={{ padding: '10px' }}>Entrega</th>
-                    <th style={{ padding: '10px' }}>Días Totales</th>
-                    <th style={{ padding: '10px' }}>Renta/Día</th>
-                    <th style={{ padding: '10px' }}>Seguro Full</th>
-                    <th style={{ padding: '10px' }}>Depósito</th>
-                    <th style={{ padding: '10px' }}>Lugar Entrega</th>
-                    <th style={{ padding: '10px' }}>Costo Entrega</th>
-                    <th style={{ padding: '10px' }}>Total Estimado</th>
+      <section style={{ marginTop: '25px' }}>
+        <h2>Reservas Recibidas ({reservations.length})</h2>
+        {reservations.length === 0 ? (
+          <p style={{ color: '#888', marginTop: '15px' }}>No hay reservas registradas aún.</p>
+        ) : (
+          <div style={{ overflowX: 'auto', marginTop: '15px' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', backgroundColor: '#111', fontSize: '13px' }}>
+              <thead>
+                <tr style={{ borderBottom: '2px solid #333', color: '#d4af37', backgroundColor: '#181818' }}>
+                  <th style={{ padding: '10px' }}>Cliente / Teléfono</th>
+                  <th style={{ padding: '10px' }}>Tipo Cliente</th>
+                  <th style={{ padding: '10px' }}>Documento</th>
+                  <th style={{ padding: '10px' }}>Vehículo</th>
+                  <th style={{ padding: '10px' }}>Fechas</th>
+                  <th style={{ padding: '10px' }}>Días</th>
+                  <th style={{ padding: '10px' }}>Renta/Día</th>
+                  <th style={{ padding: '10px' }}>Seguro Full</th>
+                  <th style={{ padding: '10px' }}>Garantía</th>
+                  <th style={{ padding: '10px' }}>Lugar Entrega</th>
+                  <th style={{ padding: '10px' }}>Costo Entrega</th>
+                  <th style={{ padding: '10px' }}>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {reservations.map((res) => (
+                  <tr key={res.id} style={{ borderBottom: '1px solid #222' }}>
+                    <td style={{ padding: '10px' }}>
+                      <strong>{res.clienteNombre || 'Sin nombre'}</strong>
+                      <br />
+                      <span style={{ color: '#aaa', fontSize: '11px' }}>{res.clienteTelefono || '-'}</span>
+                    </td>
+                    <td style={{ padding: '10px' }}>{res.tipoCliente || res.clienteTipo || 'Residente'}</td>
+                    <td style={{ padding: '10px' }}>{res.documentoCliente || res.documento || '-'}</td>
+                    <td style={{ padding: '10px', color: '#d4af37', fontWeight: 'bold' }}>{res.vehiculoNombre || '-'}</td>
+                    <td style={{ padding: '10px' }}>
+                      {res.inicio || '-'} <br/>
+                      <span style={{ color: '#aaa' }}>al {res.fin || '-'}</span>
+                    </td>
+                    <td style={{ padding: '10px', textAlign: 'center' }}>{res.diasTotales || res.dias || '-'}</td>
+                    <td style={{ padding: '10px' }}>${res.rentaPorDia || res.precioPorDia || 0} USD</td>
+                    <td style={{ padding: '10px' }}>
+                      <span style={{ padding: '3px 6px', borderRadius: '4px', backgroundColor: res.seguroFull ? '#2e7d32' : '#424242' }}>
+                        {res.seguroFull ? 'SÍ' : 'NO'}
+                      </span>
+                    </td>
+                    <td style={{ padding: '10px' }}>${res.depositoGarantia !== undefined ? res.depositoGarantia : 400} USD</td>
+                    <td style={{ padding: '10px' }}>{res.lugarEntrega || res.clienteDireccionRD || 'A coordinar'}</td>
+                    <td style={{ padding: '10px' }}>${res.costoEntrega || 0} USD</td>
+                    <td style={{ padding: '10px', fontWeight: 'bold', color: '#4caf50', fontSize: '14px' }}>
+                      ${res.costoTotal || res.total || 0} USD
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {reservations.map((res) => (
-                    <tr key={res.id} style={{ borderBottom: '1px solid #222', whiteSpace: 'nowrap' }}>
-                      <td style={{ padding: '10px' }}>
-                        <strong>{res.clienteNombre || res.name || 'Sin nombre'}</strong>
-                        <br />
-                        <span style={{ fontSize: '11px', color: '#888' }}>{res.clienteTelefono || res.phone || ''}</span>
-                      </td>
-                      <td style={{ padding: '10px' }}>{res.tipoCliente || res.clienteTipo || 'residente'}</td>
-                      <td style={{ padding: '10px' }}>{res.documentoCliente || res.cedulaPasaporte || '-'}</td>
-                      <td style={{ padding: '10px', color: '#d4af37', fontWeight: 'bold' }}>{res.vehiculoNombre || res.vehiculo || '-'}</td>
-                      <td style={{ padding: '10px' }}>{res.inicio || res.startDate || '-'}</td>
-                      <td style={{ padding: '10px' }}>{res.fin || res.endDate || '-'}</td>
-                      <td style={{ padding: '10px', textAlign: 'center' }}>{res.diasTotales || res.dias || '-'}</td>
-                      <td style={{ padding: '10px' }}>${res.rentaPorDia || res.precioPorDia || 0} USD</td>
-                      <td style={{ padding: '10px' }}>{res.seguroFull ? 'SÍ' : 'NO'}</td>
-                      <td style={{ padding: '10px' }}>${res.depositoGarantia !== undefined ? res.depositoGarantia : 0} USD</td>
-                      <td style={{ padding: '10px' }}>{res.lugarEntrega || res.movilizacion || 'A coordinar'}</td>
-                      <td style={{ padding: '10px' }}>${res.costoEntrega !== undefined ? res.costoEntrega : 0} USD</td>
-                      <td style={{ padding: '10px', fontWeight: 'bold', color: '#4caf50', fontSize: '14px' }}>
-                        ${res.costoTotal || res.totalEstimado || 0} USD
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </section>
-      )}
-
-      {/* Vista de Vehículos */}
-      {activeTab === 'cars' && (
-        <section style={{ marginTop: '25px' }}>
-          <h2>Flota de Vehículos</h2>
-          {cars.length === 0 ? (
-            <p style={{ color: '#888', marginTop: '15px' }}>No hay vehículos registrados en la colección 'cars'.</p>
-          ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '20px', marginTop: '15px' }}>
-              {cars.map((car) => (
-                <div key={car.id} style={{ padding: '15px', backgroundColor: '#111', border: '1px solid #333', borderRadius: '8px' }}>
-                  <h3>{car.name || car.model}</h3>
-                  <p style={{ color: '#aaa', margin: '5px 0' }}>Renta: <strong>${car.pricePerDay || car.price} USD/día</strong></p>
-                  <button 
-                    onClick={() => toggleCarAvailability(car.id, car.available)}
-                    style={{ marginTop: '10px', width: '100%', padding: '8px', backgroundColor: car.available !== false ? '#2e7d32' : '#c62828', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
-                  >
-                    {car.available !== false ? 'Disponible' : 'No Disponible'}
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
-      )}
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
     </div>
   );
 }

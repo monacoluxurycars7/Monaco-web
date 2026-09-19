@@ -37,10 +37,12 @@ export default function AdminDashboard() {
     return () => unsubscribeAuth();
   }, [router]);
 
-  // Obtener Reservas en tiempo real desde Firestore
+  // Leer la colección 'reservas' e 'vehiculos' o 'cars'
   useEffect(() => {
     if (!user) return;
-    const unsubscribeRes = onSnapshot(collection(db, 'reservations'), (snapshot) => {
+    
+    // Conectado a tu colección 'reservas'
+    const unsubscribeRes = onSnapshot(collection(db, 'reservas'), (snapshot) => {
       const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setReservations(docs);
     });
@@ -56,7 +58,6 @@ export default function AdminDashboard() {
     };
   }, [user]);
 
-  // Cambiar disponibilidad de un vehículo
   const toggleCarAvailability = async (carId, currentStatus) => {
     try {
       const carRef = doc(db, 'cars', carId);
@@ -70,7 +71,6 @@ export default function AdminDashboard() {
 
   return (
     <div style={{ padding: '30px', color: '#fff', minHeight: '100vh', backgroundColor: '#0a0a0a', fontFamily: 'sans-serif' }}>
-      {/* Header */}
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #333', paddingBottom: '15px' }}>
         <h1 style={{ fontSize: '22px' }}>Monaco Luxury - Panel de Control</h1>
         <button 
@@ -81,7 +81,6 @@ export default function AdminDashboard() {
         </button>
       </header>
 
-      {/* Tabs */}
       <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
         <button 
           onClick={() => setActiveTab('reservations')}
@@ -97,32 +96,33 @@ export default function AdminDashboard() {
         </button>
       </div>
 
-      {/* Contenido de Reservas */}
       {activeTab === 'reservations' && (
         <section style={{ marginTop: '25px' }}>
           <h2>Reservas Recibidas</h2>
           {reservations.length === 0 ? (
-            <p style={{ color: '#888', marginTop: '15px' }}>No hay reservas registradas en Firestore aún.</p>
+            <p style={{ color: '#888', marginTop: '15px' }}>No hay reservas registradas aún.</p>
           ) : (
             <div style={{ overflowX: 'auto', marginTop: '15px' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', backgroundColor: '#111' }}>
                 <thead>
                   <tr style={{ borderBottom: '1px solid #333', color: '#d4af37' }}>
                     <th style={{ padding: '12px' }}>Cliente</th>
+                    <th style={{ padding: '12px' }}>Teléfono</th>
                     <th style={{ padding: '12px' }}>Vehículo</th>
                     <th style={{ padding: '12px' }}>Inicio</th>
                     <th style={{ padding: '12px' }}>Entrega</th>
-                    <th style={{ padding: '12px' }}>Total Estimado</th>
+                    <th style={{ padding: '12px' }}>Total</th>
                   </tr>
                 </thead>
                 <tbody>
                   {reservations.map((res) => (
                     <tr key={res.id} style={{ borderBottom: '1px solid #222' }}>
-                      <td style={{ padding: '12px' }}>{res.name || res.clientName || 'Cliente'}</td>
-                      <td style={{ padding: '12px' }}>{res.carName || res.vehicle || '-'}</td>
-                      <td style={{ padding: '12px' }}>{res.startDate || '-'}</td>
-                      <td style={{ padding: '12px' }}>{res.endDate || '-'}</td>
-                      <td style={{ padding: '12px', fontWeight: 'bold', color: '#4caf50' }}>${res.totalPrice || res.total || 0} USD</td>
+                      <td style={{ padding: '12px' }}>{res.clienteNombre || 'Sin nombre'}</td>
+                      <td style={{ padding: '12px' }}>{res.clienteTelefono || '-'}</td>
+                      <td style={{ padding: '12px' }}>{res.vehiculoNombre || '-'}</td>
+                      <td style={{ padding: '12px' }}>{res.inicio || '-'}</td>
+                      <td style={{ padding: '12px' }}>{res.fin || '-'}</td>
+                      <td style={{ padding: '12px', fontWeight: 'bold', color: '#4caf50' }}>${res.costoTotal || 0} USD</td>
                     </tr>
                   ))}
                 </tbody>
@@ -132,12 +132,11 @@ export default function AdminDashboard() {
         </section>
       )}
 
-      {/* Contenido de Vehículos */}
       {activeTab === 'cars' && (
         <section style={{ marginTop: '25px' }}>
           <h2>Flota de Vehículos</h2>
           {cars.length === 0 ? (
-            <p style={{ color: '#888', marginTop: '15px' }}>No hay vehículos registrados en la colección 'cars' de Firestore.</p>
+            <p style={{ color: '#888', marginTop: '15px' }}>No hay vehículos en la colección 'cars'.</p>
           ) : (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '20px', marginTop: '15px' }}>
               {cars.map((car) => (

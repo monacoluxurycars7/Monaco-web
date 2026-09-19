@@ -37,16 +37,16 @@ export default function AdminDashboard() {
     return () => unsubscribeAuth();
   }, [router]);
 
-  // Leer la colección 'reservas' e 'vehiculos' o 'cars'
   useEffect(() => {
     if (!user) return;
     
-    // Conectado a tu colección 'reservas'
+    // Escuchar colección 'reservas' en Firestore
     const unsubscribeRes = onSnapshot(collection(db, 'reservas'), (snapshot) => {
       const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setReservations(docs);
     });
 
+    // Escuchar colección 'cars' o 'vehiculos'
     const unsubscribeCars = onSnapshot(collection(db, 'cars'), (snapshot) => {
       const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setCars(docs);
@@ -70,9 +70,10 @@ export default function AdminDashboard() {
   if (loading) return <p style={{ color: '#fff', textAlign: 'center', marginTop: '50px' }}>Cargando panel...</p>;
 
   return (
-    <div style={{ padding: '30px', color: '#fff', minHeight: '100vh', backgroundColor: '#0a0a0a', fontFamily: 'sans-serif' }}>
+    <div style={{ padding: '20px', color: '#fff', minHeight: '100vh', backgroundColor: '#0a0a0a', fontFamily: 'sans-serif' }}>
+      {/* Encabezado */}
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #333', paddingBottom: '15px' }}>
-        <h1 style={{ fontSize: '22px' }}>Monaco Luxury - Panel de Control</h1>
+        <h1 style={{ fontSize: '20px', margin: 0 }}>Monaco Luxury - Panel de Control</h1>
         <button 
           onClick={() => signOut(getAuth(app))}
           style={{ padding: '8px 16px', backgroundColor: '#e53935', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
@@ -81,6 +82,7 @@ export default function AdminDashboard() {
         </button>
       </header>
 
+      {/* Pestañas de navegación */}
       <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
         <button 
           onClick={() => setActiveTab('reservations')}
@@ -96,33 +98,54 @@ export default function AdminDashboard() {
         </button>
       </div>
 
+      {/* Vista de Reservas */}
       {activeTab === 'reservations' && (
         <section style={{ marginTop: '25px' }}>
-          <h2>Reservas Recibidas</h2>
+          <h2>Detalles de Reservas Recibidas</h2>
           {reservations.length === 0 ? (
-            <p style={{ color: '#888', marginTop: '15px' }}>No hay reservas registradas aún.</p>
+            <p style={{ color: '#888', marginTop: '15px' }}>No hay reservas registradas en Firestore aún.</p>
           ) : (
             <div style={{ overflowX: 'auto', marginTop: '15px' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', backgroundColor: '#111' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', backgroundColor: '#111', fontSize: '13px' }}>
                 <thead>
-                  <tr style={{ borderBottom: '1px solid #333', color: '#d4af37' }}>
-                    <th style={{ padding: '12px' }}>Cliente</th>
-                    <th style={{ padding: '12px' }}>Teléfono</th>
-                    <th style={{ padding: '12px' }}>Vehículo</th>
-                    <th style={{ padding: '12px' }}>Inicio</th>
-                    <th style={{ padding: '12px' }}>Entrega</th>
-                    <th style={{ padding: '12px' }}>Total</th>
+                  <tr style={{ borderBottom: '2px solid #333', color: '#d4af37', whiteSpace: 'nowrap' }}>
+                    <th style={{ padding: '10px' }}>Cliente</th>
+                    <th style={{ padding: '10px' }}>Tipo Cliente</th>
+                    <th style={{ padding: '10px' }}>Documento</th>
+                    <th style={{ padding: '10px' }}>Vehículo</th>
+                    <th style={{ padding: '10px' }}>Inicio</th>
+                    <th style={{ padding: '10px' }}>Entrega</th>
+                    <th style={{ padding: '10px' }}>Días Totales</th>
+                    <th style={{ padding: '10px' }}>Renta/Día</th>
+                    <th style={{ padding: '10px' }}>Seguro Full</th>
+                    <th style={{ padding: '10px' }}>Depósito</th>
+                    <th style={{ padding: '10px' }}>Lugar Entrega</th>
+                    <th style={{ padding: '10px' }}>Costo Entrega</th>
+                    <th style={{ padding: '10px' }}>Total Estimado</th>
                   </tr>
                 </thead>
                 <tbody>
                   {reservations.map((res) => (
-                    <tr key={res.id} style={{ borderBottom: '1px solid #222' }}>
-                      <td style={{ padding: '12px' }}>{res.clienteNombre || 'Sin nombre'}</td>
-                      <td style={{ padding: '12px' }}>{res.clienteTelefono || '-'}</td>
-                      <td style={{ padding: '12px' }}>{res.vehiculoNombre || '-'}</td>
-                      <td style={{ padding: '12px' }}>{res.inicio || '-'}</td>
-                      <td style={{ padding: '12px' }}>{res.fin || '-'}</td>
-                      <td style={{ padding: '12px', fontWeight: 'bold', color: '#4caf50' }}>${res.costoTotal || 0} USD</td>
+                    <tr key={res.id} style={{ borderBottom: '1px solid #222', whiteSpace: 'nowrap' }}>
+                      <td style={{ padding: '10px' }}>
+                        <strong>{res.clienteNombre || res.name || 'Sin nombre'}</strong>
+                        <br />
+                        <span style={{ fontSize: '11px', color: '#888' }}>{res.clienteTelefono || res.phone || ''}</span>
+                      </td>
+                      <td style={{ padding: '10px' }}>{res.tipoCliente || res.clienteTipo || 'residente'}</td>
+                      <td style={{ padding: '10px' }}>{res.documentoCliente || res.cedulaPasaporte || '-'}</td>
+                      <td style={{ padding: '10px', color: '#d4af37', fontWeight: 'bold' }}>{res.vehiculoNombre || res.vehiculo || '-'}</td>
+                      <td style={{ padding: '10px' }}>{res.inicio || res.startDate || '-'}</td>
+                      <td style={{ padding: '10px' }}>{res.fin || res.endDate || '-'}</td>
+                      <td style={{ padding: '10px', textAlign: 'center' }}>{res.diasTotales || res.dias || '-'}</td>
+                      <td style={{ padding: '10px' }}>${res.rentaPorDia || res.precioPorDia || 0} USD</td>
+                      <td style={{ padding: '10px' }}>{res.seguroFull ? 'SÍ' : 'NO'}</td>
+                      <td style={{ padding: '10px' }}>${res.depositoGarantia !== undefined ? res.depositoGarantia : 0} USD</td>
+                      <td style={{ padding: '10px' }}>{res.lugarEntrega || res.movilizacion || 'A coordinar'}</td>
+                      <td style={{ padding: '10px' }}>${res.costoEntrega !== undefined ? res.costoEntrega : 0} USD</td>
+                      <td style={{ padding: '10px', fontWeight: 'bold', color: '#4caf50', fontSize: '14px' }}>
+                        ${res.costoTotal || res.totalEstimado || 0} USD
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -132,11 +155,12 @@ export default function AdminDashboard() {
         </section>
       )}
 
+      {/* Vista de Vehículos */}
       {activeTab === 'cars' && (
         <section style={{ marginTop: '25px' }}>
           <h2>Flota de Vehículos</h2>
           {cars.length === 0 ? (
-            <p style={{ color: '#888', marginTop: '15px' }}>No hay vehículos en la colección 'cars'.</p>
+            <p style={{ color: '#888', marginTop: '15px' }}>No hay vehículos registrados en la colección 'cars'.</p>
           ) : (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '20px', marginTop: '15px' }}>
               {cars.map((car) => (

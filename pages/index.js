@@ -239,19 +239,23 @@ export default function Home() {
       const firmaUrl = canvasRef.current.toDataURL('image/png');
 
       await addDoc(collection(db, 'reservas'), {
-        vehiculoId: vehiculoSeleccionado.id,
-        vehiculoNombre: vehiculoSeleccionado.nombre,
-        inicio: fechaInicio,
-        fin: fechaFin,
-        clienteNombre: nombre,
-        clienteDireccionRD: direccionRD,
-        clienteEmail: email,
-        clienteTelefono: telefono,
-        costoTotal: costoTotal,
-        firmaUrl: firmaUrl,
-        documentoCliente: documentoCliente,
-        fechaCreacion: new Date().toISOString()
-      });
+  vehiculoId: vehiculoSeleccionado.id,
+  vehiculoNombre: vehiculoSeleccionado.nombre,
+  inicio: fechaInicio,
+  fin: fechaFin,
+  tipoCliente: tipoCliente,                  // <--- Guardar tipo de cliente
+  documentoCliente: documentoCliente,
+  clienteNombre: nombre,
+  clienteDireccionRD: direccionRD,
+  clienteEmail: email,
+  clienteTelefono: telefono,
+  seguroFull: seguroFull,                    // <--- Guardar si adquirió seguro (true/false)
+  lugarEntrega: lugarEntrega,                // <--- Guardar ubicación de entrega
+  otraDireccionEntrega: otraDireccionEntrega,// <--- Guardar otra dirección si aplica
+  costoTotal: costoTotal,
+  firmaUrl: firmaUrl,
+  fechaCreacion: new Date().toISOString()    // <--- Guardar la fecha exacta de creación
+});
 
       try {
         await emailjs.send(

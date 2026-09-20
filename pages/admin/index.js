@@ -67,18 +67,14 @@ export default function AdminDashboard() {
             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', backgroundColor: '#111', fontSize: '13px' }}>
               <thead>
                 <tr style={{ borderBottom: '2px solid #333', color: '#d4af37', backgroundColor: '#181818' }}>
-                  <th style={{ padding: '10px' }}>Cliente / Teléfono</th>
-                  <th style={{ padding: '10px' }}>Tipo Cliente</th>
+                  <th style={{ padding: '10px' }}>Cliente</th>
+                  <th style={{ padding: '10px' }}>Contacto</th>
                   <th style={{ padding: '10px' }}>Documento</th>
                   <th style={{ padding: '10px' }}>Vehículo</th>
-                  <th style={{ padding: '10px' }}>Fechas</th>
-                  <th style={{ padding: '10px' }}>Días</th>
-                  <th style={{ padding: '10px' }}>Renta/Día</th>
-                  <th style={{ padding: '10px' }}>Seguro Full</th>
-                  <th style={{ padding: '10px' }}>Garantía</th>
-                  <th style={{ padding: '10px' }}>Lugar Entrega</th>
-                  <th style={{ padding: '10px' }}>Costo Entrega</th>
+                  <th style={{ padding: '10px' }}>Fechas (Inicio / Fin)</th>
+                  <th style={{ padding: '10px' }}>Lugar Entrega / Dirección</th>
                   <th style={{ padding: '10px' }}>Total</th>
+                  <th style={{ padding: '10px' }}>Firma</th>
                 </tr>
               </thead>
               <tbody>
@@ -86,28 +82,34 @@ export default function AdminDashboard() {
                   <tr key={res.id} style={{ borderBottom: '1px solid #222' }}>
                     <td style={{ padding: '10px' }}>
                       <strong>{res.clienteNombre || 'Sin nombre'}</strong>
-                      <br />
-                      <span style={{ color: '#aaa', fontSize: '11px' }}>{res.clienteTelefono || '-'}</span>
                     </td>
-                    <td style={{ padding: '10px' }}>{res.tipoCliente || res.clienteTipo || 'Residente'}</td>
-                    <td style={{ padding: '10px' }}>{res.documentoCliente || res.documento || '-'}</td>
+                    <td style={{ padding: '10px' }}>
+                      {res.clienteTelefono || '-'}<br />
+                      <span style={{ color: '#aaa', fontSize: '11px' }}>{res.clienteEmail || '-'}</span>
+                    </td>
+                    <td style={{ padding: '10px' }}>{res.documentoCliente || '-'}</td>
                     <td style={{ padding: '10px', color: '#d4af37', fontWeight: 'bold' }}>{res.vehiculoNombre || '-'}</td>
                     <td style={{ padding: '10px' }}>
                       {res.inicio || '-'} <br/>
                       <span style={{ color: '#aaa' }}>al {res.fin || '-'}</span>
                     </td>
-                    <td style={{ padding: '10px', textAlign: 'center' }}>{res.diasTotales || res.dias || '-'}</td>
-                    <td style={{ padding: '10px' }}>${res.rentaPorDia || res.precioPorDia || 0} USD</td>
-                    <td style={{ padding: '10px' }}>
-                      <span style={{ padding: '3px 6px', borderRadius: '4px', backgroundColor: res.seguroFull ? '#2e7d32' : '#424242' }}>
-                        {res.seguroFull ? 'SÍ' : 'NO'}
-                      </span>
-                    </td>
-                    <td style={{ padding: '10px' }}>${res.depositoGarantia !== undefined ? res.depositoGarantia : 400} USD</td>
-                    <td style={{ padding: '10px' }}>{res.lugarEntrega || res.clienteDireccionRD || 'A coordinar'}</td>
-                    <td style={{ padding: '10px' }}>${res.costoEntrega || 0} USD</td>
+                    <td style={{ padding: '10px' }}>{res.clienteDireccionRD || 'No especificada'}</td>
                     <td style={{ padding: '10px', fontWeight: 'bold', color: '#4caf50', fontSize: '14px' }}>
-                      ${res.costoTotal || res.total || 0} USD
+                      ${res.costoTotal || 0} USD
+                    </td>
+                    <td style={{ padding: '10px' }}>
+                      {res.firmaUrl ? (
+                        <a 
+                          href={res.firmaUrl} 
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                          style={{ color: '#d4af37', textDecoration: 'underline' }}
+                        >
+                          Ver Firma
+                        </a>
+                      ) : (
+                        <span style={{ color: '#666' }}>Sin firma</span>
+                      )}
                     </td>
                   </tr>
                 ))}

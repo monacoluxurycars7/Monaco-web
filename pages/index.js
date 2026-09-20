@@ -243,18 +243,20 @@ export default function Home() {
   vehiculoNombre: vehiculoSeleccionado.nombre,
   inicio: fechaInicio,
   fin: fechaFin,
-  tipoCliente: tipoCliente,                  // <--- Guardar tipo de cliente
-  documentoCliente: documentoCliente,
   clienteNombre: nombre,
-  clienteDireccionRD: direccionRD,
   clienteEmail: email,
   clienteTelefono: telefono,
-  seguroFull: seguroFull,                    // <--- Guardar si adquirió seguro (true/false)
-  lugarEntrega: lugarEntrega,                // <--- Guardar ubicación de entrega
-  otraDireccionEntrega: otraDireccionEntrega,// <--- Guardar otra dirección si aplica
-  costoTotal: costoTotal,
+  clienteDireccionRD: direccionRD,
+  tipoCliente: tipoCliente,                      // Guarda 'extranjero' o 'residente'
+  documentoCliente: documentoCliente,
+  seguroFull: seguroFull === 'si' || seguroFull === true || seguroFull.includes('Seguro Full'), // Convierte a boolean según tu select
+  opcionSeguro: seguroFull,                     // Opción seleccionada en el dropdown
+  depositoGarantia: (seguroFull === 'si' || seguroFull === true || seguroFull.includes('Seguro Full')) ? 0 : 400,
+  lugarEntrega: lugarEntrega,                    // Guarda el valor del select de lugar de entrega
+  costoEntrega: costoEntrega || 0,               // Guarda el costo de envío
+  costoTotal: costoTotal,                        // Guarda el costo total calculado
   firmaUrl: firmaUrl,
-  fechaCreacion: new Date().toISOString()    // <--- Guardar la fecha exacta de creación
+  fechaCreacion: new Date().toISOString()
 });
 
       try {

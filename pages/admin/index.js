@@ -45,7 +45,7 @@ export default function AdminDashboard() {
       const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setReservations(docs);
     }, (error) => {
-      // Respaldo sin ordenamiento en caso de que falte el índice en Firestore
+      // Respaldo sin ordenamiento en caso de que no exista el índice en Firestore aún
       const unsubscribeFallback = onSnapshot(collection(db, 'reservas'), (snapshot) => {
         const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         docs.sort((a, b) => new Date(b.fechaCreacion || 0) - new Date(a.fechaCreacion || 0));
@@ -113,68 +113,76 @@ export default function AdminDashboard() {
                 </tr>
               </thead>
               <tbody>
-                {reservations.map((res) => (
-                  <tr key={res.id} style={{ borderBottom: '1px solid #222' }}>
-                    <td style={{ padding: '10px', color: '#aaa', whiteSpace: 'nowrap' }}>
-                      {formatearFecha(res.fechaCreacion)}
-                    </td>
-                    <td style={{ padding: '10px' }}>
-                      <strong>{res.clienteNombre || 'Sin nombre'}</strong><br />
-                      <span style={{ color: '#888' }}>{res.clienteTelefono || '-'}</span><br />
-                      <span style={{ color: '#666', fontSize: '10px' }}>{res.clienteEmail || '-'}</span>
-                    </td>
-                    <td style={{ padding: '10px' }}>
-                      <span style={{ textTransform: 'capitalize' }}>{res.tipoCliente || 'Residente'}</span><br />
-                      <span style={{ color: '#aaa' }}>{res.documentoCliente || '-'}</span>
-                    </td>
-                    <td style={{ padding: '10px', color: '#d4af37', fontWeight: 'bold' }}>
-                      {res.vehiculoNombre || '-'}
-                    </td>
-                    <td style={{ padding: '10px', whiteSpace: 'nowrap' }}>
-                      Del: {res.inicio || '-'}<br />
-                      Al: {res.fin || '-'}
-                    </td>
-                    <td style={{ padding: '10px' }}>
-                      <span style={{ 
-                        padding: '3px 8px', 
-                        borderRadius: '4px', 
-                        fontWeight: 'bold',
-                        backgroundColor: res.seguroFull ? '#1b5e20' : '#333',
-                        color: res.seguroFull ? '#81c784' : '#aaa'
-                      }}>
-                        {res.seguroFull ? 'SÍ' : 'NO'}
-                      </span>
-                    </td>
-                    <td style={{ padding: '10px' }}>
-                      {res.lugarEntrega === 'aero-americas' ? 'Aeropuerto Las Américas' : (res.lugarEntrega || 'A coordinar')}
-                      {res.otraDireccionEntrega ? ` (${res.otraDireccionEntrega})` : ''}
-                      {res.costoEntrega ? <><br/><span style={{ color: '#aaa' }}>Costo: ${res.costoEntrega} USD</span></> : ''}
-                    </td>
-                    <td style={{ padding: '10px' }}>
-                      {res.clienteDireccionRD || 'No especificada'}
-                    </td>
-                    <td style={{ padding: '10px' }}>
-                      ${res.depositoGarantia !== undefined ? res.depositoGarantia : 400} USD
-                    </td>
-                    <td style={{ padding: '10px', fontWeight: 'bold', color: '#4caf50', fontSize: '13px' }}>
-                      ${res.costoTotal || 0} USD
-                    </td>
-                    <td style={{ padding: '10px' }}>
-                      {res.firmaUrl ? (
-                        <a 
-                          href={res.firmaUrl} 
-                          target="_blank" 
-                          rel="noopener noreferrer" 
-                          style={{ color: '#d4af37', textDecoration: 'underline' }}
-                        >
-                          Ver Firma
-                        </a>
-                      ) : (
-                        <span style={{ color: '#555' }}>Sin firma</span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
+                {reservations.map((res) => {
+                  const tieneSeguroFull = 
+                    res.seguroFull === true || 
+                    res.seguroFull === 'si' || 
+                    (typeof res.opcionSeguro === 'string' && res.opcionSeguro.includes('Seguro Full'));
+
+                  return (
+                    <tr key={res.id} style={{ borderBottom: '1px solid #222' }}>
+                      <td style={{ padding: '10px', color: '#aaa', whiteSpace: 'nowrap' }}>
+                        {formatearFecha(res.fechaCreacion)}
+                      </td>
+                      <td style={{ padding: '10px' }}>
+                        <strong>{res.clienteNombre || 'Sin nombre'}</strong><br />
+                        <span style={{ color: '#888' }}>{res.clienteTelefono || '-'}</span><br />
+                        <span style={{ color: '#666', fontSize: '10px' }}>{res.clienteEmail || '-'}</span>
+                      </td>
+                      <td style={{ padding: '10px' }}>
+                        <span style={{ textTransform: 'capitalize' }}>
+                          {res.tipoCliente || 'Residente'}
+                        </span><br />
+                        <span style={{ color: '#aaa' }}>{res.documentoCliente || '-'}</span>
+                      </td>
+                      <td style={{ padding: '10px', color: '#d4af37', fontWeight: 'bold' }}>
+                        {res.vehiculoNombre || '-'}
+                      </td>
+                      <td style={{ padding: '10px', whiteSpace: 'nowrap' }}>
+                        Del: {res.inicio || '-'}<br />
+                        Al: {res.fin || '-'}
+                      </td>
+                      <td style={{ padding: '10px' }}>
+                        <span style={{ 
+                          padding: '3px 8px', 
+                          borderRadius: '4px', 
+                          fontWeight: 'bold',
+                          backgroundColor: tieneSeguroFull ? '#1b5e20' : '#333',
+                          color: tieneSeguroFull ? '#81c784' : '#aaa'
+                        }}>
+                          {tieneSeguroFull ? 'SÍ' : 'NO'}
+                        </span>
+                      </td>
+                      <td style={{ padding: '10px' }}>
+                        {res.lugarEntrega || 'A coordinar'}
+                        {res.costoEntrega ? <><br/><span style={{ color: '#aaa' }}>Costo: ${res.costoEntrega} USD</span></> : ''}
+                      </td>
+                      <td style={{ padding: '10px' }}>
+                        {res.clienteDireccionRD || 'No especificada'}
+                      </td>
+                      <td style={{ padding: '10px' }}>
+                        ${res.depositoGarantia !== undefined ? res.depositoGarantia : (tieneSeguroFull ? 0 : 400)} USD
+                      </td>
+                      <td style={{ padding: '10px', fontWeight: 'bold', color: '#4caf50', fontSize: '13px' }}>
+                        ${res.costoTotal || 0} USD
+                      </td>
+                      <td style={{ padding: '10px' }}>
+                        {res.firmaUrl ? (
+                          <a 
+                            href={res.firmaUrl} 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            style={{ color: '#d4af37', textDecoration: 'underline' }}
+                          >
+                            Ver Firma
+                          </a>
+                        ) : (
+                          <span style={{ color: '#555' }}>Sin firma</span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

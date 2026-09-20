@@ -38,14 +38,14 @@ export default function AdminDashboard() {
   useEffect(() => {
     if (!user) return;
     
-    // Consulta ordenada por fechaCreacion descendente (más recientes primero)
+    // Consulta ordenada por fechaCreacion descendente
     const q = query(collection(db, 'reservas'), orderBy('fechaCreacion', 'desc'));
     
     const unsubscribeRes = onSnapshot(q, (snapshot) => {
       const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setReservations(docs);
     }, (error) => {
-      // Respaldo sin ordenamiento en caso de que no exista el índice en Firestore aún
+      // Fallback
       const unsubscribeFallback = onSnapshot(collection(db, 'reservas'), (snapshot) => {
         const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         docs.sort((a, b) => new Date(b.fechaCreacion || 0) - new Date(a.fechaCreacion || 0));
@@ -70,6 +70,21 @@ export default function AdminDashboard() {
       });
     } catch {
       return isoString;
+    }
+  };
+
+  // Función para calcular la cantidad de días entre dos fechas
+  const calcularDias = (inicio, fin, diasGuardados) => {
+    if (diasGuardados) return diasGuardados;
+    if (!inicio || !fin) return '-';
+    try {
+      const f1 = new Date(inicio);
+      const f2 = new Date(fin);
+      const diffTime = Math.abs(f2 - f1);
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      return isNaN(diffDays) || diffDays === 0 ? 1 : diffDays;
+    } catch {
+      return '-';
     }
   };
 
@@ -119,6 +134,8 @@ export default function AdminDashboard() {
                     res.seguroFull === 'si' || 
                     (typeof res.opcionSeguro === 'string' && res.opcionSeguro.includes('Seguro Full'));
 
+                  const totalDias = calcularDias(res.inicio, res.fin, res.diasTotales);
+
                   return (
                     <tr key={res.id} style={{ borderBottom: '1px solid #222' }}>
                       <td style={{ padding: '10px', color: '#aaa', whiteSpace: 'nowrap' }}>
@@ -140,7 +157,10 @@ export default function AdminDashboard() {
                       </td>
                       <td style={{ padding: '10px', whiteSpace: 'nowrap' }}>
                         Del: {res.inicio || '-'}<br />
-                        Al: {res.fin || '-'}
+                        Al: {res.fin || '-'}<br />
+                        <span style={{ color: '#d4af37', fontWeight: 'bold' }}>
+                          ({totalDias} {totalDias === 1 ? 'Día' : 'Días'})
+                        </span>
                       </td>
                       <td style={{ padding: '10px' }}>
                         <span style={{ 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { initializeApp, getApps } from 'firebase/app';
 import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
-import { getFirestore, collection, onSnapshot } from 'firebase/firestore';
+import { getFirestore, collection, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { useRouter } from 'next/router';
 
 const firebaseConfig = {
@@ -37,19 +37,51 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     if (!user) return;
-    const unsubscribeRes = onSnapshot(collection(db, 'reservas'), (snapshot) => {
+    
+    // Consulta ordenada por fechaCreacion descendente (más recientes primero)
+    const q = query(collection(db, 'reservas'), orderBy('fechaCreacion', 'desc'));
+    
+    const unsubscribeRes = onSnapshot(q, (snapshot) => {
       const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setReservations(docs);
+    }, (error) => {
+      // Respaldo sin ordenamiento en caso de que falte el índice en Firestore
+      const unsubscribeFallback = onSnapshot(collection(db, 'reservas'), (snapshot) => {
+        const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        docs.sort((a, b) => new Date(b.fechaCreacion || 0) - new Date(a.fechaCreacion || 0));
+        setReservations(docs);
+      });
     });
+
     return () => unsubscribeRes();
   }, [user]);
+
+  const formatearFecha = (isoString) => {
+    if (!isoString) return 'Sin fecha';
+    try {
+      const d = new Date(isoString);
+      return d.toLocaleString('es-DO', { 
+        day: '2-digit', 
+        month: '2-digit', 
+        year: 'numeric', 
+        hour: '2-digit', 
+        minute: '2-digit',
+        hour12: true 
+      });
+    } catch {
+      return isoString;
+    }
+  };
 
   if (loading) return <p style={{ color: '#fff', textAlign: 'center', marginTop: '50px' }}>Cargando panel...</p>;
 
   return (
     <div style={{ padding: '20px', color: '#fff', minHeight: '100vh', backgroundColor: '#0a0a0a', fontFamily: 'sans-serif' }}>
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #333', paddingBottom: '15px' }}>
-        <h1 style={{ fontSize: '20px' }}>Monaco Luxury - Panel de Control</h1>
+        <div>
+          <h1 style={{ fontSize: '20px', margin: 0 }}>Monaco Luxury - Panel de Control</h1>
+          <p style={{ color: '#aaa', margin: '5px 0 0 0', fontSize: '12px' }}>Gestión de Reservas en tiempo real</p>
+        </div>
         <button 
           onClick={() => signOut(getAuth(app))}
           style={{ padding: '8px 16px', backgroundColor: '#e53935', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
@@ -64,37 +96,67 @@ export default function AdminDashboard() {
           <p style={{ color: '#888', marginTop: '15px' }}>No hay reservas registradas aún.</p>
         ) : (
           <div style={{ overflowX: 'auto', marginTop: '15px' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', backgroundColor: '#111', fontSize: '13px' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', backgroundColor: '#111', fontSize: '12px' }}>
               <thead>
                 <tr style={{ borderBottom: '2px solid #333', color: '#d4af37', backgroundColor: '#181818' }}>
+                  <th style={{ padding: '10px' }}>Fecha Reserva</th>
                   <th style={{ padding: '10px' }}>Cliente</th>
-                  <th style={{ padding: '10px' }}>Contacto</th>
-                  <th style={{ padding: '10px' }}>Documento</th>
+                  <th style={{ padding: '10px' }}>Tipo / Doc.</th>
                   <th style={{ padding: '10px' }}>Vehículo</th>
-                  <th style={{ padding: '10px' }}>Fechas (Inicio / Fin)</th>
-                  <th style={{ padding: '10px' }}>Lugar Entrega / Dirección</th>
-                  <th style={{ padding: '10px' }}>Total</th>
+                  <th style={{ padding: '10px' }}>Fechas Renta</th>
+                  <th style={{ padding: '10px' }}>Seguro Full</th>
+                  <th style={{ padding: '10px' }}>Lugar Entrega</th>
+                  <th style={{ padding: '10px' }}>Dirección Residencia</th>
+                  <th style={{ padding: '10px' }}>Depósito</th>
+                  <th style={{ padding: '10px' }}>Costo Total</th>
                   <th style={{ padding: '10px' }}>Firma</th>
                 </tr>
               </thead>
               <tbody>
                 {reservations.map((res) => (
                   <tr key={res.id} style={{ borderBottom: '1px solid #222' }}>
-                    <td style={{ padding: '10px' }}>
-                      <strong>{res.clienteNombre || 'Sin nombre'}</strong>
+                    <td style={{ padding: '10px', color: '#aaa', whiteSpace: 'nowrap' }}>
+                      {formatearFecha(res.fechaCreacion)}
                     </td>
                     <td style={{ padding: '10px' }}>
-                      {res.clienteTelefono || '-'}<br />
-                      <span style={{ color: '#aaa', fontSize: '11px' }}>{res.clienteEmail || '-'}</span>
+                      <strong>{res.clienteNombre || 'Sin nombre'}</strong><br />
+                      <span style={{ color: '#888' }}>{res.clienteTelefono || '-'}</span><br />
+                      <span style={{ color: '#666', fontSize: '10px' }}>{res.clienteEmail || '-'}</span>
                     </td>
-                    <td style={{ padding: '10px' }}>{res.documentoCliente || '-'}</td>
-                    <td style={{ padding: '10px', color: '#d4af37', fontWeight: 'bold' }}>{res.vehiculoNombre || '-'}</td>
                     <td style={{ padding: '10px' }}>
-                      {res.inicio || '-'} <br/>
-                      <span style={{ color: '#aaa' }}>al {res.fin || '-'}</span>
+                      <span style={{ textTransform: 'capitalize' }}>{res.tipoCliente || 'Residente'}</span><br />
+                      <span style={{ color: '#aaa' }}>{res.documentoCliente || '-'}</span>
                     </td>
-                    <td style={{ padding: '10px' }}>{res.clienteDireccionRD || 'No especificada'}</td>
-                    <td style={{ padding: '10px', fontWeight: 'bold', color: '#4caf50', fontSize: '14px' }}>
+                    <td style={{ padding: '10px', color: '#d4af37', fontWeight: 'bold' }}>
+                      {res.vehiculoNombre || '-'}
+                    </td>
+                    <td style={{ padding: '10px', whiteSpace: 'nowrap' }}>
+                      Del: {res.inicio || '-'}<br />
+                      Al: {res.fin || '-'}
+                    </td>
+                    <td style={{ padding: '10px' }}>
+                      <span style={{ 
+                        padding: '3px 8px', 
+                        borderRadius: '4px', 
+                        fontWeight: 'bold',
+                        backgroundColor: res.seguroFull ? '#1b5e20' : '#333',
+                        color: res.seguroFull ? '#81c784' : '#aaa'
+                      }}>
+                        {res.seguroFull ? 'SÍ' : 'NO'}
+                      </span>
+                    </td>
+                    <td style={{ padding: '10px' }}>
+                      {res.lugarEntrega === 'aero-americas' ? 'Aeropuerto Las Américas' : (res.lugarEntrega || 'A coordinar')}
+                      {res.otraDireccionEntrega ? ` (${res.otraDireccionEntrega})` : ''}
+                      {res.costoEntrega ? <><br/><span style={{ color: '#aaa' }}>Costo: ${res.costoEntrega} USD</span></> : ''}
+                    </td>
+                    <td style={{ padding: '10px' }}>
+                      {res.clienteDireccionRD || 'No especificada'}
+                    </td>
+                    <td style={{ padding: '10px' }}>
+                      ${res.depositoGarantia !== undefined ? res.depositoGarantia : 400} USD
+                    </td>
+                    <td style={{ padding: '10px', fontWeight: 'bold', color: '#4caf50', fontSize: '13px' }}>
                       ${res.costoTotal || 0} USD
                     </td>
                     <td style={{ padding: '10px' }}>
@@ -108,7 +170,7 @@ export default function AdminDashboard() {
                           Ver Firma
                         </a>
                       ) : (
-                        <span style={{ color: '#666' }}>Sin firma</span>
+                        <span style={{ color: '#555' }}>Sin firma</span>
                       )}
                     </td>
                   </tr>

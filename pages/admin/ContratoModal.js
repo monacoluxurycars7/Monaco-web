@@ -8,7 +8,7 @@ export default function ContratoModal({ reserva, onClose }) {
   };
 
   return (
-    <div className="modal-overlay" style={{
+    <div className="modal-contrato-wrapper" style={{
       position: 'fixed',
       top: 0,
       left: 0,
@@ -22,36 +22,42 @@ export default function ContratoModal({ reserva, onClose }) {
       padding: '20px',
       overflowY: 'auto'
     }}>
-      {/* Estilos CSS para Vista Previa e Impresión */}
+      {/* Estilos CSS de impresión garantizados */}
       <style>{`
         @media print {
-          body * {
-            visibility: hidden !important;
+          /* Esconde todo lo que esté fuera del contenedor del contrato */
+          body > *:not(.modal-contrato-wrapper) {
+            display: none !important;
           }
-          #contrato-imprimible, #contrato-imprimible * {
-            visibility: visible !important;
-          }
-          #contrato-imprimible {
+          .modal-contrato-wrapper {
             position: absolute !important;
             left: 0 !important;
             top: 0 !important;
             width: 100% !important;
-            margin: 0 !important;
-            padding: 10px !important;
+            height: auto !important;
             background: #ffffff !important;
-            color: #000000 !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            display: block !important;
+          }
+          .modal-contenido {
+            max-width: 100% !important;
+            max-height: none !important;
+            box-shadow: none !important;
+            padding: 10px !important;
+            overflow: visible !important;
           }
           .no-imprimir {
             display: none !important;
           }
           @page {
-            size: auto;
+            size: A4 portrait;
             margin: 10mm;
           }
         }
       `}</style>
 
-      <div style={{
+      <div className="modal-contenido" style={{
         backgroundColor: '#fff',
         color: '#111',
         width: '100%',
@@ -64,7 +70,7 @@ export default function ContratoModal({ reserva, onClose }) {
         position: 'relative',
         fontFamily: 'Arial, sans-serif'
       }}>
-        {/* Botones Flotantes de Acción */}
+        {/* Botones de Control */}
         <div className="no-imprimir" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px', borderBottom: '1px solid #ddd', paddingBottom: '10px' }}>
           <button onClick={onClose} style={{ padding: '8px 16px', background: '#e53e3e', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
             ✕ Cerrar
@@ -74,9 +80,9 @@ export default function ContratoModal({ reserva, onClose }) {
           </button>
         </div>
 
-        {/* DOCUMENTO IMPRIMIBLE COMPLETO */}
+        {/* DOCUMENTO DE CONTRATO */}
         <div id="contrato-imprimible">
-          {/* ENCABEZADO MONACO CON LOGO */}
+          {/* ENCABEZADO CON LOGO */}
           <div style={{ textAlign: 'center', borderBottom: '2px solid #000', paddingBottom: '8px', marginBottom: '10px' }}>
             <img 
               src="/logo.png" 
@@ -95,7 +101,7 @@ export default function ContratoModal({ reserva, onClose }) {
             </h2>
           </div>
 
-          {/* FICHA TÉCNICA DE LA RESERVA */}
+          {/* FICHA TÉCNICA */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '9.5px', backgroundColor: '#f8f8f8', padding: '8px 10px', borderRadius: '4px', border: '1px solid #ccc', marginBottom: '10px' }}>
             <div>
               <p style={{ margin: '1px 0' }}><strong>Cliente:</strong> {reserva.clienteNombre || 'N/A'}</p>
@@ -113,7 +119,7 @@ export default function ContratoModal({ reserva, onClose }) {
             </div>
           </div>
 
-          {/* CLÁUSULAS COMPLETAS SIN OMISIONES */}
+          {/* CLÁUSULAS COMPLETAS */}
           <div style={{ fontSize: '8.5px', lineHeight: '1.25', textAlign: 'justify', borderBottom: '1px solid #ccc', paddingBottom: '8px', marginBottom: '10px' }}>
             <p style={{ margin: '0 0 4px' }}>
               <strong>1. RESERVA Y PAGOS:</strong><br />
@@ -153,7 +159,7 @@ export default function ContratoModal({ reserva, onClose }) {
               <strong>6. CONDICIONES ADICIONALES E IMPORTANTES (CLÁUSULAS ADICIONADAS):</strong><br />
               6.1. Estado del Vehículo: El CLIENTE declara recibir el vehículo en perfectas condiciones mecánicas, estéticas y de limpieza, y se compromete a devolverlo en las mismas condiciones exactas en que lo recibió.<br />
               6.2. Nivel de Combustible: El vehículo debe ser devuelto con la misma cantidad de combustible con la que fue entregado. De lo contrario, se aplicará un cargo por reabastecimiento.<br />
-              6.3. Uso Permitido y Prohibiciones: El vehículo solo podrá ser conducido por el CLIENTE o por conductores adicionales autorizados explícitamente en el registro. Queda estrictamente prohibido utilizar el vehículo para subarrendar, transportar carga pesada, participar en carreras, remolcar otros vehículos, realizar actividades ilícitas o conducir bajo los efectos del alcohol o sustancias controladas.<br />
+              6.3. Uso Permitido y Prohibiciones: El vehículo solo podrá ser conducido por el CLIENTE o por conductores adicionales autorizados explícitamente en el registro. Queda strictly prohibido utilizar el vehículo para subarrendar, transportar carga pesada, participar en carreras, remolcar otros vehículos, realizar actividades ilícitas o conducir bajo los efectos del alcohol o sustancias controladas.<br />
               6.4. Llaves y Neumáticos: La pérdida o daño de las llaves, así como pinchaduras o daños severos en los neumáticos por negligencia, no están cubiertos por ningún seguro y serán facturados directamente al CLIENTE.<br />
               6.5. Asistencia y Reporte de Siniestros: En caso de accidente, avería o robo, el CLIENTE debe notificar inmediatamente a MONACO LUXURY RENT A CAR y a las autoridades policiales de tránsito en un plazo no mayor a 2 horas desde ocurrido el evento.<br />
               6.6. Compensación por Inmovilización y Pérdida de Uso (Loss of Use): Además de los costos de reparación material del vehículo descritos en este contrato, el CLIENTE acepta y se compromete a indemnizar a MONACO LUXURY RENT A CAR por los días en que el vehículo permanezca fuera de servicio e inhabilitado para la renta debido al tiempo que tome su peritaje, reparación en el taller y/o proceso de pintura. Esta compensación se calculará multiplicando el número de días que dure la inmovilización por la tarifa diaria de alquiler vigente del vehículo. Este cobro aplica de manera independiente al estado del seguro o deducibles, ya que cubre la lucrocesante de la flota comercial.

@@ -50,149 +50,143 @@ export default function Login() {
         type="button"
         style={{
           position: 'fixed',
-          bottom: '20px',
-          right: '20px',
+          bottom: '15px',
+          right: '15px',
           zIndex: 100,
           backgroundColor: 'rgba(212, 175, 55, 0.15)',
           border: '1px solid #d4af37',
           color: '#d4af37',
-          padding: '10px 16px',
+          padding: '8px 14px',
           borderRadius: '30px',
           cursor: 'pointer',
-          fontSize: '13px',
+          fontSize: '12px',
           fontWeight: 'bold',
           backdropFilter: 'blur(5px)',
           display: 'flex',
           alignItems: 'center',
-          gap: '8px',
+          gap: '6px',
           boxShadow: '0 0 15px rgba(212, 175, 55, 0.3)'
         }}
       >
         <span>{isPlaying ? '🔊 Pausar Música' : '🎵 Música Ambiental'}</span>
       </button>
 
-      {/* Animaciones CSS continuas y rápidas */}
+      {/* Animaciones CSS */}
       <style jsx global>{`
-        @keyframes moveLeftToRight {
+        @keyframes marqueeLeftToRight {
           0% {
-            transform: translateX(-100%);
+            transform: translateX(-450px);
           }
           100% {
             transform: translateX(100vw);
           }
         }
 
-        @keyframes moveRightToLeft {
+        @keyframes marqueeRightToLeft {
           0% {
             transform: translateX(100vw);
           }
           100% {
-            transform: translateX(-100%);
+            transform: translateX(-450px);
           }
         }
 
         .glow-title {
-          text-shadow: 0 0 12px rgba(255, 255, 255, 0.9), 0 0 20px rgba(212, 175, 55, 0.6);
+          text-shadow: 0 0 10px rgba(255, 255, 255, 0.9), 0 0 18px rgba(212, 175, 55, 0.6);
         }
 
         .glow-label {
-          text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+          text-shadow: 0 0 6px rgba(255, 255, 255, 0.6);
         }
       `}</style>
 
-      {/* CARRIL SUPERIOR: Mueve de Izquierda a Derecha por arriba del formulario */}
+      {/* LOGO SUPERIOR: Izquierda a Derecha (Completamente visible) */}
       <div style={{
         position: 'absolute',
-        top: '6%',
+        top: '2%', // Bajado para que se vea entero sin recortarse
         left: '0',
         width: '100vw',
-        height: '140px',
+        height: '180px',
         pointerEvents: 'none',
-        zIndex: 1,
-        overflow: 'hidden'
+        zIndex: 1
       }}>
-        {/* Logo 1 - Sale de inmediato */}
         <img 
           src="/logo.png" 
           alt="Monaco Logo Top 1" 
           style={{
             position: 'absolute',
-            width: '380px',
+            width: '420px',
             height: 'auto',
-            opacity: 0.9,
-            animation: 'moveLeftToRight 8s linear infinite'
+            opacity: 0.95,
+            animation: 'marqueeLeftToRight 9s linear infinite'
           }}
         />
-        {/* Logo 2 - Sigue al primero para que no quede vacío */}
         <img 
           src="/logo.png" 
           alt="Monaco Logo Top 2" 
           style={{
             position: 'absolute',
-            width: '380px',
+            width: '420px',
             height: 'auto',
-            opacity: 0.9,
-            animation: 'moveLeftToRight 8s linear infinite',
-            animationDelay: '4s'
+            opacity: 0.95,
+            animation: 'marqueeLeftToRight 9s linear infinite',
+            animationDelay: '4.5s'
           }}
         />
       </div>
 
-      {/* CARRIL INFERIOR: Mueve de Derecha a Izquierda por debajo del formulario */}
+      {/* LOGO INFERIOR: Derecha a Izquierda (Completamente visible) */}
       <div style={{
         position: 'absolute',
-        bottom: '6%',
+        bottom: '2%', // Subido para que se vea completo
         left: '0',
         width: '100vw',
-        height: '140px',
+        height: '180px',
         pointerEvents: 'none',
-        zIndex: 1,
-        overflow: 'hidden'
+        zIndex: 1
       }}>
-        {/* Logo 1 */}
         <img 
           src="/logo.png" 
           alt="Monaco Logo Bottom 1" 
           style={{
             position: 'absolute',
-            width: '380px',
+            width: '420px',
             height: 'auto',
-            opacity: 0.9,
-            animation: 'moveRightToLeft 8s linear infinite',
-            animationDelay: '1.5s'
+            opacity: 0.95,
+            animation: 'marqueeRightToLeft 9s linear infinite',
+            animationDelay: '1s'
           }}
         />
-        {/* Logo 2 - Sigue continuo */}
         <img 
           src="/logo.png" 
           alt="Monaco Logo Bottom 2" 
           style={{
             position: 'absolute',
-            width: '380px',
+            width: '420px',
             height: 'auto',
-            opacity: 0.9,
-            animation: 'moveRightToLeft 8s linear infinite',
+            opacity: 0.95,
+            animation: 'marqueeRightToLeft 9s linear infinite',
             animationDelay: '5.5s'
           }}
         />
       </div>
 
-      {/* CAJA DE LOGIN EN EL CENTRO (SIN QUE LOS LOGOS PASEN POR DETRÁS) */}
+      {/* CAJA DE LOGIN PEQUEÑA Y COMPACTA (PROTAGONISMO A LOS LOGOS) */}
       <div style={{
         position: 'relative',
         zIndex: 10,
         backgroundColor: '#000000',
-        padding: '40px 32px',
-        borderRadius: '16px',
+        padding: '28px 24px', // Cuadro más compacto
+        borderRadius: '14px',
         width: '100%',
-        maxWidth: '380px',
+        maxWidth: '320px', // Ancho reducido
         textAlign: 'center',
         border: '1px solid #222222',
         boxShadow: '0 0 30px rgba(0, 0, 0, 1), 0 0 15px rgba(212, 175, 55, 0.2)'
       }}>
         <h2 className="glow-title" style={{
-          marginBottom: '28px',
-          fontSize: '26px',
+          marginBottom: '20px',
+          fontSize: '20px',
           fontWeight: 'bold',
           color: '#ffffff',
           letterSpacing: '1px'
@@ -200,9 +194,9 @@ export default function Login() {
           Acceso Admin
         </h2>
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '18px', textAlign: 'left' }}>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px', textAlign: 'left' }}>
           <div>
-            <label className="glow-label" style={{ display: 'block', fontSize: '13px', color: '#fff', fontWeight: '600', marginBottom: '8px' }}>
+            <label className="glow-label" style={{ display: 'block', fontSize: '12px', color: '#fff', fontWeight: '600', marginBottom: '6px' }}>
               Correo Electrónico:
             </label>
             <input
@@ -212,12 +206,12 @@ export default function Login() {
               required
               style={{
                 width: '100%',
-                padding: '12px 14px',
-                borderRadius: '8px',
+                padding: '10px 12px',
+                borderRadius: '6px',
                 border: '1px solid #333',
                 backgroundColor: '#0a0a0a',
                 color: '#fff',
-                fontSize: '14px',
+                fontSize: '13px',
                 outline: 'none',
                 boxShadow: 'inset 0 0 5px rgba(0,0,0,0.8)'
               }}
@@ -225,7 +219,7 @@ export default function Login() {
           </div>
 
           <div>
-            <label className="glow-label" style={{ display: 'block', fontSize: '13px', color: '#fff', fontWeight: '600', marginBottom: '8px' }}>
+            <label className="glow-label" style={{ display: 'block', fontSize: '12px', color: '#fff', fontWeight: '600', marginBottom: '6px' }}>
               Contraseña:
             </label>
             <input
@@ -235,12 +229,12 @@ export default function Login() {
               required
               style={{
                 width: '100%',
-                padding: '12px 14px',
-                borderRadius: '8px',
+                padding: '10px 12px',
+                borderRadius: '6px',
                 border: '1px solid #333',
                 backgroundColor: '#0a0a0a',
                 color: '#fff',
-                fontSize: '14px',
+                fontSize: '13px',
                 outline: 'none',
                 boxShadow: 'inset 0 0 5px rgba(0,0,0,0.8)'
               }}
@@ -250,16 +244,16 @@ export default function Login() {
           <button
             type="submit"
             style={{
-              marginTop: '12px',
-              padding: '13px',
-              borderRadius: '8px',
+              marginTop: '8px',
+              padding: '11px',
+              borderRadius: '6px',
               border: 'none',
               backgroundColor: '#d4af37',
               color: '#000',
               fontWeight: 'bold',
-              fontSize: '15px',
+              fontSize: '14px',
               cursor: 'pointer',
-              boxShadow: '0 0 15px rgba(212, 175, 55, 0.4)'
+              boxShadow: '0 0 12px rgba(212, 175, 55, 0.4)'
             }}
           >
             Iniciar Sesión

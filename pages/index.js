@@ -4,50 +4,51 @@ import emailjs from '@emailjs/browser';
 import { db } from '../lib/firebase';
 import { collection, addDoc, onSnapshot } from 'firebase/firestore';
 
-const vehiculos = [
-  {
-    id: 'kia-sportage-lx-2020',
-    nombre: 'KIA SPORTAGE LX 2020',
-    marca: 'KIA',
-    modelo: 'Sportage LX',
-    anio: 2020,
-    combustible: 'Gasolina',
-    pasajeros: '5 Personas',
-    transmision: 'Automática',
-    imagen: '/kia.jpg',
-    precios: { base: 50, medio: 45, largo: 40 },
-    seguroFullPrecios: { corto: 30, medio: 25, largo: 20 },
-    disponible: true
-  },
-  {
-    id: 'jeep-cherokee-latitude-2019',
-    nombre: 'JEEP CHEROKEE LATITUDE 2019',
-    marca: 'JEEP',
-    modelo: 'Cherokee Latitude',
-    anio: 2019,
-    combustible: 'Gasolina',
-    pasajeros: '5 Personas',
-    transmision: 'Automática',
-    imagen: '/jeep2019.jpeg',
-    precios: { base: 50, medio: 45, largo: 40 },
-    seguroFullPrecios: { corto: 30, medio: 25, largo: 20 },
-    disponible: true
-  },
-  {
-    id: 'kia-seltos-2021',
-    nombre: 'KIA SELTOS 2021',
-    marca: 'KIA',
-    modelo: 'Seltos',
-    anio: 2021,
-    combustible: 'Gasolina',
-    pasajeros: '5 Personas',
-    transmision: 'Automática',
-    imagen: '/kiaseltos.jpn.jpeg',
-    precios: { base: 55, medio: 50, largo: 45 },
-    seguroFullPrecios: { corto: 40, medio: 35, largo: 30 },
-    disponible: false
-  }
-];
+const [vehiculos, setVehiculos] = useState([]);
+
+useEffect(() => {
+  const unsubscribe = onSnapshot(collection(db, 'vehiculos'), (snapshot) => {
+    const docs = snapshot.docs.map(doc => {
+      const data = doc.data();
+      
+      // Adaptamos los datos de Firestore al formato que ya usa tu diseño
+      return {
+        id: doc.id,
+        nombre: data.nombre || '',
+        marca: data.marca || '',
+        modelo: data.modelo || '',
+        anio: data.anio || 2023,
+        combustible: data.combustible || 'Gasolina',
+        pasajeros: data.pasajeros || '5 Personas',
+        transmision: data.transmision || 'Automática',
+        imagen: data.imagenUrl || '/kia.jpg',
+        
+        // Mapeamos los precios por escala de tu panel al diseño de tu web
+        precios: {
+          base: data.precio3a5Dias || 50,
+          medio: data.precio6a10Dias || 45,
+          largo: data.precio11MasDias || 40
+        },
+        seguroFullPrecios: {
+          corto: data.seguro3a5Dias || 30,
+          medio: data.seguro6a10Dias || 25,
+          largo: data.seguro11MasDias || 20
+        },
+        
+        // Convertimos el estado de tu panel ('disponible', 'alquilado', 'taller', 'inactivo') 
+        // al booleano 'disponible' o filtros que usa tu diseño
+        disponible: data.estado === 'disponible',
+        estado: data.estado || 'disponible'
+      };
+    })
+    // Filtramos para ocultar los que estén marcados como 'inactivo' en el panel
+    .filter(v => v.estado !== 'inactivo');
+
+    setVehiculos(docs);
+  });
+
+  return () => unsubscribe();
+}, []);
 
 const DATOS_BANCARIOS = `
 CUENTAS BANCARIAS PARA TRANSFERENCIA / RESERVA ($150 USD):

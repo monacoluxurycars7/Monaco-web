@@ -20,6 +20,7 @@
 </div>
       
 import React, { useState, useEffect } from 'react';
+import ContratoModal from './ContratoModal';
 import { initializeApp, getApps } from 'firebase/app';
 import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
 import { getFirestore, collection, onSnapshot, query, orderBy } from 'firebase/firestore';
@@ -40,6 +41,7 @@ const db = getFirestore(app);
 export default function AdminDashboard() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [reservaParaVer, setReservaParaVer] = useState(null);
   const [reservations, setReservations] = useState([]);
   const router = useRouter();
 
@@ -275,20 +277,18 @@ export default function AdminDashboard() {
                       </td>
 
                       {/* Firma / Contrato */}
-                      <td style={{ padding: '10px' }}>
-                        {res.firmaUrl ? (
-                          <a 
-                            href={res.firmaUrl} 
-                            target="_blank" 
-                            rel="noopener noreferrer" 
-                            style={{ color: '#d4af37', textDecoration: 'underline', fontWeight: 'bold' }}
-                          >
-                            Ver Firma Web
-                          </a>
-                        ) : (
-                          <span style={{ color: '#888', fontStyle: 'italic' }}>Contrato Físico</span>
-                        )}
-                      </td>
+          <td style={{ padding: '10px' }}>
+            {res.firmaUrl ? (
+              <button 
+                onClick={() => setReservaParaVer(res)} 
+                style={{ background: 'none', border: 'none', color: '#d4af37', cursor: 'pointer', textDecoration: 'underline', fontWeight: 'bold' }}
+              >
+                Ver Firma Web
+              </button>
+            ) : (
+              <span style={{ color: '#888', fontStyle: 'italic' }}>Contrato Físico</span>
+            )}
+          </td>
                     </tr>
                   );
                 })}
@@ -298,5 +298,11 @@ export default function AdminDashboard() {
         )}
       </section>
     </div>
+                          {reservaParaVer && (
+        <ContratoModal 
+          reserva={reservaParaVer} 
+          onClose={() => setReservaParaVer(null)} 
+        />
+      )}
   );
 }

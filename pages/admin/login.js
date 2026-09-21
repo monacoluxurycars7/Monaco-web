@@ -103,7 +103,7 @@ export default function Login() {
       {/* LOGO SUPERIOR: Izquierda a Derecha */}
       <div style={{
         position: 'absolute',
-        top: '6%',
+        top: '9%',
         left: '0',
         width: '100vw',
         height: '140px',

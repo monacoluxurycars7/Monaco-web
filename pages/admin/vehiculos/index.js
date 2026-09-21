@@ -70,7 +70,7 @@ export default function GestionVehiculos() {
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #333', paddingBottom: '15px' }}>
         <div>
           <h1 style={{ fontSize: '20px', margin: 0, color: '#d4af37' }}>Gestión de Flota de Vehículos</h1>
-          <p style={{ color: '#aaa', margin: '5px 0 0 0', fontSize: '12px' }}>Control de disponibilidad, precios y detalles</p>
+          <p style={{ color: '#aaa', margin: '5px 0 0 0', fontSize: '12px' }}>Control de disponibilidad, precios por escala y seguros</p>
         </div>
         <div style={{ display: 'flex', gap: '10px' }}>
           <button 
@@ -92,7 +92,7 @@ export default function GestionVehiculos() {
         {vehiculos.length === 0 ? (
           <p style={{ color: '#888', marginTop: '15px' }}>No hay vehículos registrados en la flota aún.</p>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px', marginTop: '20px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '20px', marginTop: '20px' }}>
             {vehiculos.map((auto) => {
               const estadoColor = {
                 disponible: '#4caf50',
@@ -126,12 +126,20 @@ export default function GestionVehiculos() {
                         • <strong>Transmisión:</strong> {auto.transmision || '-'}
                       </p>
 
-                      {/* Desglose de Tarifas */}
+                      {/* Desglose de Tarifas de Alquiler */}
                       <div style={{ backgroundColor: '#181818', padding: '10px', borderRadius: '6px', border: '1px solid #333', marginTop: '10px', fontSize: '12px' }}>
-                        <strong style={{ color: '#d4af37', display: 'block', marginBottom: '4px' }}>Tarifas por Días:</strong>
+                        <strong style={{ color: '#d4af37', display: 'block', marginBottom: '4px' }}>Tarifas Alquiler por Días:</strong>
                         • 3-5 Días: <strong>USD ${auto.precio3a5Dias || auto.precioPorDia || 0}</strong>/día<br />
                         • 6-10 Días: <strong>USD ${auto.precio6a10Dias || auto.precioPorDia || 0}</strong>/día<br />
                         • 11+ Días: <strong>USD ${auto.precio11MasDias || auto.precioPorDia || 0}</strong>/día
+                      </div>
+
+                      {/* Desglose de Tarifas de Seguro */}
+                      <div style={{ backgroundColor: '#181818', padding: '10px', borderRadius: '6px', border: '1px solid #333', marginTop: '8px', fontSize: '12px' }}>
+                        <strong style={{ color: '#4caf50', display: 'block', marginBottom: '4px' }}>Seguro Full por Días:</strong>
+                        • 3-5 Días: <strong>USD ${auto.seguro3a5Dias || auto.precioSeguroPorDia || 0}</strong>/día<br />
+                        • 6-10 Días: <strong>USD ${auto.seguro6a10Dias || auto.precioSeguroPorDia || 0}</strong>/día<br />
+                        • 11+ Días: <strong>USD ${auto.seguro11MasDias || auto.precioSeguroPorDia || 0}</strong>/día
                       </div>
                     </div>
 

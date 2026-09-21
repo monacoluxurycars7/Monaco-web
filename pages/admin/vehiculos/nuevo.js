@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { initializeApp, getApps } from 'firebase/app';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { getFirestore, collection, addDoc } from 'firebase/firestore';
-import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useRouter } from 'next/router';
 
 const firebaseConfig = {
@@ -16,26 +15,24 @@ const firebaseConfig = {
 
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
 const db = getFirestore(app);
-const storage = getStorage(app);
 
 export default function NuevoVehiculo() {
   const [loadingAuth, setLoadingAuth] = useState(true);
   const [guardando, setGuardando] = useState(false);
-  const [imagenFile, setImagenFile] = useState(null);
   const router = useRouter();
 
   const [formData, setFormData] = useState({
     nombre: '',
-    marca: '',
-    modelo: '',
-    anio: '2023',
     placa: '',
-    precioPorDia: 40,
+    anio: '2023',
+    combustible: 'Gasolina',
+    pasajeros: '5',
+    transmision: 'Automático',
+    precio3a5Dias: 50,
+    precio6a10Dias: 45,
+    precio11MasDias: 40,
     precioSeguroPorDia: 20,
     depositoGarantia: 400,
-    transmision: 'Automático',
-    pasajeros: 5,
-    combustible: 'Gasolina',
     estado: 'disponible',
     imagenUrl: ''
   });
@@ -54,37 +51,24 @@ export default function NuevoVehiculo() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleImageChange = (e) => {
-    if (e.target.files[0]) {
-      setImagenFile(e.target.files[0]);
-    }
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.nombre || !formData.precioPorDia) {
-      alert('Por favor completa el Nombre y el Precio por día.');
+    if (!formData.nombre) {
+      alert('Por favor ingresa el nombre del vehículo.');
       return;
     }
 
     setGuardando(true);
 
     try {
-      let finalImageUrl = formData.imagenUrl;
-
-      // Subida de imagen a Firebase Storage si seleccionó un archivo
-      if (imagenFile) {
-        const storageRef = ref(storage, `vehiculos/${Date.now()}_${imagenFile.name}`);
-        await uploadBytes(storageRef, imagenFile);
-        finalImageUrl = await getDownloadURL(storageRef);
-      }
-
       await addDoc(collection(db, 'vehiculos'), {
         ...formData,
-        precioPorDia: Number(formData.precioPorDia),
+        precio3a5Dias: Number(formData.precio3a5Dias),
+        precio6a10Dias: Number(formData.precio6a10Dias),
+        precio11MasDias: Number(formData.precio11MasDias),
+        precioPorDia: Number(formData.precio11MasDias), // Compatibilidad por defecto
         precioSeguroPorDia: Number(formData.precioSeguroPorDia),
         depositoGarantia: Number(formData.depositoGarantia),
-        imagenUrl: finalImageUrl,
         fechaCreacion: new Date().toISOString()
       });
 
@@ -110,30 +94,75 @@ export default function NuevoVehiculo() {
       </div>
 
       <form onSubmit={handleSubmit} style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-          <div>
-            <label style={{ display: 'block', fontSize: '12px', color: '#aaa', marginBottom: '4px' }}>Nombre Comercial *</label>
-            <input type="text" name="nombre" placeholder="Ej: Kia Sportage LX 2020" value={formData.nombre} onChange={handleChange} required style={{ width: '100%', padding: '8px', backgroundColor: '#181818', border: '1px solid #333', color: '#fff', borderRadius: '4px' }} />
+        {/* Datos Básicos */}
+        <fieldset style={{ border: '1px solid #333', padding: '15px', borderRadius: '8px' }}>
+          <legend style={{ color: '#d4af37', padding: '0 8px', fontWeight: 'bold' }}>Información Básica</legend>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+            <div style={{ gridColumn: 'span 2' }}>
+              <label style={{ display: 'block', fontSize: '12px', color: '#aaa', marginBottom: '4px' }}>Nombre Comercial *</label>
+              <input type="text" name="nombre" placeholder="Ej: Kia Sportage LX 2020" value={formData.nombre} onChange={handleChange} required style={{ width: '100%', padding: '8px', backgroundColor: '#181818', border: '1px solid #333', color: '#fff', borderRadius: '4px' }} />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '12px', color: '#aaa', marginBottom: '4px' }}>Placa / Matrícula</label>
+              <input type="text" name="placa" placeholder="Ej: A123456" value={formData.placa} onChange={handleChange} style={{ width: '100%', padding: '8px', backgroundColor: '#181818', border: '1px solid #333', color: '#fff', borderRadius: '4px' }} />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '12px', color: '#aaa', marginBottom: '4px' }}>Año</label>
+              <input type="text" name="anio" placeholder="Ej: 2020" value={formData.anio} onChange={handleChange} style={{ width: '100%', padding: '8px', backgroundColor: '#181818', border: '1px solid #333', color: '#fff', borderRadius: '4px' }} />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '12px', color: '#aaa', marginBottom: '4px' }}>Combustible</label>
+              <input type="text" name="combustible" placeholder="Ej: Gasolina / Diésel" value={formData.combustible} onChange={handleChange} style={{ width: '100%', padding: '8px', backgroundColor: '#181818', border: '1px solid #333', color: '#fff', borderRadius: '4px' }} />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '12px', color: '#aaa', marginBottom: '4px' }}>Pasajeros</label>
+              <input type="text" name="pasajeros" placeholder="Ej: 5 Pasajeros" value={formData.pasajeros} onChange={handleChange} style={{ width: '100%', padding: '8px', backgroundColor: '#181818', border: '1px solid #333', color: '#fff', borderRadius: '4px' }} />
+            </div>
+            <div style={{ gridColumn: 'span 2' }}>
+              <label style={{ display: 'block', fontSize: '12px', color: '#aaa', marginBottom: '4px' }}>Transmisión</label>
+              <input type="text" name="transmision" placeholder="Ej: Automática / Mecánica" value={formData.transmision} onChange={handleChange} style={{ width: '100%', padding: '8px', backgroundColor: '#181818', border: '1px solid #333', color: '#fff', borderRadius: '4px' }} />
+            </div>
           </div>
-          <div>
-            <label style={{ display: 'block', fontSize: '12px', color: '#aaa', marginBottom: '4px' }}>Placa / Matrícula</label>
-            <input type="text" name="placa" placeholder="Ej: A123456" value={formData.placa} onChange={handleChange} style={{ width: '100%', padding: '8px', backgroundColor: '#181818', border: '1px solid #333', color: '#fff', borderRadius: '4px' }} />
-          </div>
-          <div>
-            <label style={{ display: 'block', fontSize: '12px', color: '#aaa', marginBottom: '4px' }}>Precio Alquiler / Día (USD) *</label>
-            <input type="number" name="precioPorDia" value={formData.precioPorDia} onChange={handleChange} required style={{ width: '100%', padding: '8px', backgroundColor: '#181818', border: '1px solid #333', color: '#fff', borderRadius: '4px' }} />
-          </div>
-          <div>
-            <label style={{ display: 'block', fontSize: '12px', color: '#aaa', marginBottom: '4px' }}>Precio Seguro Full / Día (USD)</label>
-            <input type="number" name="precioSeguroPorDia" value={formData.precioSeguroPorDia} onChange={handleChange} style={{ width: '100%', padding: '8px', backgroundColor: '#181818', border: '1px solid #333', color: '#fff', borderRadius: '4px' }} />
-          </div>
-        </div>
+        </fieldset>
 
-        <div style={{ border: '1px solid #333', padding: '15px', borderRadius: '6px' }}>
-          <label style={{ display: 'block', fontSize: '12px', color: '#d4af37', marginBottom: '6px', fontWeight: 'bold' }}>Fotografía del Vehículo</label>
-          <input type="file" accept="image/*" onChange={handleImageChange} style={{ color: '#aaa', fontSize: '12px', marginBottom: '10px' }} />
-          <p style={{ fontSize: '11px', color: '#666', margin: 0 }}>O pega un enlace de imagen externo:</p>
-          <input type="url" name="imagenUrl" placeholder="https://..." value={formData.imagenUrl} onChange={handleChange} style={{ width: '100%', padding: '8px', backgroundColor: '#181818', border: '1px solid #333', color: '#fff', borderRadius: '4px', marginTop: '4px' }} />
+        {/* Tarifas por Escala de Días */}
+        <fieldset style={{ border: '1px solid #333', padding: '15px', borderRadius: '8px' }}>
+          <legend style={{ color: '#d4af37', padding: '0 8px', fontWeight: 'bold' }}>Tarifas Alquiler por Días (USD)</legend>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '12px', color: '#aaa', marginBottom: '4px' }}>3 - 5 Días ($/día)</label>
+              <input type="number" name="precio3a5Dias" value={formData.precio3a5Dias} onChange={handleChange} required style={{ width: '100%', padding: '8px', backgroundColor: '#181818', border: '1px solid #333', color: '#fff', borderRadius: '4px' }} />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '12px', color: '#aaa', marginBottom: '4px' }}>6 - 10 Días ($/día)</label>
+              <input type="number" name="precio6a10Dias" value={formData.precio6a10Dias} onChange={handleChange} required style={{ width: '100%', padding: '8px', backgroundColor: '#181818', border: '1px solid #333', color: '#fff', borderRadius: '4px' }} />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '12px', color: '#aaa', marginBottom: '4px' }}>11+ Días ($/día)</label>
+              <input type="number" name="precio11MasDias" value={formData.precio11MasDias} onChange={handleChange} required style={{ width: '100%', padding: '8px', backgroundColor: '#181818', border: '1px solid #333', color: '#fff', borderRadius: '4px' }} />
+            </div>
+          </div>
+        </fieldset>
+
+        {/* Seguro y Garantía */}
+        <fieldset style={{ border: '1px solid #333', padding: '15px', borderRadius: '8px' }}>
+          <legend style={{ color: '#d4af37', padding: '0 8px', fontWeight: 'bold' }}>Seguro y Depósito</legend>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '12px', color: '#aaa', marginBottom: '4px' }}>Seguro Full / Día (USD)</label>
+              <input type="number" name="precioSeguroPorDia" value={formData.precioSeguroPorDia} onChange={handleChange} style={{ width: '100%', padding: '8px', backgroundColor: '#181818', border: '1px solid #333', color: '#fff', borderRadius: '4px' }} />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '12px', color: '#aaa', marginBottom: '4px' }}>Depósito Garantía (USD)</label>
+              <input type="number" name="depositoGarantia" value={formData.depositoGarantia} onChange={handleChange} style={{ width: '100%', padding: '8px', backgroundColor: '#181818', border: '1px solid #333', color: '#fff', borderRadius: '4px' }} />
+            </div>
+          </div>
+        </fieldset>
+
+        {/* Foto */}
+        <div style={{ border: '1px solid #333', padding: '15px', borderRadius: '8px' }}>
+          <label style={{ display: 'block', fontSize: '12px', color: '#d4af37', marginBottom: '6px', fontWeight: 'bold' }}>Enlace de Foto (ImgBB / Imgur)</label>
+          <input type="url" name="imagenUrl" placeholder="https://i.ibb.co/..." value={formData.imagenUrl} onChange={handleChange} style={{ width: '100%', padding: '8px', backgroundColor: '#181818', border: '1px solid #333', color: '#fff', borderRadius: '4px' }} />
         </div>
 
         <button 

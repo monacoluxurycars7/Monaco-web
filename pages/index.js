@@ -249,20 +249,16 @@ export default function Home() {
         clienteEmail: email,
         clienteTelefono: telefono,
         clienteDireccionRD: direccionRD,
-        tipoCliente: tipoCliente,                    // Guarda 'extranjero' o 'residente'
+        tipoCliente: tipoCliente,
         documentoCliente: documentoCliente,
-        seguroFull: seguroFull === 'si' || seguroFull === true || seguroFull.includes('Seguro Full'), 
-        opcionSeguro: seguroFull,                     
-        
-        // --- AGREGA ESTOS DOS CAMPOS AQUÍ ---
-        precioPorDia: precioPorDia,             // Envía el precio real calculado ($55)
-        precioSeguroPorDia: precioSeguroPorDia, // Envía el seguro real calculado ($40)
-        ------------------------------------
-
+        seguroFull: seguroFull === 'si' || seguroFull === true || seguroFull.includes('Seguro Full'),
+        opcionSeguro: seguroFull,
+        precioPorDia: precioPorDia,
+        precioSeguroPorDia: precioSeguroPorDia,
         depositoGarantia: (seguroFull === 'si' || seguroFull === true || seguroFull.includes('Seguro Full')) ? 0 : 400,
-        lugarEntrega: lugarEntrega,                   
-        costoEntrega: costoEntrega || 0,               
-        costoTotal: costoTotal,                       
+        lugarEntrega: lugarEntrega,
+        costoEntrega: costoEntrega || 0,
+        costoTotal: costoTotal,
         firmaUrl: firmaUrl,
         fechaCreacion: new Date().toISOString()
       });

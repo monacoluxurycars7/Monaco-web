@@ -94,12 +94,21 @@ export default function AdminDashboard() {
           <h1 style={{ fontSize: '20px', margin: 0 }}>Monaco Luxury - Panel de Control</h1>
           <p style={{ color: '#aaa', margin: '5px 0 0 0', fontSize: '12px' }}>Gestión de Reservas en tiempo real</p>
         </div>
-        <button 
-          onClick={() => signOut(getAuth(app))}
-          style={{ padding: '8px 16px', backgroundColor: '#e53935', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
-        >
-          Cerrar Sesión
-        </button>
+        
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <button 
+            onClick={() => router.push('/admin/nueva-reserva')}
+            style={{ padding: '8px 16px', backgroundColor: '#d4af37', color: '#000', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
+          >
+            + Nueva Reserva Manual
+          </button>
+          <button 
+            onClick={() => signOut(getAuth(app))}
+            style={{ padding: '8px 16px', backgroundColor: '#e53935', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
+          >
+            Cerrar Sesión
+          </button>
+        </div>
       </header>
 
       <section style={{ marginTop: '25px' }}>
@@ -119,7 +128,7 @@ export default function AdminDashboard() {
                   <th style={{ padding: '10px' }}>Seguro Full</th>
                   <th style={{ padding: '10px', minWidth: '220px' }}>Desglose Estimado</th>
                   <th style={{ padding: '10px' }}>Entrega / Residencia</th>
-                  <th style={{ padding: '10px' }}>Firma</th>
+                  <th style={{ padding: '10px' }}>Firma / Contrato</th>
                 </tr>
               </thead>
               <tbody>
@@ -131,7 +140,6 @@ export default function AdminDashboard() {
 
                   const totalDias = calcularDias(res.inicio, res.fin, res.diasTotales);
 
-                  // Tarifas y precios
                   const rentaPorDia = Number(res.precioPorDia) || Number(res.rentaPorDia) || 40;
                   const totalAlquiler = totalDias * rentaPorDia;
 
@@ -152,6 +160,11 @@ export default function AdminDashboard() {
                       {/* Fecha Reserva */}
                       <td style={{ padding: '10px', color: '#aaa', whiteSpace: 'nowrap' }}>
                         {formatearFecha(res.fechaCreacion)}
+                        {res.registroManual && (
+                          <span style={{ display: 'block', color: '#d4af37', fontSize: '10px', marginTop: '4px' }}>
+                            (Registro Manual)
+                          </span>
+                        )}
                       </td>
 
                       {/* Cliente */}
@@ -197,7 +210,7 @@ export default function AdminDashboard() {
                         </span>
                       </td>
 
-                      {/* Desglose Estimado Detallado */}
+                      {/* Desglose Estimado */}
                       <td style={{ padding: '10px', lineHeight: '1.6' }}>
                         <strong style={{ color: '#d4af37', display: 'block', marginBottom: '4px' }}>
                           Desglose Estimado ({totalDias} {totalDias === 1 ? 'Día' : 'Días'}):
@@ -224,7 +237,7 @@ export default function AdminDashboard() {
                         </div>
                       </td>
 
-                      {/* Información de Entrega y Residencia */}
+                      {/* Entrega / Residencia */}
                       <td style={{ padding: '10px' }}>
                         <strong style={{ color: '#ccc' }}>Lugar:</strong><br />
                         {res.lugarEntrega || 'A coordinar'}<br /><br />
@@ -232,7 +245,7 @@ export default function AdminDashboard() {
                         <span style={{ color: '#aaa' }}>{res.clienteDireccionRD || 'No especificada'}</span>
                       </td>
 
-                      {/* Firma */}
+                      {/* Firma / Contrato */}
                       <td style={{ padding: '10px' }}>
                         {res.firmaUrl ? (
                           <a 
@@ -241,10 +254,10 @@ export default function AdminDashboard() {
                             rel="noopener noreferrer" 
                             style={{ color: '#d4af37', textDecoration: 'underline', fontWeight: 'bold' }}
                           >
-                            Ver Firma
+                            Ver Firma Web
                           </a>
                         ) : (
-                          <span style={{ color: '#555' }}>Sin firma</span>
+                          <span style={{ color: '#888', fontStyle: 'italic' }}>Contrato Físico</span>
                         )}
                       </td>
                     </tr>

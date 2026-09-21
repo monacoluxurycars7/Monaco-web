@@ -241,25 +241,31 @@ export default function Home() {
       const firmaUrl = canvasRef.current.toDataURL('image/png');
 
       await addDoc(collection(db, 'reservas'), {
-  vehiculoId: vehiculoSeleccionado.id,
-  vehiculoNombre: vehiculoSeleccionado.nombre,
-  inicio: fechaInicio,
-  fin: fechaFin,
-  clienteNombre: nombre,
-  clienteEmail: email,
-  clienteTelefono: telefono,
-  clienteDireccionRD: direccionRD,
-  tipoCliente: tipoCliente,                      // Guarda 'extranjero' o 'residente'
-  documentoCliente: documentoCliente,
-  seguroFull: seguroFull === 'si' || seguroFull === true || seguroFull.includes('Seguro Full'), // Convierte a boolean según tu select
-  opcionSeguro: seguroFull,                     // Opción seleccionada en el dropdown
-  depositoGarantia: (seguroFull === 'si' || seguroFull === true || seguroFull.includes('Seguro Full')) ? 0 : 400,
-  lugarEntrega: lugarEntrega,                    // Guarda el valor del select de lugar de entrega
-  costoEntrega: costoEntrega || 0,               // Guarda el costo de envío
-  costoTotal: costoTotal,                        // Guarda el costo total calculado
-  firmaUrl: firmaUrl,
-  fechaCreacion: new Date().toISOString()
-});
+        vehiculoId: vehiculoSeleccionado.id,
+        vehiculoNombre: vehiculoSeleccionado.nombre,
+        inicio: fechaInicio,
+        fin: fechaFin,
+        clienteNombre: nombre,
+        clienteEmail: email,
+        clienteTelefono: telefono,
+        clienteDireccionRD: direccionRD,
+        tipoCliente: tipoCliente,                    // Guarda 'extranjero' o 'residente'
+        documentoCliente: documentoCliente,
+        seguroFull: seguroFull === 'si' || seguroFull === true || seguroFull.includes('Seguro Full'), 
+        opcionSeguro: seguroFull,                     
+        
+        // --- AGREGA ESTOS DOS CAMPOS AQUÍ ---
+        precioPorDia: precioPorDia,             // Envía el precio real calculado ($55)
+        precioSeguroPorDia: precioSeguroPorDia, // Envía el seguro real calculado ($40)
+        ------------------------------------
+
+        depositoGarantia: (seguroFull === 'si' || seguroFull === true || seguroFull.includes('Seguro Full')) ? 0 : 400,
+        lugarEntrega: lugarEntrega,                   
+        costoEntrega: costoEntrega || 0,               
+        costoTotal: costoTotal,                       
+        firmaUrl: firmaUrl,
+        fechaCreacion: new Date().toISOString()
+      });
 
       try {
         await emailjs.send(

@@ -100,13 +100,13 @@ export default function Login() {
         }
       `}</style>
 
-      {/* LOGO SUPERIOR: Izquierda a Derecha (Completamente visible) */}
+      {/* LOGO SUPERIOR: Izquierda a Derecha */}
       <div style={{
         position: 'absolute',
-        top: '2%', // Bajado para que se vea entero sin recortarse
+        top: '6%',
         left: '0',
         width: '100vw',
-        height: '180px',
+        height: '140px',
         pointerEvents: 'none',
         zIndex: 1
       }}>
@@ -115,7 +115,7 @@ export default function Login() {
           alt="Monaco Logo Top 1" 
           style={{
             position: 'absolute',
-            width: '420px',
+            width: '380px',
             height: 'auto',
             opacity: 0.95,
             animation: 'marqueeLeftToRight 9s linear infinite'
@@ -126,7 +126,7 @@ export default function Login() {
           alt="Monaco Logo Top 2" 
           style={{
             position: 'absolute',
-            width: '420px',
+            width: '380px',
             height: 'auto',
             opacity: 0.95,
             animation: 'marqueeLeftToRight 9s linear infinite',
@@ -135,13 +135,13 @@ export default function Login() {
         />
       </div>
 
-      {/* LOGO INFERIOR: Derecha a Izquierda (Completamente visible) */}
+      {/* LOGO INFERIOR: Derecha a Izquierda (Ajustado más arriba para que NUNCA se corte) */}
       <div style={{
         position: 'absolute',
-        bottom: '2%', // Subido para que se vea completo
+        bottom: '12%', // Subido para dar espacio completo y despejar el borde
         left: '0',
         width: '100vw',
-        height: '180px',
+        height: '140px',
         pointerEvents: 'none',
         zIndex: 1
       }}>
@@ -150,7 +150,7 @@ export default function Login() {
           alt="Monaco Logo Bottom 1" 
           style={{
             position: 'absolute',
-            width: '420px',
+            width: '380px',
             height: 'auto',
             opacity: 0.95,
             animation: 'marqueeRightToLeft 9s linear infinite',
@@ -162,7 +162,7 @@ export default function Login() {
           alt="Monaco Logo Bottom 2" 
           style={{
             position: 'absolute',
-            width: '420px',
+            width: '380px',
             height: 'auto',
             opacity: 0.95,
             animation: 'marqueeRightToLeft 9s linear infinite',
@@ -171,15 +171,15 @@ export default function Login() {
         />
       </div>
 
-      {/* CAJA DE LOGIN PEQUEÑA Y COMPACTA (PROTAGONISMO A LOS LOGOS) */}
+      {/* CAJA DE LOGIN PEQUEÑA Y COMPACTA */}
       <div style={{
         position: 'relative',
         zIndex: 10,
         backgroundColor: '#000000',
-        padding: '28px 24px', // Cuadro más compacto
+        padding: '28px 24px',
         borderRadius: '14px',
         width: '100%',
-        maxWidth: '320px', // Ancho reducido
+        maxWidth: '320px',
         textAlign: 'center',
         border: '1px solid #222222',
         boxShadow: '0 0 30px rgba(0, 0, 0, 1), 0 0 15px rgba(212, 175, 55, 0.2)'

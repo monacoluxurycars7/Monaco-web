@@ -197,9 +197,16 @@ export default function Home() {
       return inicioSel <= rFin && finSel >= rInicio;
     });
   };
-
-  const precioPorDia = vehiculoSeleccionado ? (dias >= 11 ? vehiculoSeleccionado.precios.largo : dias >= 5 ? vehiculoSeleccionado.precios.medio : vehiculoSeleccionado.precios.base) : 0;
-  const precioSeguroPorDia = vehiculoSeleccionado && seguroFull ? (dias >= 11 ? vehiculoSeleccionado.seguroFullPrecios.largo : dias >= 5 ? vehiculoSeleccionado.seguroFullPrecios.medio : vehiculoSeleccionado.seguroFullPrecios.corto) : 0;
+  const precioPorDia = vehiculoSeleccionado ? (
+    dias >= 11 ? vehiculoSeleccionado.precios.largo : 
+    dias >= 6 ? vehiculoSeleccionado.precios.medio : 
+    vehiculoSeleccionado.precios.base
+  ) : 0;
+  const precioSeguroPorDia = vehiculoSeleccionado && seguroFull ? (
+    dias >= 11 ? vehiculoSeleccionado.seguroFullPrecios.largo : 
+    dias >= 6 ? vehiculoSeleccionado.seguroFullPrecios.medio : 
+    vehiculoSeleccionado.seguroFullPrecios.corto
+  ) : 0;
   const costoRenta = dias * precioPorDia;
   const costoSeguro = dias * precioSeguroPorDia;
   const depositoGarantia = seguroFull ? 0 : 400; 

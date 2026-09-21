@@ -183,8 +183,8 @@ export default function AdminDashboard() {
                         ${res.depositoGarantia !== undefined ? res.depositoGarantia : (tieneSeguroFull ? 0 : 400)} USD
                       </td>
                       <td style={{ padding: '10px', fontWeight: 'bold', color: '#4caf50', fontSize: '13px' }}>
-                        ${res.costoTotal || 0} USD
-                      </td>
+  ${res.costoTotal ?? res.total ?? res.precioTotal ?? 0} USD
+</td>
                       <td style={{ padding: '10px' }}>
                         {res.firmaUrl ? (
                           <a 

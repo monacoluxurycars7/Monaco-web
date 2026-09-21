@@ -1,12 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isPlaying, setIsPlaying] = useState(false);
+  const audioRef = useRef(null);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     // Lógica de inicio de sesión
+  };
+
+  const toggleAudio = () => {
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause();
+      } else {
+        audioRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
+    }
   };
 
   return (
@@ -23,14 +36,52 @@ export default function Login() {
       fontFamily: 'sans-serif'
     }}>
       
-      {/* Animación continua de Izquierda a Derecha */}
+      {/* Audio ambiental */}
+      <audio ref={audioRef} src="/musica.mp3" loop />
+
+      {/* Botón flotante para la música ambiental */}
+      <button 
+        onClick={toggleAudio}
+        style={{
+          position: 'fixed',
+          bottom: '20px',
+          right: '20px',
+          zIndex: 100,
+          backgroundColor: 'rgba(212, 175, 55, 0.2)',
+          border: '1px solid #d4af37',
+          color: '#d4af37',
+          padding: '10px 16px',
+          borderRadius: '30px',
+          cursor: 'pointer',
+          fontSize: '13px',
+          fontWeight: 'bold',
+          backdropFilter: 'blur(5px)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          boxShadow: '0 0 15px rgba(212, 175, 55, 0.3)'
+        }}
+      >
+        <span>{isPlaying ? '🔊 Pausar Música' : '🎵 Música Ambiental'}</span>
+      </button>
+
+      {/* Animaciones CSS */}
       <style jsx global>{`
         @keyframes marqueeLeftToRight {
           0% {
-            transform: translateY(-50%) translateX(-100vw);
+            transform: translateX(-100vw);
           }
           100% {
-            transform: translateY(-50%) translateX(100vw);
+            transform: translateX(100vw);
+          }
+        }
+
+        @keyframes marqueeRightToLeft {
+          0% {
+            transform: translateX(100vw);
+          }
+          100% {
+            transform: translateX(-100vw);
           }
         }
 
@@ -43,29 +94,51 @@ export default function Login() {
         }
       `}</style>
 
-      {/* LOGO NÍTIDO CRUZANDO CONTINUAMENTE DE IZQUIERDA A DERECHA */}
+      {/* LOGO SUPERIOR: Izquierda a Derecha */}
       <div style={{
         position: 'absolute',
-        top: '50%',
+        top: '15%',
         left: '0',
         pointerEvents: 'none',
         zIndex: 1,
-        animation: 'marqueeLeftToRight 16s linear infinite', // Corre de izquierda a derecha en bucle infinito
+        animation: 'marqueeLeftToRight 16s linear infinite',
         display: 'flex',
         alignItems: 'center'
       }}>
         <img 
           src="/logo.png" 
-          alt="Monaco Logo Background" 
+          alt="Monaco Logo Top" 
           style={{
-            width: '550px',
+            width: '420px',
             height: 'auto',
-            opacity: 0.9, // Color vivo y limpio sin sombras/resplandores rojos detrás
+            opacity: 0.85
           }}
         />
       </div>
 
-      {/* CAJA DE LOGIN EN FONDO NEGRO INTEGRADO */}
+      {/* LOGO INFERIOR: Derecha a Izquierda */}
+      <div style={{
+        position: 'absolute',
+        bottom: '15%',
+        left: '0',
+        pointerEvents: 'none',
+        zIndex: 1,
+        animation: 'marqueeRightToLeft 18s linear infinite',
+        display: 'flex',
+        alignItems: 'center'
+      }}>
+        <img 
+          src="/logo.png" 
+          alt="Monaco Logo Bottom" 
+          style={{
+            width: '420px',
+            height: 'auto',
+            opacity: 0.85
+          }}
+        />
+      </div>
+
+      {/* CAJA DE LOGIN CENTRADA EN FONDO NEGRO */}
       <div style={{
         position: 'relative',
         zIndex: 10,

@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useRouter } from 'next/router';
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
 import { app } from '../../lib/firebase';
 
 export default function Login() {
@@ -8,6 +8,7 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef(null);
   const router = useRouter();
@@ -16,6 +17,7 @@ export default function Login() {
     e.preventDefault();
     setLoading(true);
     setError('');
+    setMessage('');
 
     try {
       const auth = getAuth(app);
@@ -25,6 +27,23 @@ export default function Login() {
       console.error(err);
       setError('Correo o contraseña incorrectos');
       setLoading(false);
+    }
+  };
+
+  const handleResetPassword = async () => {
+    if (!email) {
+      setError('Por favor, ingresa tu correo electrónico para enviarte el enlace de recuperación.');
+      return;
+    }
+
+    try {
+      setError('');
+      const auth = getAuth(app);
+      await sendPasswordResetEmail(auth, email);
+      setMessage(`Se ha enviado un enlace para restablecer la contraseña a: ${email}`);
+    } catch (err) {
+      console.error(err);
+      setError('Error al enviar el correo. Verifica que esté bien escrito.');
     }
   };
 

@@ -1,14 +1,31 @@
 import React, { useState, useRef } from 'react';
+import { useRouter } from 'next/router';
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+import { app } from '../../lib/firebase';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef(null);
+  const router = useRouter();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Lógica de inicio de sesión
+    setLoading(true);
+    setError('');
+
+    try {
+      const auth = getAuth(app);
+      await signInWithEmailAndPassword(auth, email, password);
+      router.push('/admin');
+    } catch (err) {
+      console.error(err);
+      setError('Correo o contraseña incorrectos');
+      setLoading(false);
+    }
   };
 
   const toggleAudio = () => {

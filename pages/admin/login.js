@@ -23,14 +23,14 @@ export default function Login() {
       fontFamily: 'sans-serif'
     }}>
       
-      {/* Animación de desplazamiento horizontal continuo de lado a lado */}
+      {/* Animación continua de Izquierda a Derecha */}
       <style jsx global>{`
-        @keyframes marqueeHorizontal {
+        @keyframes marqueeLeftToRight {
           0% {
-            transform: translateY(-50%) translateX(100vw);
+            transform: translateY(-50%) translateX(-100vw);
           }
           100% {
-            transform: translateY(-50%) translateX(-100vw);
+            transform: translateY(-50%) translateX(100vw);
           }
         }
 
@@ -43,14 +43,14 @@ export default function Login() {
         }
       `}</style>
 
-      {/* LOGO GIGANTE RECORRIENDO LA PANTALLA DE DERECHA A IZQUIERDA */}
+      {/* LOGO NÍTIDO CRUZANDO CONTINUAMENTE DE IZQUIERDA A DERECHA */}
       <div style={{
         position: 'absolute',
         top: '50%',
         left: '0',
         pointerEvents: 'none',
         zIndex: 1,
-        animation: 'marqueeHorizontal 18s linear infinite', // Cruza la pantalla en 18 segundos
+        animation: 'marqueeLeftToRight 16s linear infinite', // Corre de izquierda a derecha en bucle infinito
         display: 'flex',
         alignItems: 'center'
       }}>
@@ -60,17 +60,16 @@ export default function Login() {
           style={{
             width: '550px',
             height: 'auto',
-            opacity: 0.85, // Mantiene el rojo y blanco bien claros y nítidos
-            filter: 'brightness(1.1) contrast(1.1) drop-shadow(0 0 25px rgba(239, 68, 68, 0.3))'
+            opacity: 0.9, // Color vivo y limpio sin sombras/resplandores rojos detrás
           }}
         />
       </div>
 
-      {/* CAJA DE LOGIN INTEGRADA EN NEGRO */}
+      {/* CAJA DE LOGIN EN FONDO NEGRO INTEGRADO */}
       <div style={{
         position: 'relative',
         zIndex: 10,
-        backgroundColor: 'rgba(0, 0, 0, 0.82)',
+        backgroundColor: 'rgba(0, 0, 0, 0.85)',
         backdropFilter: 'blur(8px)',
         padding: '40px 32px',
         borderRadius: '16px',

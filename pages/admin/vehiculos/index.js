@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { db } from '../../lib/firebase'; // Ajusta la ruta según tu estructura de Firebase
+import { db } from '@/lib/firebase';
 import { collection, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 
 export default function GestionVehiculos() {

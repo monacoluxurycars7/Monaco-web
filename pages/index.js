@@ -202,21 +202,24 @@ export default function Home() {
     dias >= 6 ? vehiculoSeleccionado.precios.medio : 
     vehiculoSeleccionado.precios.base
   ) : 0;
+
   const precioSeguroPorDia = vehiculoSeleccionado && seguroFull ? (
     dias >= 11 ? vehiculoSeleccionado.seguroFullPrecios.largo : 
     dias >= 6 ? vehiculoSeleccionado.seguroFullPrecios.medio : 
     vehiculoSeleccionado.seguroFullPrecios.corto
   ) : 0;
+
   const costoRenta = dias * precioPorDia;
   const costoSeguro = dias * precioSeguroPorDia;
-  const depositoGarantia = seguroFull ? 0 : 400; 
-  const costoTotal = costoRenta + costoSeguro + depositoGarantia + costoEntrega;;
-  const errorDias = dias < 3;
+  const depositoGarantia = seguroFull ? 0 : 400;
+
   const costoEntrega = 
     lugarEntrega === 'puntacana' ? 150 : 
     lugarEntrega === 'santiago' ? 100 : 0;
 
-  const costoTotalFinal = costoTotal + costoEntrega;
+  const costoTotalFinal = costoRenta + costoSeguro + depositoGarantia + costoEntrega;
+  const costoTotal = costoTotalFinal;
+  const errorDias = dias < 3;
 
   const vehiculosFiltrados = vehiculos.filter((v) => {
     const coincideMarca = busquedaMarca === '' || v.marca.toLowerCase().includes(busquedaMarca.toLowerCase());

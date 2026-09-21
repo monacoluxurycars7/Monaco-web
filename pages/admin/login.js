@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -6,7 +6,7 @@ export default function Login() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Aquí va tu lógica de inicio de sesión de Firebase
+    // Lógica de inicio de sesión
   };
 
   return (
@@ -14,79 +14,87 @@ export default function Login() {
       position: 'relative',
       minHeight: '100vh',
       width: '100vw',
-      backgroundColor: '#000000', // Negro puro para coincidir con el logo
+      backgroundColor: '#000000',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       overflow: 'hidden',
-      color: '#fff'
+      color: '#fff',
+      fontFamily: 'sans-serif'
     }}>
       
-      {/* Animación CSS para desplazamiento horizontal */}
+      {/* Animación pura horizontal */}
       <style jsx global>{`
-        @keyframes moverHorizontal {
+        @keyframes floatHorizontal {
           0% {
-            transform: translateX(-100vw);
+            transform: translate(-50%, -50%) translateX(-35vw);
           }
           100% {
-            transform: translateX(100vw);
+            transform: translate(-50%, -50%) translateX(35vw);
           }
+        }
+
+        .glow-title {
+          text-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 0 0 20px rgba(212, 175, 55, 0.6);
+        }
+
+        .glow-label {
+          text-shadow: 0 0 6px rgba(255, 255, 255, 0.5);
         }
       `}</style>
 
-      {/* LOGO ANIMADO DE FONDO (Más grande, más brillante y movimiento horizontal) */}
+      {/* LOGO GIGANTE ANIMADO EN EL CENTRO (SOLO HORIZONTAL) */}
       <div style={{
         position: 'absolute',
         top: '50%',
-        left: '0',
-        transform: 'translateY(-50%)',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
         pointerEvents: 'none',
         zIndex: 1,
-        width: '100%',
+        animation: 'floatHorizontal 12s ease-in-out infinite alternate',
         display: 'flex',
         justifyContent: 'center',
-        animation: 'moverHorizontal 14s linear infinite'
+        alignItems: 'center'
       }}>
         <img 
           src="/logo.png" 
           alt="Monaco Logo Background" 
           style={{
-            width: '650px', // Tamaño más grande
+            width: '650px',
             maxWidth: '90vw',
             height: 'auto',
-            filter: 'brightness(1.6) drop-shadow(0 0 25px rgba(212, 175, 55, 0.4))', // Más brillo y resplandor dorado
-            mixBlendMode: 'screen' // Elimina bordes o diferencias de negro
+            opacity: 0.25,
+            filter: 'drop-shadow(0 0 25px rgba(212, 175, 55, 0.2))'
           }}
         />
       </div>
 
-      {/* CAJA DE LOGIN (Superpuesta en el centro) */}
+      {/* CAJA DE LOGIN INTEGRADA CON EL FONDO */}
       <div style={{
         position: 'relative',
         zIndex: 10,
-        backgroundColor: 'rgba(15, 15, 15, 0.85)', // Fondo semitransparente con diseño elegante
-        backdropFilter: 'blur(8px)',
-        padding: '40px 30px',
+        backgroundColor: '#000000',
+        padding: '40px 32px',
         borderRadius: '16px',
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.9), 0 0 1px 1px rgba(212, 175, 55, 0.3)',
         width: '100%',
-        maxWidth: '400px',
+        maxWidth: '380px',
         textAlign: 'center',
-        border: '1px solid #222'
+        border: '1px solid #1c1c1c',
+        boxShadow: '0 0 35px rgba(0, 0, 0, 0.95), 0 0 15px rgba(212, 175, 55, 0.15)'
       }}>
-        <h2 style={{
-          marginBottom: '24px',
-          fontSize: '24px',
+        <h2 className="glow-title" style={{
+          marginBottom: '28px',
+          fontSize: '26px',
           fontWeight: 'bold',
           color: '#ffffff',
-          letterSpacing: '0.5px'
+          letterSpacing: '1px'
         }}>
           Acceso Admin
         </h2>
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px', textAlign: 'left' }}>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '18px', textAlign: 'left' }}>
           <div>
-            <label style={{ display: 'block', fontSize: '13px', color: '#ccc', marginBottom: '6px' }}>
+            <label className="glow-label" style={{ display: 'block', fontSize: '13px', color: '#fff', fontWeight: '600', marginBottom: '8px' }}>
               Correo Electrónico:
             </label>
             <input
@@ -99,16 +107,17 @@ export default function Login() {
                 padding: '12px 14px',
                 borderRadius: '8px',
                 border: '1px solid #333',
-                backgroundColor: '#000000',
+                backgroundColor: '#0a0a0a',
                 color: '#fff',
                 fontSize: '14px',
-                outline: 'none'
+                outline: 'none',
+                boxShadow: 'inset 0 0 5px rgba(0,0,0,0.8)'
               }}
             />
           </div>
 
           <div>
-            <label style={{ display: 'block', fontSize: '13px', color: '#ccc', marginBottom: '6px' }}>
+            <label className="glow-label" style={{ display: 'block', fontSize: '13px', color: '#fff', fontWeight: '600', marginBottom: '8px' }}>
               Contraseña:
             </label>
             <input
@@ -121,10 +130,11 @@ export default function Login() {
                 padding: '12px 14px',
                 borderRadius: '8px',
                 border: '1px solid #333',
-                backgroundColor: '#000000',
+                backgroundColor: '#0a0a0a',
                 color: '#fff',
                 fontSize: '14px',
-                outline: 'none'
+                outline: 'none',
+                boxShadow: 'inset 0 0 5px rgba(0,0,0,0.8)'
               }}
             />
           </div>
@@ -132,15 +142,16 @@ export default function Login() {
           <button
             type="submit"
             style={{
-              marginTop: '10px',
-              padding: '12px',
+              marginTop: '12px',
+              padding: '13px',
               borderRadius: '8px',
               border: 'none',
               backgroundColor: '#d4af37',
               color: '#000',
               fontWeight: 'bold',
               fontSize: '15px',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              boxShadow: '0 0 15px rgba(212, 175, 55, 0.4)'
             }}
           >
             Iniciar Sesión

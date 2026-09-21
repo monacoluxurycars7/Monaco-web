@@ -75,8 +75,8 @@ export default function AdminDashboard() {
 
   // Función para calcular la cantidad de días entre dos fechas
   const calcularDias = (inicio, fin, diasGuardados) => {
-    if (diasGuardados) return diasGuardados;
-    if (!inicio || !fin) return '-';
+    if (diasGuardados) return Number(diasGuardados);
+    if (!inicio || !fin) return 1;
     try {
       const f1 = new Date(inicio);
       const f2 = new Date(fin);
@@ -84,7 +84,7 @@ export default function AdminDashboard() {
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
       return isNaN(diffDays) || diffDays === 0 ? 1 : diffDays;
     } catch {
-      return '-';
+      return 1;
     }
   };
 
@@ -136,25 +136,42 @@ export default function AdminDashboard() {
 
                   const totalDias = calcularDias(res.inicio, res.fin, res.diasTotales);
 
+                  // Extracción de precios
+                  const precioDiarioRenta = Number(res.precioPorDia) || Number(res.rentaPorDia) || 40;
+                  const precioDiarioSeguro = tieneSeguroFull ? (Number(res.precioSeguroPorDia) || 20) : 0;
+                  const costoEntregaVal = Number(res.costoEntrega) || (typeof res.lugarEntrega === 'string' && res.lugarEntrega.includes('150') ? 150 : 0);
+
+                  // Cálculo total de respaldo
+                  const costoTotalCalculado = (totalDias * precioDiarioRenta) + (totalDias * precioDiarioSeguro) + costoEntregaVal;
+
                   return (
                     <tr key={res.id} style={{ borderBottom: '1px solid #222' }}>
+                      {/* 1. Fecha Reserva */}
                       <td style={{ padding: '10px', color: '#aaa', whiteSpace: 'nowrap' }}>
                         {formatearFecha(res.fechaCreacion)}
                       </td>
+
+                      {/* 2. Cliente */}
                       <td style={{ padding: '10px' }}>
                         <strong>{res.clienteNombre || 'Sin nombre'}</strong><br />
                         <span style={{ color: '#888' }}>{res.clienteTelefono || '-'}</span><br />
                         <span style={{ color: '#666', fontSize: '10px' }}>{res.clienteEmail || '-'}</span>
                       </td>
+
+                      {/* 3. Tipo / Doc. */}
                       <td style={{ padding: '10px' }}>
                         <span style={{ textTransform: 'capitalize' }}>
                           {res.tipoCliente || 'Residente'}
                         </span><br />
                         <span style={{ color: '#aaa' }}>{res.documentoCliente || '-'}</span>
                       </td>
+
+                      {/* 4. Vehículo */}
                       <td style={{ padding: '10px', color: '#d4af37', fontWeight: 'bold' }}>
                         {res.vehiculoNombre || '-'}
                       </td>
+
+                      {/* 5. Fechas Renta */}
                       <td style={{ padding: '10px', whiteSpace: 'nowrap' }}>
                         Del: {res.inicio || '-'}<br />
                         Al: {res.fin || '-'}<br />
@@ -162,6 +179,8 @@ export default function AdminDashboard() {
                           ({totalDias} {totalDias === 1 ? 'Día' : 'Días'})
                         </span>
                       </td>
+
+                      {/* 6. Seguro Full */}
                       <td style={{ padding: '10px' }}>
                         <span style={{ 
                           padding: '3px 8px', 
@@ -173,18 +192,33 @@ export default function AdminDashboard() {
                           {tieneSeguroFull ? 'SÍ' : 'NO'}
                         </span>
                       </td>
-                     <td style={{ padding: '10px', fontWeight: 'bold', color: '#4caf50', fontSize: '13px' }}>
-  ${res.costoTotal ?? res.total ?? res.precioTotal ?? 0} USD
-</td>
+
+                      {/* 7. Lugar Entrega */}
+                      <td style={{ padding: '10px' }}>
+                        {res.lugarEntrega || 'A coordinar'}
+                        {costoEntregaVal > 0 && (
+                          <span style={{ display: 'block', color: '#888', fontSize: '11px' }}>
+                            (+$${costoEntregaVal} USD)
+                          </span>
+                        )}
+                      </td>
+
+                      {/* 8. Dirección Residencia */}
                       <td style={{ padding: '10px' }}>
                         {res.clienteDireccionRD || 'No especificada'}
                       </td>
+
+                      {/* 9. Depósito */}
                       <td style={{ padding: '10px' }}>
                         ${res.depositoGarantia !== undefined ? res.depositoGarantia : (tieneSeguroFull ? 0 : 400)} USD
                       </td>
+
+                      {/* 10. Costo Total */}
                       <td style={{ padding: '10px', fontWeight: 'bold', color: '#4caf50', fontSize: '13px' }}>
-  ${res.costoTotal ?? res.total ?? res.precioTotal ?? 0} USD
-</td>
+                        ${res.costoTotal ? res.costoTotal : costoTotalCalculado} USD
+                      </td>
+
+                      {/* 11. Firma */}
                       <td style={{ padding: '10px' }}>
                         {res.firmaUrl ? (
                           <a 

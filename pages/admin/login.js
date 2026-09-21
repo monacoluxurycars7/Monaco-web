@@ -138,7 +138,7 @@ export default function Login() {
       {/* LOGO INFERIOR: Derecha a Izquierda (Ajustado más arriba para que NUNCA se corte) */}
       <div style={{
         position: 'absolute',
-        bottom: '16%', // Subido para dar espacio completo y despejar el borde
+        bottom: '20%', // Subido para dar espacio completo y despejar el borde
         left: '0',
         width: '100vw',
         height: '140px',

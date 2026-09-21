@@ -59,6 +59,8 @@ Al realizar el pago de la reserva o al tomar posesión del vehículo, el CLIENTE
 export default function Home() {
   const [vehiculos, setVehiculos] = useState([]);
 
+  const [vehiculos, setVehiculos] = useState([]);
+
   useEffect(() => {
     if (!db) return;
     const unsubscribe = onSnapshot(collection(db, 'vehiculos'), (snapshot) => {
@@ -75,14 +77,15 @@ export default function Home() {
           transmision: data.transmision || 'Automática',
           imagen: data.imagenUrl || '/kia.jpg',
           precios: {
-            base: data.precio3a5Dias || 50,
-            medio: data.precio6a10Dias || 45,
-            largo: data.precio11MasDias || 40
+            base: Number(data.precio3a5Dias) || 50,
+            medio: Number(data.precio6a10Dias) || 45,
+            largo: Number(data.precio11MasDias) || 40
           },
           seguroFullPrecios: {
-            corto: data.seguro3a5Dias || 30,
-            medio: data.seguro6a10Dias || 25,
-            largo: data.seguro11MasDias || 20
+            // Unificamos por si en Firestore se guardó con espacios o normal
+            corto: Number(data.seguro3a5Dias || data['Seguro de 3 a 5 días']) || 30,
+            medio: Number(data.seguro6a10Dias) || 25,
+            largo: Number(data.seguro11MasDias) || 20
           },
           disponible: data.estado === 'disponible',
           estado: data.estado || 'disponible'

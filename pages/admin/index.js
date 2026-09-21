@@ -1,246 +1,86 @@
-import React, { useState, useEffect } from 'react';
-import { initializeApp, getApps } from 'firebase/app';
-import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
-import { getFirestore, collection, onSnapshot, query, orderBy } from 'firebase/firestore';
-import { useRouter } from 'next/router';
+<!-- Ficha de Control de Reserva / Alquiler -->
+<div class="panel-control-reserva" style="font-family: Arial, sans-serif; max-width: 800px; border: 1px solid #ccc; padding: 20px; border-radius: 8px;">
 
-const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
-};
+  <!-- 1. Datos de la Reserva y Cliente -->
+  <section class="seccion-bloque" style="margin-bottom: 20px;">
+    <h3 style="border-bottom: 2px solid #333; padding-bottom: 5px;">1. Datos de la Reserva y Cliente</h3>
+    <p><strong>Fecha Reserva:</strong> <span id="fechaReserva">2026-09-21</span></p>
+    <p><strong>Cliente:</strong> <span id="nombreCliente">Nombre del Cliente</span></p>
+    <p><strong>Teléfono / Contacto:</strong> <span id="telefonoCliente">+1 800 000 0000</span></p>
+    <p><strong>Tipo / Doc. Identidad:</strong> <span id="docIdentidad">Pasaporte / Cédula / Licencia</span></p>
+  </section>
 
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
-const db = getFirestore(app);
+  <!-- 2. Detalle del Vehículo -->
+  <section class="seccion-bloque" style="margin-bottom: 20px;">
+    <h3 style="border-bottom: 2px solid #333; padding-bottom: 5px;">2. Detalle del Vehículo</h3>
+    <p><strong>Vehículo:</strong> <span id="vehiculoDetalle">Kia Sportage 2020 (Placa: ABC-1234)</span></p>
+    <p><strong>Condición de Entrega:</strong> <span id="condicionEntrega">Tanque lleno / 45,000 km</span></p>
+  </section>
 
-export default function AdminDashboard() {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [reservations, setReservations] = useState([]);
-  const router = useRouter();
+  <!-- 3. Fechas y Logística -->
+  <section class="seccion-bloque" style="margin-bottom: 20px;">
+    <h3 style="border-bottom: 2px solid #333; padding-bottom: 5px;">3. Fechas y Logística</h3>
+    <p><strong>Fechas Renta:</strong> <span id="fechasRenta">2026-10-01 al 2026-10-19 (18 Días)</span></p>
+    <p><strong>Lugar de Entrega:</strong> <span id="lugarEntrega">Aeropuerto Internacional</span></p>
+    <p><strong>Lugar de Devolución:</strong> <span id="lugarDevolucion">Aeropuerto Internacional</span></p>
+  </section>
 
-  useEffect(() => {
-    const auth = getAuth(app);
-    const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
-      if (!currentUser) {
-        router.push('/admin/login');
-      } else {
-        setUser(currentUser);
-      }
-      setLoading(false);
-    });
-    return () => unsubscribeAuth();
-  }, [router]);
+  <!-- 4. Cobertura y Políticas -->
+  <section class="seccion-bloque" style="margin-bottom: 20px;">
+    <h3 style="border-bottom: 2px solid #333; padding-bottom: 5px;">4. Cobertura y Políticas</h3>
+    <p><strong>Seguro Full:</strong> <span id="seguroFull">Sí</span></p>
+    <p><strong>Depósito de Garantía:</strong> <span id="depositoGarantia">USD $0.00 (No aplica)</span></p>
+  </section>
 
-  useEffect(() => {
-    if (!user) return;
-    
-    // Consulta ordenada por fechaCreacion descendente
-    const q = query(collection(db, 'reservas'), orderBy('fechaCreacion', 'desc'));
-    
-    const unsubscribeRes = onSnapshot(q, (snapshot) => {
-      const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setReservations(docs);
-    }, (error) => {
-      // Fallback
-      const unsubscribeFallback = onSnapshot(collection(db, 'reservas'), (snapshot) => {
-        const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        docs.sort((a, b) => new Date(b.fechaCreacion || 0) - new Date(a.fechaCreacion || 0));
-        setReservations(docs);
-      });
-    });
+  <!-- 5. Desglose Estimado (18 Días) -->
+  <section class="seccion-bloque" style="margin-bottom: 20px;">
+    <h3 style="border-bottom: 2px solid #333; padding-bottom: 5px;">5. Desglose Estimado (18 Días)</h3>
+    <table style="width: 100%; border-collapse: collapse; text-align: left;">
+      <thead>
+        <tr style="background-color: #f2f2f2;">
+          <th style="padding: 8px; border: 1px solid #ddd;">Concepto</th>
+          <th style="padding: 8px; border: 1px solid #ddd;">Tarifa / Frecuencia</th>
+          <th style="padding: 8px; border: 1px solid #ddd;">Subtotal</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="padding: 8px; border: 1px solid #ddd;">Alquiler Base</td>
+          <td style="padding: 8px; border: 1px solid #ddd;">USD $40.00 / día</td>
+          <td style="padding: 8px; border: 1px solid #ddd;">USD $720.00</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px; border: 1px solid #ddd;">Seguro Full</td>
+          <td style="padding: 8px; border: 1px solid #ddd;">USD $20.00 / día</td>
+          <td style="padding: 8px; border: 1px solid #ddd;">USD $360.00</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px; border: 1px solid #ddd;">Entrega / Movilización</td>
+          <td style="padding: 8px; border: 1px solid #ddd;">Cargo Único</td>
+          <td style="padding: 8px; border: 1px solid #ddd;">USD $100.00</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px; border: 1px solid #ddd;">Depósito Garantía</td>
+          <td style="padding: 8px; border: 1px solid #ddd;">Reembolsable</td>
+          <td style="padding: 8px; border: 1px solid #ddd;">USD $0.00</td>
+        </tr>
+        <tr style="font-weight: bold; background-color: #e9ecef;">
+          <td colspan="2" style="padding: 8px; border: 1px solid #ddd; text-align: right;">TOTAL ESTIMADO:</td>
+          <td style="padding: 8px; border: 1px solid #ddd;">USD $1,180.00</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
 
-    return () => unsubscribeRes();
-  }, [user]);
+  <!-- 6. Información Relevante Adicional -->
+  <section class="seccion-bloque">
+    <h3 style="border-bottom: 2px solid #333; padding-bottom: 5px;">6. Información Relevante Adicional</h3>
+    <p><strong>Estatus de Pago:</strong> <span id="estatusPago">Pendiente / Pago al entregar</span></p>
+    <p><strong>Método de Pago:</strong> <span id="metodoPago">Tarjeta de Crédito / Efectivo</span></p>
+    <p><strong>Conductor Adicional:</strong> <span id="conductorAdicional">No registrado</span></p>
+    <p><strong>Política de Combustible:</strong> <span id="politicaCombustible">Devolver con la misma cantidad inicial</span></p>
+    <p><strong>Margen de Tolerancia Retorno:</strong> <span id="toleranciaHorario">1 hora máx. de retraso</span></p>
+    <p><strong>Registro de Inspección / Daños:</strong> <a href="#" id="linkInspeccion">Ver fotos de checklist inicial</a></p>
+  </section>
 
-  const formatearFecha = (isoString) => {
-    if (!isoString) return 'Sin fecha';
-    try {
-      const d = new Date(isoString);
-      return d.toLocaleString('es-DO', { 
-        day: '2-digit', 
-        month: '2-digit', 
-        year: 'numeric', 
-        hour: '2-digit', 
-        minute: '2-digit',
-        hour12: true 
-      });
-    } catch {
-      return isoString;
-    }
-  };
-
-  // Función para calcular la cantidad de días entre dos fechas
-  const calcularDias = (inicio, fin, diasGuardados) => {
-    if (diasGuardados) return Number(diasGuardados);
-    if (!inicio || !fin) return 1;
-    try {
-      const f1 = new Date(inicio);
-      const f2 = new Date(fin);
-      const diffTime = Math.abs(f2 - f1);
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      return isNaN(diffDays) || diffDays === 0 ? 1 : diffDays;
-    } catch {
-      return 1;
-    }
-  };
-
-  if (loading) return <p style={{ color: '#fff', textAlign: 'center', marginTop: '50px' }}>Cargando panel...</p>;
-
-  return (
-    <div style={{ padding: '20px', color: '#fff', minHeight: '100vh', backgroundColor: '#0a0a0a', fontFamily: 'sans-serif' }}>
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #333', paddingBottom: '15px' }}>
-        <div>
-          <h1 style={{ fontSize: '20px', margin: 0 }}>Monaco Luxury - Panel de Control</h1>
-          <p style={{ color: '#aaa', margin: '5px 0 0 0', fontSize: '12px' }}>Gestión de Reservas en tiempo real</p>
-        </div>
-        <button 
-          onClick={() => signOut(getAuth(app))}
-          style={{ padding: '8px 16px', backgroundColor: '#e53935', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
-        >
-          Cerrar Sesión
-        </button>
-      </header>
-
-      <section style={{ marginTop: '25px' }}>
-        <h2>Reservas Recibidas ({reservations.length})</h2>
-        {reservations.length === 0 ? (
-          <p style={{ color: '#888', marginTop: '15px' }}>No hay reservas registradas aún.</p>
-        ) : (
-          <div style={{ overflowX: 'auto', marginTop: '15px' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', backgroundColor: '#111', fontSize: '12px' }}>
-              <thead>
-                <tr style={{ borderBottom: '2px solid #333', color: '#d4af37', backgroundColor: '#181818' }}>
-                  <th style={{ padding: '10px' }}>Fecha Reserva</th>
-                  <th style={{ padding: '10px' }}>Cliente</th>
-                  <th style={{ padding: '10px' }}>Tipo / Doc.</th>
-                  <th style={{ padding: '10px' }}>Vehículo</th>
-                  <th style={{ padding: '10px' }}>Fechas Renta</th>
-                  <th style={{ padding: '10px' }}>Seguro Full</th>
-                  <th style={{ padding: '10px' }}>Lugar Entrega</th>
-                  <th style={{ padding: '10px' }}>Dirección Residencia</th>
-                  <th style={{ padding: '10px' }}>Depósito</th>
-                  <th style={{ padding: '10px' }}>Costo Total</th>
-                  <th style={{ padding: '10px' }}>Firma</th>
-                </tr>
-              </thead>
-              <tbody>
-                {reservations.map((res) => {
-                  const tieneSeguroFull = 
-                    res.seguroFull === true || 
-                    res.seguroFull === 'si' || 
-                    (typeof res.opcionSeguro === 'string' && res.opcionSeguro.includes('Seguro Full'));
-
-                  const totalDias = calcularDias(res.inicio, res.fin, res.diasTotales);
-
-                  // Extracción de precios
-                  const precioDiarioRenta = Number(res.precioPorDia) || Number(res.rentaPorDia) || 40;
-                  const precioDiarioSeguro = tieneSeguroFull ? (Number(res.precioSeguroPorDia) || 20) : 0;
-                  const costoEntregaVal = Number(res.costoEntrega) || (typeof res.lugarEntrega === 'string' && res.lugarEntrega.includes('150') ? 150 : 0);
-
-                  // Cálculo total de respaldo
-                  const costoTotalCalculado = (totalDias * precioDiarioRenta) + (totalDias * precioDiarioSeguro) + costoEntregaVal;
-
-                  return (
-                    <tr key={res.id} style={{ borderBottom: '1px solid #222' }}>
-                      {/* 1. Fecha Reserva */}
-                      <td style={{ padding: '10px', color: '#aaa', whiteSpace: 'nowrap' }}>
-                        {formatearFecha(res.fechaCreacion)}
-                      </td>
-
-                      {/* 2. Cliente */}
-                      <td style={{ padding: '10px' }}>
-                        <strong>{res.clienteNombre || 'Sin nombre'}</strong><br />
-                        <span style={{ color: '#888' }}>{res.clienteTelefono || '-'}</span><br />
-                        <span style={{ color: '#666', fontSize: '10px' }}>{res.clienteEmail || '-'}</span>
-                      </td>
-
-                      {/* 3. Tipo / Doc. */}
-                      <td style={{ padding: '10px' }}>
-                        <span style={{ textTransform: 'capitalize' }}>
-                          {res.tipoCliente || 'Residente'}
-                        </span><br />
-                        <span style={{ color: '#aaa' }}>{res.documentoCliente || '-'}</span>
-                      </td>
-
-                      {/* 4. Vehículo */}
-                      <td style={{ padding: '10px', color: '#d4af37', fontWeight: 'bold' }}>
-                        {res.vehiculoNombre || '-'}
-                      </td>
-
-                      {/* 5. Fechas Renta */}
-                      <td style={{ padding: '10px', whiteSpace: 'nowrap' }}>
-                        Del: {res.inicio || '-'}<br />
-                        Al: {res.fin || '-'}<br />
-                        <span style={{ color: '#d4af37', fontWeight: 'bold' }}>
-                          ({totalDias} {totalDias === 1 ? 'Día' : 'Días'})
-                        </span>
-                      </td>
-
-                      {/* 6. Seguro Full */}
-                      <td style={{ padding: '10px' }}>
-                        <span style={{ 
-                          padding: '3px 8px', 
-                          borderRadius: '4px', 
-                          fontWeight: 'bold',
-                          backgroundColor: tieneSeguroFull ? '#1b5e20' : '#333',
-                          color: tieneSeguroFull ? '#81c784' : '#aaa'
-                        }}>
-                          {tieneSeguroFull ? 'SÍ' : 'NO'}
-                        </span>
-                      </td>
-
-                      {/* 7. Lugar Entrega */}
-                      <td style={{ padding: '10px' }}>
-                        {res.lugarEntrega || 'A coordinar'}
-                        {costoEntregaVal > 0 && (
-                          <span style={{ display: 'block', color: '#888', fontSize: '11px' }}>
-                            (+$${costoEntregaVal} USD)
-                          </span>
-                        )}
-                      </td>
-
-                      {/* 8. Dirección Residencia */}
-                      <td style={{ padding: '10px' }}>
-                        {res.clienteDireccionRD || 'No especificada'}
-                      </td>
-
-                      {/* 9. Depósito */}
-                      <td style={{ padding: '10px' }}>
-                        ${res.depositoGarantia !== undefined ? res.depositoGarantia : (tieneSeguroFull ? 0 : 400)} USD
-                      </td>
-
-                      {/* 10. Costo Total */}
-                      <td style={{ padding: '10px', fontWeight: 'bold', color: '#4caf50', fontSize: '13px' }}>
-                        ${res.costoTotal ? res.costoTotal : costoTotalCalculado} USD
-                      </td>
-
-                      {/* 11. Firma */}
-                      <td style={{ padding: '10px' }}>
-                        {res.firmaUrl ? (
-                          <a 
-                            href={res.firmaUrl} 
-                            target="_blank" 
-                            rel="noopener noreferrer" 
-                            style={{ color: '#d4af37', textDecoration: 'underline' }}
-                          >
-                            Ver Firma
-                          </a>
-                        ) : (
-                          <span style={{ color: '#555' }}>Sin firma</span>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </section>
-    </div>
-  );
-}
+</div>

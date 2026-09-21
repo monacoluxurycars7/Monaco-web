@@ -20,17 +20,18 @@ export default function Login() {
       justifyContent: 'center',
       overflow: 'hidden',
       color: '#fff',
-      fontFamily: 'sans-serif'
+      fontFamily: 'sans-serif',
+      perspective: '1000px' // Otorga profundidad 3D
     }}>
       
-      {/* Animación de Rotación Completa en 360 Grados */}
+      {/* Animación 3D estilo moneda (Gira horizontalmente sobre el eje Y) */}
       <style jsx global>{`
-        @keyframes spin360 {
-          from {
-            transform: translate(-50%, -50%) rotate(0deg);
+        @keyframes flip3D {
+          0% {
+            transform: translate(-50%, -50%) rotateY(0deg);
           }
-          to {
-            transform: translate(-50%, -50%) rotate(360deg);
+          100% {
+            transform: translate(-50%, -50%) rotateY(360deg);
           }
         }
 
@@ -43,7 +44,7 @@ export default function Login() {
         }
       `}</style>
 
-      {/* LOGO BRILANTE ROTANDO EN 360° DETRÁS DEL LOGIN */}
+      {/* LOGO ROTANDO EN 3D (TIPO MONEDA) EN EL CENTRO */}
       <div style={{
         position: 'absolute',
         top: '50%',
@@ -51,7 +52,7 @@ export default function Login() {
         transform: 'translate(-50%, -50%)',
         pointerEvents: 'none',
         zIndex: 1,
-        animation: 'spin360 20s linear infinite', // Gira 360° sin parar
+        animation: 'flip3D 10s linear infinite', // Rotación horizontal en 3D
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center'
@@ -60,21 +61,21 @@ export default function Login() {
           src="/logo.png" 
           alt="Monaco Logo Background" 
           style={{
-            width: '620px',
+            width: '600px',
             maxWidth: '90vw',
             height: 'auto',
-            opacity: 0.75, // Opacidad alta para que el rojo y el blanco no se vean opacos
-            filter: 'brightness(1.15) contrast(1.1) drop-shadow(0 0 35px rgba(239, 68, 68, 0.35))' // Resalta el rojo y el brillo
+            opacity: 0.8, // Mantiene el rojo y blanco bien claros y vivos
+            filter: 'brightness(1.1) contrast(1.15) drop-shadow(0 0 30px rgba(239, 68, 68, 0.4))'
           }}
         />
       </div>
 
-      {/* CAJA DE LOGIN INTEGRADA CON EL MISMO FONDO NEGRO */}
+      {/* CAJA DE LOGIN INTEGRADA EN NEGRO */}
       <div style={{
         position: 'relative',
         zIndex: 10,
-        backgroundColor: 'rgba(0, 0, 0, 0.75)', // Fondo semi-transparente para ver pasar el logo por detrás
-        backdropFilter: 'blur(6px)', // Efecto cristalizado elegante
+        backgroundColor: 'rgba(0, 0, 0, 0.8)', // Transparencia leve para ver el paso 3D del logo detrás
+        backdropFilter: 'blur(8px)',
         padding: '40px 32px',
         borderRadius: '16px',
         width: '100%',

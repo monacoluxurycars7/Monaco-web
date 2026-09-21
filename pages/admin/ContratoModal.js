@@ -71,9 +71,14 @@ export default function ContratoModal({ reserva, onClose }) {
 
         {/* DOCUMENTO IMPRIMIBLE */}
         <div id="contrato-imprimible">
-          {/* ENCABEZADO MONACO */}
+         {/* ENCABEZADO MONACO CON LOGO */}
           <div style={{ textAlign: 'center', borderBottom: '2px solid #000', paddingBottom: '12px', marginBottom: '15px' }}>
-            <h1 style={{ margin: '0 0 5px', fontSize: '22px', fontWeight: 'bold', letterSpacing: '1px' }}>MONACO LUXURY RENT A CAR</h1>
+            <img 
+              src="/logo.png" 
+              alt="Monaco Luxury Rent A Car" 
+              style={{ maxHeight: '70px', maxWidth: '200px', objectFit: 'contain', marginBottom: '8px', display: 'block', margin: '0 auto' }} 
+            />
+            <h1 style={{ margin: '0 0 5px', fontSize: '20px', fontWeight: 'bold', letterSpacing: '1px' }}>MONACO LUXURY RENT A CAR</h1>
             <p style={{ margin: '2px 0', fontSize: '11px', color: '#444' }}>
               Tel: +1 (829) 425-7986 / +1 (973) 289-4797 | IG: @monacoluxuryrentacar | Web: monacoluxuryrentacar.vercel.app
             </p>

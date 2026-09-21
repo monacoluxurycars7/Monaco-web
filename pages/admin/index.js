@@ -173,10 +173,9 @@ export default function AdminDashboard() {
                           {tieneSeguroFull ? 'SÍ' : 'NO'}
                         </span>
                       </td>
-                      <td style={{ padding: '10px' }}>
-                        {res.lugarEntrega || 'A coordinar'}
-                        {res.costoEntrega ? <><br/><span style={{ color: '#aaa' }}>Costo: ${res.costoEntrega} USD</span></> : ''}
-                      </td>
+                     <td style={{ padding: '10px', fontWeight: 'bold', color: '#4caf50', fontSize: '13px' }}>
+  ${res.costoTotal ?? res.total ?? res.precioTotal ?? 0} USD
+</td>
                       <td style={{ padding: '10px' }}>
                         {res.clienteDireccionRD || 'No especificada'}
                       </td>

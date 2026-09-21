@@ -15,10 +15,15 @@ export default function Login() {
     if (audioRef.current) {
       if (isPlaying) {
         audioRef.current.pause();
+        setIsPlaying(false);
       } else {
-        audioRef.current.play();
+        audioRef.current.play().then(() => {
+          setIsPlaying(true);
+        }).catch(err => {
+          console.log("Error al reproducir audio:", err);
+          alert("Asegúrate de tener el archivo musica.mp3 guardado en la carpeta public de GitHub.");
+        });
       }
-      setIsPlaying(!isPlaying);
     }
   };
 
@@ -37,17 +42,18 @@ export default function Login() {
     }}>
       
       {/* Audio ambiental */}
-      <audio ref={audioRef} src="/musica.mp3" loop />
+      <audio ref={audioRef} src="/musica.mp3" loop preload="auto" />
 
-      {/* Botón flotante para la música ambiental */}
+      {/* Botón de música ambiental */}
       <button 
         onClick={toggleAudio}
+        type="button"
         style={{
           position: 'fixed',
           bottom: '20px',
           right: '20px',
           zIndex: 100,
-          backgroundColor: 'rgba(212, 175, 55, 0.2)',
+          backgroundColor: 'rgba(212, 175, 55, 0.15)',
           border: '1px solid #d4af37',
           color: '#d4af37',
           padding: '10px 16px',
@@ -94,14 +100,14 @@ export default function Login() {
         }
       `}</style>
 
-      {/* LOGO SUPERIOR: Izquierda a Derecha */}
+      {/* 1. LOGO SUPERIOR (Sale primero de Izquierda a Derecha) */}
       <div style={{
         position: 'absolute',
-        top: '15%',
+        top: '28%', // Alineado por encima de Acceso Admin
         left: '0',
         pointerEvents: 'none',
         zIndex: 1,
-        animation: 'marqueeLeftToRight 16s linear infinite',
+        animation: 'marqueeLeftToRight 14s linear infinite',
         display: 'flex',
         alignItems: 'center'
       }}>
@@ -109,21 +115,22 @@ export default function Login() {
           src="/logo.png" 
           alt="Monaco Logo Top" 
           style={{
-            width: '420px',
+            width: '450px',
             height: 'auto',
-            opacity: 0.85
+            opacity: 0.9
           }}
         />
       </div>
 
-      {/* LOGO INFERIOR: Derecha a Izquierda */}
+      {/* 2. LOGO INFERIOR (Sale de Derecha a Izquierda, justo donde apunta el cursor) */}
       <div style={{
         position: 'absolute',
-        bottom: '15%',
+        bottom: '18%', // Ubicado exactamente en la zona del mouse
         left: '0',
         pointerEvents: 'none',
         zIndex: 1,
-        animation: 'marqueeRightToLeft 18s linear infinite',
+        animation: 'marqueeRightToLeft 14s linear infinite',
+        animationDelay: '3s', // Inicia un poco después para dar prioridad al de arriba
         display: 'flex',
         alignItems: 'center'
       }}>
@@ -131,14 +138,14 @@ export default function Login() {
           src="/logo.png" 
           alt="Monaco Logo Bottom" 
           style={{
-            width: '420px',
+            width: '450px',
             height: 'auto',
-            opacity: 0.85
+            opacity: 0.9
           }}
         />
       </div>
 
-      {/* CAJA DE LOGIN CENTRADA EN FONDO NEGRO */}
+      {/* CAJA DE LOGIN EN FONDO NEGRO */}
       <div style={{
         position: 'relative',
         zIndex: 10,

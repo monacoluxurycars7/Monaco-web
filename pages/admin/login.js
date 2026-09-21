@@ -21,7 +21,7 @@ export default function Login() {
           setIsPlaying(true);
         }).catch(err => {
           console.log("Error al reproducir audio:", err);
-          alert("Asegúrate de tener el archivo musica.mp3 guardado en la carpeta public de GitHub.");
+          alert("Asegúrate de tener el archivo musica.mp3 guardado en la carpeta public.");
         });
       }
     }
@@ -71,23 +71,23 @@ export default function Login() {
         <span>{isPlaying ? '🔊 Pausar Música' : '🎵 Música Ambiental'}</span>
       </button>
 
-      {/* Animaciones CSS */}
+      {/* Animaciones CSS continuas y rápidas */}
       <style jsx global>{`
-        @keyframes marqueeLeftToRight {
+        @keyframes moveLeftToRight {
           0% {
-            transform: translateX(-100vw);
+            transform: translateX(-100%);
           }
           100% {
             transform: translateX(100vw);
           }
         }
 
-        @keyframes marqueeRightToLeft {
+        @keyframes moveRightToLeft {
           0% {
             transform: translateX(100vw);
           }
           100% {
-            transform: translateX(-100vw);
+            transform: translateX(-100%);
           }
         }
 
@@ -100,64 +100,95 @@ export default function Login() {
         }
       `}</style>
 
-      {/* 1. LOGO SUPERIOR (Sale primero de Izquierda a Derecha) */}
+      {/* CARRIL SUPERIOR: Mueve de Izquierda a Derecha por arriba del formulario */}
       <div style={{
         position: 'absolute',
-        top: '28%', // Alineado por encima de Acceso Admin
+        top: '6%',
         left: '0',
+        width: '100vw',
+        height: '140px',
         pointerEvents: 'none',
         zIndex: 1,
-        animation: 'marqueeLeftToRight 14s linear infinite',
-        display: 'flex',
-        alignItems: 'center'
+        overflow: 'hidden'
       }}>
+        {/* Logo 1 - Sale de inmediato */}
         <img 
           src="/logo.png" 
-          alt="Monaco Logo Top" 
+          alt="Monaco Logo Top 1" 
           style={{
-            width: '450px',
+            position: 'absolute',
+            width: '380px',
             height: 'auto',
-            opacity: 0.9
+            opacity: 0.9,
+            animation: 'moveLeftToRight 8s linear infinite'
+          }}
+        />
+        {/* Logo 2 - Sigue al primero para que no quede vacío */}
+        <img 
+          src="/logo.png" 
+          alt="Monaco Logo Top 2" 
+          style={{
+            position: 'absolute',
+            width: '380px',
+            height: 'auto',
+            opacity: 0.9,
+            animation: 'moveLeftToRight 8s linear infinite',
+            animationDelay: '4s'
           }}
         />
       </div>
 
-      {/* 2. LOGO INFERIOR (Sale de Derecha a Izquierda, justo donde apunta el cursor) */}
+      {/* CARRIL INFERIOR: Mueve de Derecha a Izquierda por debajo del formulario */}
       <div style={{
         position: 'absolute',
-        bottom: '18%', // Ubicado exactamente en la zona del mouse
+        bottom: '6%',
         left: '0',
+        width: '100vw',
+        height: '140px',
         pointerEvents: 'none',
         zIndex: 1,
-        animation: 'marqueeRightToLeft 14s linear infinite',
-        animationDelay: '3s', // Inicia un poco después para dar prioridad al de arriba
-        display: 'flex',
-        alignItems: 'center'
+        overflow: 'hidden'
       }}>
+        {/* Logo 1 */}
         <img 
           src="/logo.png" 
-          alt="Monaco Logo Bottom" 
+          alt="Monaco Logo Bottom 1" 
           style={{
-            width: '450px',
+            position: 'absolute',
+            width: '380px',
             height: 'auto',
-            opacity: 0.9
+            opacity: 0.9,
+            animation: 'moveRightToLeft 8s linear infinite',
+            animationDelay: '1.5s'
+          }}
+        />
+        {/* Logo 2 - Sigue continuo */}
+        <img 
+          src="/logo.png" 
+          alt="Monaco Logo Bottom 2" 
+          style={{
+            position: 'absolute',
+            width: '380px',
+            height: 'auto',
+            opacity: 0.9,
+            animation: 'moveRightToLeft 8s linear infinite',
+            animationDelay: '5.5s'
           }}
         />
       </div>
 
-      {/* CAJA DE LOGIN EN FONDO NEGRO */}
+      {/* CAJA DE LOGIN EN EL CENTRO (SIN QUE LOS LOGOS PASEN POR DETRÁS) */}
       <div style={{
         position: 'relative',
         zIndex: 10,
-        backgroundColor: 'rgba(0, 0, 0, 0.85)',
-        backdropFilter: 'blur(8px)',
+        backgroundColor: '#000000',
         padding: '40px 32px',
         borderRadius: '16px',
         width: '100%',
         maxWidth: '380px',
         textAlign: 'center',
         border: '1px solid #222222',
-        boxShadow: '0 0 40px rgba(0, 0, 0, 0.95), 0 0 20px rgba(212, 175, 55, 0.15)'
+        boxShadow: '0 0 30px rgba(0, 0, 0, 1), 0 0 15px rgba(212, 175, 55, 0.2)'
       }}>
         <h2 className="glow-title" style={{
           marginBottom: '28px',

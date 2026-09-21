@@ -20,23 +20,22 @@ export default function Login() {
       justifyContent: 'center',
       overflow: 'hidden',
       color: '#fff',
-      fontFamily: 'sans-serif',
-      perspective: '1000px' // Otorga profundidad 3D
+      fontFamily: 'sans-serif'
     }}>
       
-      {/* Animación 3D estilo moneda (Gira horizontalmente sobre el eje Y) */}
+      {/* Animación de desplazamiento horizontal continuo de lado a lado */}
       <style jsx global>{`
-        @keyframes flip3D {
+        @keyframes marqueeHorizontal {
           0% {
-            transform: translate(-50%, -50%) rotateY(0deg);
+            transform: translateY(-50%) translateX(100vw);
           }
           100% {
-            transform: translate(-50%, -50%) rotateY(360deg);
+            transform: translateY(-50%) translateX(-100vw);
           }
         }
 
         .glow-title {
-          text-shadow: 0 0 12px rgba(255, 255, 255, 0.9), 0 0 22px rgba(212, 175, 55, 0.7);
+          text-shadow: 0 0 12px rgba(255, 255, 255, 0.9), 0 0 20px rgba(212, 175, 55, 0.6);
         }
 
         .glow-label {
@@ -44,28 +43,25 @@ export default function Login() {
         }
       `}</style>
 
-      {/* LOGO ROTANDO EN 3D (TIPO MONEDA) EN EL CENTRO */}
+      {/* LOGO GIGANTE RECORRIENDO LA PANTALLA DE DERECHA A IZQUIERDA */}
       <div style={{
         position: 'absolute',
         top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
+        left: '0',
         pointerEvents: 'none',
         zIndex: 1,
-        animation: 'flip3D 10s linear infinite', // Rotación horizontal en 3D
+        animation: 'marqueeHorizontal 18s linear infinite', // Cruza la pantalla en 18 segundos
         display: 'flex',
-        justifyContent: 'center',
         alignItems: 'center'
       }}>
         <img 
           src="/logo.png" 
           alt="Monaco Logo Background" 
           style={{
-            width: '600px',
-            maxWidth: '90vw',
+            width: '550px',
             height: 'auto',
-            opacity: 0.8, // Mantiene el rojo y blanco bien claros y vivos
-            filter: 'brightness(1.1) contrast(1.15) drop-shadow(0 0 30px rgba(239, 68, 68, 0.4))'
+            opacity: 0.85, // Mantiene el rojo y blanco bien claros y nítidos
+            filter: 'brightness(1.1) contrast(1.1) drop-shadow(0 0 25px rgba(239, 68, 68, 0.3))'
           }}
         />
       </div>
@@ -74,7 +70,7 @@ export default function Login() {
       <div style={{
         position: 'relative',
         zIndex: 10,
-        backgroundColor: 'rgba(0, 0, 0, 0.8)', // Transparencia leve para ver el paso 3D del logo detrás
+        backgroundColor: 'rgba(0, 0, 0, 0.82)',
         backdropFilter: 'blur(8px)',
         padding: '40px 32px',
         borderRadius: '16px',
@@ -82,7 +78,7 @@ export default function Login() {
         maxWidth: '380px',
         textAlign: 'center',
         border: '1px solid #222222',
-        boxShadow: '0 0 40px rgba(0, 0, 0, 0.95), 0 0 20px rgba(212, 175, 55, 0.2)'
+        boxShadow: '0 0 40px rgba(0, 0, 0, 0.95), 0 0 20px rgba(212, 175, 55, 0.15)'
       }}>
         <h2 className="glow-title" style={{
           marginBottom: '28px',

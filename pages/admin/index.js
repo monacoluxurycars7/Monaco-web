@@ -167,14 +167,16 @@ export default function AdminDashboard() {
 
                   const totalDias = calcularDias(res.inicio, res.fin, res.diasTotales);
 
-                  const rentaPorDia = Number(res.precioPorDia) || Number(res.rentaPorDia) || 40;
-                  const totalAlquiler = totalDias * rentaPorDia;
+                  const rentaPorDia = Number(res.precioPorDia) || Number(res.rentaPorDia) || 0;
+    const totalAlquiler = totalDias * rentaPorDia;
 
-                  const seguroPorDia = tieneSeguroFull ? (Number(res.precioSeguroPorDia) || 20) : 0;
-                  const totalSeguro = totalDias * seguroPorDia;
+    const seguroPorDia = tieneSeguroFull ? (Number(res.precioSeguroPorDia) || Number(res.seguroPorDia) || 0) : 0;
+    const totalSeguro = totalDias * seguroPorDia;
 
-                  const costoEntregaVal = Number(res.costoEntrega) || (typeof res.lugarEntrega === 'string' && res.lugarEntrega.includes('150') ? 150 : 0);
-
+    const costoEntregaVal = Number(res.costoEntrega) || (
+      typeof res.lugarEntrega === 'string' && res.lugarEntrega.toLowerCase().includes('puntacana') ? 150 : 
+      typeof res.lugarEntrega === 'string' && res.lugarEntrega.toLowerCase().includes('santiago') ? 100 : 0
+    );
                   const depositoGarantiaVal = res.depositoGarantia !== undefined 
                     ? res.depositoGarantia 
                     : (tieneSeguroFull ? 0 : 400);

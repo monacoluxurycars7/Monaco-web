@@ -210,7 +210,7 @@ export default function Home() {
   const costoRenta = dias * precioPorDia;
   const costoSeguro = dias * precioSeguroPorDia;
   const depositoGarantia = seguroFull ? 0 : 400; 
-  const costoTotal = costoRenta + costoSeguro + depositoGarantia;
+  const costoTotal = costoRenta + costoSeguro + depositoGarantia + costoEntrega;;
   const errorDias = dias < 3;
   const costoEntrega = 
     lugarEntrega === 'puntacana' ? 150 : 
@@ -281,7 +281,7 @@ export default function Home() {
             dias_totales: dias,
             precio_por_dia: precioPorDia,
             seguro_full: seguroFull ? `SI ($${precioSeguroPorDia}/día)` : 'NO',
-            costo_total: costoTotal,
+            costo_total: costoTotalFinal,
             // Mandamos ambas nomenclaturas para que EmailJS la tome sí o sí
       depositoGarantia: depositoGarantia,
       deposito_garantia: depositoGarantia,

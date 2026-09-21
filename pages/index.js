@@ -57,9 +57,7 @@ Al realizar el pago de la reserva o al tomar posesión del vehículo, el CLIENTE
 `;
 
 export default function Home() {
-  const [vehiculos, setVehiculos] = useState([]);
-
-  const [vehiculos, setVehiculos] = useState([]);
+  const [vehiculos, setVehiculos] = useState([]); // <-- Dejamos solo una
 
   useEffect(() => {
     if (!db) return;
@@ -82,7 +80,6 @@ export default function Home() {
             largo: Number(data.precio11MasDias) || 40
           },
           seguroFullPrecios: {
-            // Unificamos por si en Firestore se guardó con espacios o normal
             corto: Number(data.seguro3a5Dias || data['Seguro de 3 a 5 días']) || 30,
             medio: Number(data.seguro6a10Dias) || 25,
             largo: Number(data.seguro11MasDias) || 20

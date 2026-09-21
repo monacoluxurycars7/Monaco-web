@@ -23,27 +23,27 @@ export default function Login() {
       fontFamily: 'sans-serif'
     }}>
       
-      {/* Animación pura horizontal */}
+      {/* Animación de Rotación Completa en 360 Grados */}
       <style jsx global>{`
-        @keyframes floatHorizontal {
-          0% {
-            transform: translate(-50%, -50%) translateX(-35vw);
+        @keyframes spin360 {
+          from {
+            transform: translate(-50%, -50%) rotate(0deg);
           }
-          100% {
-            transform: translate(-50%, -50%) translateX(35vw);
+          to {
+            transform: translate(-50%, -50%) rotate(360deg);
           }
         }
 
         .glow-title {
-          text-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 0 0 20px rgba(212, 175, 55, 0.6);
+          text-shadow: 0 0 12px rgba(255, 255, 255, 0.9), 0 0 22px rgba(212, 175, 55, 0.7);
         }
 
         .glow-label {
-          text-shadow: 0 0 6px rgba(255, 255, 255, 0.5);
+          text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
         }
       `}</style>
 
-      {/* LOGO GIGANTE ANIMADO EN EL CENTRO (SOLO HORIZONTAL) */}
+      {/* LOGO BRILANTE ROTANDO EN 360° DETRÁS DEL LOGIN */}
       <div style={{
         position: 'absolute',
         top: '50%',
@@ -51,7 +51,7 @@ export default function Login() {
         transform: 'translate(-50%, -50%)',
         pointerEvents: 'none',
         zIndex: 1,
-        animation: 'floatHorizontal 12s ease-in-out infinite alternate',
+        animation: 'spin360 20s linear infinite', // Gira 360° sin parar
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center'
@@ -60,27 +60,28 @@ export default function Login() {
           src="/logo.png" 
           alt="Monaco Logo Background" 
           style={{
-            width: '650px',
+            width: '620px',
             maxWidth: '90vw',
             height: 'auto',
-            opacity: 0.25,
-            filter: 'drop-shadow(0 0 25px rgba(212, 175, 55, 0.2))'
+            opacity: 0.75, // Opacidad alta para que el rojo y el blanco no se vean opacos
+            filter: 'brightness(1.15) contrast(1.1) drop-shadow(0 0 35px rgba(239, 68, 68, 0.35))' // Resalta el rojo y el brillo
           }}
         />
       </div>
 
-      {/* CAJA DE LOGIN INTEGRADA CON EL FONDO */}
+      {/* CAJA DE LOGIN INTEGRADA CON EL MISMO FONDO NEGRO */}
       <div style={{
         position: 'relative',
         zIndex: 10,
-        backgroundColor: '#000000',
+        backgroundColor: 'rgba(0, 0, 0, 0.75)', // Fondo semi-transparente para ver pasar el logo por detrás
+        backdropFilter: 'blur(6px)', // Efecto cristalizado elegante
         padding: '40px 32px',
         borderRadius: '16px',
         width: '100%',
         maxWidth: '380px',
         textAlign: 'center',
-        border: '1px solid #1c1c1c',
-        boxShadow: '0 0 35px rgba(0, 0, 0, 0.95), 0 0 15px rgba(212, 175, 55, 0.15)'
+        border: '1px solid #222222',
+        boxShadow: '0 0 40px rgba(0, 0, 0, 0.95), 0 0 20px rgba(212, 175, 55, 0.2)'
       }}>
         <h2 className="glow-title" style={{
           marginBottom: '28px',

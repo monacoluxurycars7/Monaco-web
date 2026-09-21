@@ -6,8 +6,9 @@ export default function GestionVehiculos() {
   const [vehiculos, setVehiculos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [vehiculoEditar, setVehiculoEditar] = useState(null);
+  const [subiendoImagen, setSubiendoImagen] = useState(false);
 
-  // Cargar lista de vehículos desde Firestore
+  // Cargar vehículos desde Firestore
   const cargarVehiculos = async () => {
     setLoading(true);
     try {
@@ -27,19 +28,41 @@ export default function GestionVehiculos() {
     cargarVehiculos();
   }, []);
 
-  // Cambiar estado rápido del vehículo
+  // Manejar subida de archivo de imagen local y convertir a Base64 / URL
+  const handleSeleccionarArchivo = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      alert("Por favor selecciona un archivo de imagen válido.");
+      return;
+    }
+
+    setSubiendoImagen(true);
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setVehiculoEditar(prev => ({
+        ...prev,
+        imagenUrl: reader.result // Convierte la imagen a Base64 para guardarla directamente
+      }));
+      setSubiendoImagen(false);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // Cambiar estado rápido
   const handleCambiarEstado = async (id, nuevoEstado) => {
     try {
       await updateDoc(doc(db, 'vehiculos', id), { estado: nuevoEstado });
       setVehiculos(prev => prev.map(v => v.id === id ? { ...v, estado: nuevoEstado } : v));
     } catch (error) {
-      alert("Error al actualizar estado");
+      alert("Error al actualizar el estado");
     }
   };
 
   // Eliminar vehículo
   const handleEliminar = async (id) => {
-    if (confirm("¿Estás seguro de eliminar este vehículo de la flota?")) {
+    if (confirm("¿Estás seguro de eliminar este vehículo?")) {
       try {
         await deleteDoc(doc(db, 'vehiculos', id));
         setVehiculos(prev => prev.filter(v => v.id !== id));
@@ -49,7 +72,7 @@ export default function GestionVehiculos() {
     }
   };
 
-  // Guardar edición de vehículo
+  // Guardar cambios del vehículo editado
   const handleGuardarEdicion = async (e) => {
     e.preventDefault();
     try {
@@ -62,11 +85,9 @@ export default function GestionVehiculos() {
         pasajeros: vehiculoEditar.pasajeros || '',
         transmision: vehiculoEditar.transmision || '',
         imagenUrl: vehiculoEditar.imagenUrl || '',
-        // Tarifas Alquiler
         precio_3_5: Number(vehiculoEditar.precio_3_5) || 0,
         precio_6_10: Number(vehiculoEditar.precio_6_10) || 0,
         precio_11_mas: Number(vehiculoEditar.precio_11_mas) || 0,
-        // Seguro Full
         seguro_3_5: Number(vehiculoEditar.seguro_3_5) || 0,
         seguro_6_10: Number(vehiculoEditar.seguro_6_10) || 0,
         seguro_11_mas: Number(vehiculoEditar.seguro_11_mas) || 0,
@@ -81,95 +102,95 @@ export default function GestionVehiculos() {
     }
   };
 
-  if (loading) return <p style={{ color: '#fff', textAlign: 'center', marginTop: '50px' }}>Cargando flota...</p>;
+  if (loading) return <div style={{ color: '#fff', textAlign: 'center', padding: '50px', backgroundColor: '#0a0a0a', minHeight: '100vh' }}>Cargando flota...</div>;
 
   return (
     <div style={{ backgroundColor: '#0a0a0a', minHeight: '100vh', color: '#fff', padding: '20px', fontFamily: 'sans-serif' }}>
       
-      {/* HEADER */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '1px solid #333', paddingBottom: '15px' }}>
+      {/* ENCABEZADO */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '1px solid #222', paddingBottom: '15px' }}>
         <div>
-          <h1 style={{ fontSize: '22px', margin: 0, color: '#d4af37' }}>Gestión de Flota de Vehículos</h1>
-          <p style={{ fontSize: '12px', color: '#aaa', margin: '5px 0 0' }}>Control de disponibilidad, precios por escala, fotos y seguros</p>
+          <h1 style={{ fontSize: '20px', margin: 0, color: '#d4af37', fontWeight: 'bold' }}>Gestión de Flota de Vehículos</h1>
+          <p style={{ fontSize: '11px', color: '#888', margin: '4px 0 0' }}>Control de disponibilidad, precios por escala y seguros</p>
         </div>
-        <div>
-          <a href="/admin" style={{ padding: '8px 16px', backgroundColor: '#333', color: '#fff', textDecoration: 'none', borderRadius: '6px', fontSize: '13px', fontWeight: 'bold' }}>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <a href="/admin/nuevo-vehiculo" style={{ padding: '8px 14px', backgroundColor: '#d4af37', color: '#000', textDecoration: 'none', borderRadius: '4px', fontSize: '12px', fontWeight: 'bold' }}>
+            + Agregar Vehículo
+          </a>
+          <a href="/admin" style={{ padding: '8px 14px', backgroundColor: '#222', color: '#ccc', textDecoration: 'none', borderRadius: '4px', fontSize: '12px', border: '1px solid #333' }}>
             ← Volver a Reservas
           </a>
         </div>
       </div>
 
-      {/* GRID DE VEHÍCULOS */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '20px' }}>
-        {vehiculos.map(vehiculo => (
-          <div key={vehiculo.id} style={{ backgroundColor: '#141414', border: '1px solid #262626', borderRadius: '8px', overflow: 'hidden', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+      {/* TARJETAS DE VEHÍCULOS */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(310px, 1fr))', gap: '15px' }}>
+        {vehiculos.map(v => (
+          <div key={v.id} style={{ backgroundColor: '#111', border: '1px solid #222', borderRadius: '6px', overflow: 'hidden' }}>
             
-            {/* IMAGEN Y BADGE DE ESTADO */}
-            <div style={{ position: 'relative', height: '180px', backgroundColor: '#000' }}>
-              <img 
-                src={vehiculo.imagenUrl || '/placeholder-car.png'} 
-                alt={vehiculo.nombre} 
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-              />
+            {/* IMAGEN Y ESTADO */}
+            <div style={{ position: 'relative', height: '170px', backgroundColor: '#000' }}>
+              <img src={v.imagenUrl || '/placeholder.png'} alt={v.nombre} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               <span style={{
                 position: 'absolute',
                 top: '10px',
                 right: '10px',
-                padding: '4px 8px',
-                borderRadius: '4px',
-                fontSize: '10px',
+                padding: '3px 8px',
+                borderRadius: '3px',
+                fontSize: '9px',
                 fontWeight: 'bold',
-                textTransform: 'uppercase',
-                backgroundColor: vehiculo.estado === 'DISPONIBLE' ? '#16a34a' : '#d97706',
+                backgroundColor: v.estado === 'DISPONIBLE' ? '#15803d' : v.estado === 'TALLER' ? '#b45309' : '#dc2626',
                 color: '#fff'
               }}>
-                {vehiculo.estado || 'DISPONIBLE'}
+                {v.estado || 'DISPONIBLE'}
               </span>
             </div>
 
-            {/* DETALLES Y PRECIOS */}
-            <div style={{ padding: '15px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
-                <h3 style={{ margin: 0, fontSize: '16px', color: '#fff' }}>{vehiculo.nombre}</h3>
+            {/* CONTENIDO TARJETA */}
+            <div style={{ padding: '12px' }}>
+              
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                <h3 style={{ margin: 0, fontSize: '14px', color: '#fff', fontWeight: 'bold', textTransform: 'uppercase' }}>{v.nombre}</h3>
                 <button 
-                  onClick={() => setVehiculoEditar(vehiculo)}
-                  style={{ backgroundColor: '#d4af37', border: 'none', color: '#000', padding: '4px 10px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', fontSize: '12px' }}
+                  onClick={() => setVehiculoEditar(v)}
+                  style={{ backgroundColor: '#d4af37', border: 'none', color: '#000', padding: '3px 8px', borderRadius: '3px', cursor: 'pointer', fontWeight: 'bold', fontSize: '11px' }}
                 >
                   ✏️ Editar
                 </button>
               </div>
 
-              <div style={{ fontSize: '12px', color: '#aaa', lineHeight: '1.6', marginBottom: '15px' }}>
-                <p style={{ margin: 0 }}>• <strong>Año:</strong> {vehiculo.ano || 'N/A'}</p>
-                <p style={{ margin: 0 }}>• <strong>Placa:</strong> {vehiculo.placa || 'N/A'}</p>
-                <p style={{ margin: 0 }}>• <strong>Combustible:</strong> {vehiculo.combustible || 'Gasolina'}</p>
-                <p style={{ margin: 0 }}>• <strong>Pasajeros:</strong> {vehiculo.pasajeros || '5'}</p>
-                <p style={{ margin: 0 }}>• <strong>Transmisión:</strong> {vehiculo.transmision || 'Automático'}</p>
+              {/* ESPECIFICACIONES */}
+              <div style={{ fontSize: '11px', color: '#999', lineHeight: '1.5', marginBottom: '10px' }}>
+                <p style={{ margin: 0 }}>• <strong>Año:</strong> {v.ano || '-'}</p>
+                <p style={{ margin: 0 }}>• <strong>Placa:</strong> {v.placa || '-'}</p>
+                <p style={{ margin: 0 }}>• <strong>Combustible:</strong> {v.combustible || 'Gasolina'}</p>
+                <p style={{ margin: 0 }}>• <strong>Pasajeros:</strong> {v.pasajeros || '5'}</p>
+                <p style={{ margin: 0 }}>• <strong>Transmisión:</strong> {v.transmision || 'Automático'}</p>
               </div>
 
-              {/* TARIFAS ALQUILER */}
-              <div style={{ backgroundColor: '#1a1a1a', padding: '10px', borderRadius: '6px', marginBottom: '10px', border: '1px solid #2a2a2a' }}>
-                <p style={{ margin: '0 0 5px', fontSize: '11px', color: '#d4af37', fontWeight: 'bold' }}>Tarifas Alquiler por Días:</p>
-                <p style={{ margin: 0, fontSize: '11px', color: '#ccc' }}>• 3-5 Días: <strong>USD ${vehiculo.precio_3_5 || 0}/día</strong></p>
-                <p style={{ margin: 0, fontSize: '11px', color: '#ccc' }}>• 6-10 Días: <strong>USD ${vehiculo.precio_6_10 || 0}/día</strong></p>
-                <p style={{ margin: 0, fontSize: '11px', color: '#ccc' }}>• 11+ Días: <strong>USD ${vehiculo.precio_11_mas || 0}/día</strong></p>
+              {/* TARIFAS ALQUILER POR DÍAS */}
+              <div style={{ backgroundColor: '#181818', padding: '8px', borderRadius: '4px', marginBottom: '8px', border: '1px solid #282828' }}>
+                <p style={{ margin: '0 0 4px', fontSize: '10px', color: '#d4af37', fontWeight: 'bold' }}>Tarifas Alquiler por Días:</p>
+                <p style={{ margin: 0, fontSize: '10.5px', color: '#ccc' }}>• 3-5 Días: <strong>USD ${v.precio_3_5 || 0}/día</strong></p>
+                <p style={{ margin: 0, fontSize: '10.5px', color: '#ccc' }}>• 6-10 Días: <strong>USD ${v.precio_6_10 || 0}/día</strong></p>
+                <p style={{ margin: 0, fontSize: '10.5px', color: '#ccc' }}>• 11+ Días: <strong>USD ${v.precio_11_mas || 0}/día</strong></p>
               </div>
 
-              {/* SEGURO FULL */}
-              <div style={{ backgroundColor: '#1a1a1a', padding: '10px', borderRadius: '6px', marginBottom: '15px', border: '1px solid #2a2a2a' }}>
-                <p style={{ margin: '0 0 5px', fontSize: '11px', color: '#22c55e', fontWeight: 'bold' }}>Seguro Full por Días:</p>
-                <p style={{ margin: 0, fontSize: '11px', color: '#ccc' }}>• 3-5 Días: <strong>USD ${vehiculo.seguro_3_5 || 0}/día</strong></p>
-                <p style={{ margin: 0, fontSize: '11px', color: '#ccc' }}>• 6-10 Días: <strong>USD ${vehiculo.seguro_6_10 || 0}/día</strong></p>
-                <p style={{ margin: 0, fontSize: '11px', color: '#ccc' }}>• 11+ Días: <strong>USD ${vehiculo.seguro_11_mas || 0}/día</strong></p>
+              {/* SEGURO FULL POR DÍAS */}
+              <div style={{ backgroundColor: '#181818', padding: '8px', borderRadius: '4px', marginBottom: '12px', border: '1px solid #282828' }}>
+                <p style={{ margin: '0 0 4px', fontSize: '10px', color: '#22c55e', fontWeight: 'bold' }}>Seguro Full por Días:</p>
+                <p style={{ margin: 0, fontSize: '10.5px', color: '#ccc' }}>• 3-5 Días: <strong>USD ${v.seguro_3_5 || 0}/día</strong></p>
+                <p style={{ margin: 0, fontSize: '10.5px', color: '#ccc' }}>• 6-10 Días: <strong>USD ${v.seguro_6_10 || 0}/día</strong></p>
+                <p style={{ margin: 0, fontSize: '10.5px', color: '#ccc' }}>• 11+ Días: <strong>USD ${v.seguro_11_mas || 0}/día</strong></p>
               </div>
 
-              {/* CAMBIAR ESTADO RÁPIDO */}
+              {/* CAMBIAR ESTADO */}
               <div style={{ marginBottom: '10px' }}>
-                <label style={{ fontSize: '11px', color: '#888', display: 'block', marginBottom: '4px' }}>Cambiar Estado:</label>
+                <label style={{ fontSize: '10px', color: '#777', display: 'block', marginBottom: '3px' }}>Cambiar Estado:</label>
                 <select 
-                  value={vehiculo.estado || 'DISPONIBLE'}
-                  onChange={(e) => handleCambiarEstado(vehiculo.id, e.target.value)}
-                  style={{ width: '100%', backgroundColor: '#000', color: '#fff', border: '1px solid #333', padding: '8px', borderRadius: '4px', fontSize: '12px' }}
+                  value={v.estado || 'DISPONIBLE'} 
+                  onChange={(e) => handleCambiarEstado(v.id, e.target.value)}
+                  style={{ width: '100%', backgroundColor: '#000', color: '#fff', border: '1px solid #333', padding: '6px', borderRadius: '4px', fontSize: '11px' }}
                 >
                   <option value="DISPONIBLE">🟢 Disponible</option>
                   <option value="TALLER">🟠 En Mantenimiento / Taller</option>
@@ -179,107 +200,117 @@ export default function GestionVehiculos() {
 
               {/* BOTÓN ELIMINAR */}
               <button 
-                onClick={() => handleEliminar(vehiculo.id)}
-                style={{ width: '100%', backgroundColor: '#7f1d1d', color: '#fca5a5', border: 'none', padding: '8px', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', marginTop: '5px' }}
+                onClick={() => handleEliminar(v.id)}
+                style={{ width: '100%', backgroundColor: '#330808', color: '#ef4444', border: '1px solid #7f1d1d', padding: '6px', borderRadius: '4px', cursor: 'pointer', fontSize: '11px' }}
               >
-                🗑️ Eliminar Vehículo
+                🗑️ Eliminar
               </button>
+
             </div>
           </div>
         ))}
       </div>
 
-      {/* MODAL DE EDICIÓN DE VEHÍCULO */}
+      {/* MODAL PARA EDITAR FOTO Y PRECIOS */}
       {vehiculoEditar && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.85)', zIndex: 9999, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '20px' }}>
-          <div style={{ backgroundColor: '#18181b', border: '1px solid #3f3f46', color: '#fff', width: '100%', maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto', borderRadius: '8px', padding: '20px', fontFamily: 'sans-serif' }}>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.85)', zIndex: 9999, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '15px' }}>
+          <div style={{ backgroundColor: '#141414', border: '1px solid #333', color: '#fff', width: '100%', maxWidth: '550px', maxHeight: '90vh', overflowY: 'auto', borderRadius: '6px', padding: '20px' }}>
             
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #3f3f46', paddingBottom: '10px', marginBottom: '15px' }}>
-              <h2 style={{ margin: 0, fontSize: '18px', color: '#d4af37' }}>Editar Vehículo: {vehiculoEditar.nombre}</h2>
-              <button onClick={() => setVehiculoEditar(null)} style={{ background: 'none', border: 'none', color: '#888', fontSize: '18px', cursor: 'pointer' }}>✕</button>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #222', paddingBottom: '10px', marginBottom: '15px' }}>
+              <h2 style={{ margin: 0, fontSize: '16px', color: '#d4af37' }}>Editar Vehículo: {vehiculoEditar.nombre}</h2>
+              <button onClick={() => setVehiculoEditar(null)} style={{ background: 'none', border: 'none', color: '#aaa', fontSize: '18px', cursor: 'pointer' }}>✕</button>
             </div>
 
             <form onSubmit={handleGuardarEdicion}>
               
-              {/* URL DE LA FOTO */}
-              <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', fontSize: '12px', color: '#aaa', marginBottom: '5px' }}>URL de la Foto / Imagen:</label>
+              {/* SUBIR ARCHIVO DE IMAGEN */}
+              <div style={{ marginBottom: '15px', backgroundColor: '#000', padding: '12px', borderRadius: '4px', border: '1px solid #222' }}>
+                <label style={{ display: 'block', fontSize: '11px', color: '#d4af37', fontWeight: 'bold', marginBottom: '6px' }}>
+                  📸 Subir Foto del Vehículo (Desde tu equipo):
+                </label>
                 <input 
-                  type="text" 
-                  value={vehiculoEditar.imagenUrl || ''} 
-                  onChange={(e) => setVehiculoEditar({ ...vehiculoEditar, imagenUrl: e.target.value })} 
-                  style={{ width: '100%', padding: '8px', backgroundColor: '#09090b', border: '1px solid #27272a', color: '#fff', borderRadius: '4px' }} 
-                  placeholder="https://..." 
+                  type="file" 
+                  accept="image/*" 
+                  onChange={handleSeleccionarArchivo} 
+                  style={{ width: '100%', padding: '6px', backgroundColor: '#111', border: '1px solid #333', color: '#fff', borderRadius: '4px', fontSize: '11px', cursor: 'pointer' }} 
                 />
+                
+                {subiendoImagen && (
+                  <p style={{ fontSize: '10px', color: '#d4af37', margin: '5px 0 0' }}>Cargando vista previa de la imagen...</p>
+                )}
+
                 {vehiculoEditar.imagenUrl && (
-                  <img src={vehiculoEditar.imagenUrl} alt="Vista previa" style={{ width: '100%', height: '120px', objectFit: 'cover', marginTop: '8px', borderRadius: '4px' }} />
+                  <div style={{ marginTop: '10px' }}>
+                    <span style={{ fontSize: '10px', color: '#888', display: 'block', marginBottom: '4px' }}>Vista Previa de la Foto Actual:</span>
+                    <img src={vehiculoEditar.imagenUrl} alt="Vista previa" style={{ width: '100%', height: '140px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #333' }} />
+                  </div>
                 )}
               </div>
 
               {/* DATOS BÁSICOS */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '15px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '12px' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '11px', color: '#aaa' }}>Nombre / Modelo:</label>
-                  <input type="text" value={vehiculoEditar.nombre || ''} onChange={(e) => setVehiculoEditar({ ...vehiculoEditar, nombre: e.target.value })} style={{ width: '100%', padding: '6px', backgroundColor: '#09090b', border: '1px solid #27272a', color: '#fff', borderRadius: '4px' }} />
+                  <label style={{ display: 'block', fontSize: '10px', color: '#aaa' }}>Nombre / Modelo:</label>
+                  <input type="text" value={vehiculoEditar.nombre || ''} onChange={(e) => setVehiculoEditar({ ...vehiculoEditar, nombre: e.target.value })} style={{ width: '100%', padding: '6px', backgroundColor: '#000', border: '1px solid #333', color: '#fff', borderRadius: '4px', fontSize: '11px' }} />
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: '11px', color: '#aaa' }}>Año:</label>
-                  <input type="text" value={vehiculoEditar.ano || ''} onChange={(e) => setVehiculoEditar({ ...vehiculoEditar, ano: e.target.value })} style={{ width: '100%', padding: '6px', backgroundColor: '#09090b', border: '1px solid #27272a', color: '#fff', borderRadius: '4px' }} />
+                  <label style={{ display: 'block', fontSize: '10px', color: '#aaa' }}>Año:</label>
+                  <input type="text" value={vehiculoEditar.ano || ''} onChange={(e) => setVehiculoEditar({ ...vehiculoEditar, ano: e.target.value })} style={{ width: '100%', padding: '6px', backgroundColor: '#000', border: '1px solid #333', color: '#fff', borderRadius: '4px', fontSize: '11px' }} />
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: '11px', color: '#aaa' }}>Placa:</label>
-                  <input type="text" value={vehiculoEditar.placa || ''} onChange={(e) => setVehiculoEditar({ ...vehiculoEditar, placa: e.target.value })} style={{ width: '100%', padding: '6px', backgroundColor: '#09090b', border: '1px solid #27272a', color: '#fff', borderRadius: '4px' }} />
+                  <label style={{ display: 'block', fontSize: '10px', color: '#aaa' }}>Placa:</label>
+                  <input type="text" value={vehiculoEditar.placa || ''} onChange={(e) => setVehiculoEditar({ ...vehiculoEditar, placa: e.target.value })} style={{ width: '100%', padding: '6px', backgroundColor: '#000', border: '1px solid #333', color: '#fff', borderRadius: '4px', fontSize: '11px' }} />
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: '11px', color: '#aaa' }}>Combustible:</label>
-                  <input type="text" value={vehiculoEditar.combustible || ''} onChange={(e) => setVehiculoEditar({ ...vehiculoEditar, combustible: e.target.value })} style={{ width: '100%', padding: '6px', backgroundColor: '#09090b', border: '1px solid #27272a', color: '#fff', borderRadius: '4px' }} />
+                  <label style={{ display: 'block', fontSize: '10px', color: '#aaa' }}>Combustible:</label>
+                  <input type="text" value={vehiculoEditar.combustible || ''} onChange={(e) => setVehiculoEditar({ ...vehiculoEditar, combustible: e.target.value })} style={{ width: '100%', padding: '6px', backgroundColor: '#000', border: '1px solid #333', color: '#fff', borderRadius: '4px', fontSize: '11px' }} />
                 </div>
               </div>
 
-              {/* TARIFAS DE ALQUILER */}
-              <div style={{ backgroundColor: '#09090b', padding: '12px', borderRadius: '6px', marginBottom: '15px', border: '1px solid #27272a' }}>
-                <h4 style={{ margin: '0 0 10px', fontSize: '12px', color: '#d4af37' }}>Precios Renta Diarios (USD):</h4>
+              {/* PRECIOS DE RENTA POR ESCALA */}
+              <div style={{ backgroundColor: '#000', padding: '10px', borderRadius: '4px', marginBottom: '12px', border: '1px solid #222' }}>
+                <h4 style={{ margin: '0 0 8px', fontSize: '11px', color: '#d4af37' }}>Precios Renta Diarios (USD):</h4>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
                   <div>
-                    <label style={{ fontSize: '10px', color: '#aaa' }}>3-5 Días:</label>
-                    <input type="number" value={vehiculoEditar.precio_3_5 || ''} onChange={(e) => setVehiculoEditar({ ...vehiculoEditar, precio_3_5: e.target.value })} style={{ width: '100%', padding: '6px', backgroundColor: '#18181b', border: '1px solid #3f3f46', color: '#fff', borderRadius: '4px' }} />
+                    <label style={{ fontSize: '10px', color: '#888' }}>3-5 Días:</label>
+                    <input type="number" value={vehiculoEditar.precio_3_5 || ''} onChange={(e) => setVehiculoEditar({ ...vehiculoEditar, precio_3_5: e.target.value })} style={{ width: '100%', padding: '5px', backgroundColor: '#111', border: '1px solid #333', color: '#fff', borderRadius: '4px', fontSize: '11px' }} />
                   </div>
                   <div>
-                    <label style={{ fontSize: '10px', color: '#aaa' }}>6-10 Días:</label>
-                    <input type="number" value={vehiculoEditar.precio_6_10 || ''} onChange={(e) => setVehiculoEditar({ ...vehiculoEditar, precio_6_10: e.target.value })} style={{ width: '100%', padding: '6px', backgroundColor: '#18181b', border: '1px solid #3f3f46', color: '#fff', borderRadius: '4px' }} />
+                    <label style={{ fontSize: '10px', color: '#888' }}>6-10 Días:</label>
+                    <input type="number" value={vehiculoEditar.precio_6_10 || ''} onChange={(e) => setVehiculoEditar({ ...vehiculoEditar, precio_6_10: e.target.value })} style={{ width: '100%', padding: '5px', backgroundColor: '#111', border: '1px solid #333', color: '#fff', borderRadius: '4px', fontSize: '11px' }} />
                   </div>
                   <div>
-                    <label style={{ fontSize: '10px', color: '#aaa' }}>11+ Días:</label>
-                    <input type="number" value={vehiculoEditar.precio_11_mas || ''} onChange={(e) => setVehiculoEditar({ ...vehiculoEditar, precio_11_mas: e.target.value })} style={{ width: '100%', padding: '6px', backgroundColor: '#18181b', border: '1px solid #3f3f46', color: '#fff', borderRadius: '4px' }} />
+                    <label style={{ fontSize: '10px', color: '#888' }}>11+ Días:</label>
+                    <input type="number" value={vehiculoEditar.precio_11_mas || ''} onChange={(e) => setVehiculoEditar({ ...vehiculoEditar, precio_11_mas: e.target.value })} style={{ width: '100%', padding: '5px', backgroundColor: '#111', border: '1px solid #333', color: '#fff', borderRadius: '4px', fontSize: '11px' }} />
                   </div>
                 </div>
               </div>
 
-              {/* PRECIOS SEGURO FULL */}
-              <div style={{ backgroundColor: '#09090b', padding: '12px', borderRadius: '6px', marginBottom: '20px', border: '1px solid #27272a' }}>
-                <h4 style={{ margin: '0 0 10px', fontSize: '12px', color: '#22c55e' }}>Precios Seguro Full Diarios (USD):</h4>
+              {/* PRECIOS SEGURO FULL POR ESCALA */}
+              <div style={{ backgroundColor: '#000', padding: '10px', borderRadius: '4px', marginBottom: '15px', border: '1px solid #222' }}>
+                <h4 style={{ margin: '0 0 8px', fontSize: '11px', color: '#22c55e' }}>Precios Seguro Full Diarios (USD):</h4>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
                   <div>
-                    <label style={{ fontSize: '10px', color: '#aaa' }}>3-5 Días:</label>
-                    <input type="number" value={vehiculoEditar.seguro_3_5 || ''} onChange={(e) => setVehiculoEditar({ ...vehiculoEditar, seguro_3_5: e.target.value })} style={{ width: '100%', padding: '6px', backgroundColor: '#18181b', border: '1px solid #3f3f46', color: '#fff', borderRadius: '4px' }} />
+                    <label style={{ fontSize: '10px', color: '#888' }}>3-5 Días:</label>
+                    <input type="number" value={vehiculoEditar.seguro_3_5 || ''} onChange={(e) => setVehiculoEditar({ ...vehiculoEditar, seguro_3_5: e.target.value })} style={{ width: '100%', padding: '5px', backgroundColor: '#111', border: '1px solid #333', color: '#fff', borderRadius: '4px', fontSize: '11px' }} />
                   </div>
                   <div>
-                    <label style={{ fontSize: '10px', color: '#aaa' }}>6-10 Días:</label>
-                    <input type="number" value={vehiculoEditar.seguro_6_10 || ''} onChange={(e) => setVehiculoEditar({ ...vehiculoEditar, seguro_6_10: e.target.value })} style={{ width: '100%', padding: '6px', backgroundColor: '#18181b', border: '1px solid #3f3f46', color: '#fff', borderRadius: '4px' }} />
+                    <label style={{ fontSize: '10px', color: '#888' }}>6-10 Días:</label>
+                    <input type="number" value={vehiculoEditar.seguro_6_10 || ''} onChange={(e) => setVehiculoEditar({ ...vehiculoEditar, seguro_6_10: e.target.value })} style={{ width: '100%', padding: '5px', backgroundColor: '#111', border: '1px solid #333', color: '#fff', borderRadius: '4px', fontSize: '11px' }} />
                   </div>
                   <div>
-                    <label style={{ fontSize: '10px', color: '#aaa' }}>11+ Días:</label>
-                    <input type="number" value={vehiculoEditar.seguro_11_mas || ''} onChange={(e) => setVehiculoEditar({ ...vehiculoEditar, seguro_11_mas: e.target.value })} style={{ width: '100%', padding: '6px', backgroundColor: '#18181b', border: '1px solid #3f3f46', color: '#fff', borderRadius: '4px' }} />
+                    <label style={{ fontSize: '10px', color: '#888' }}>11+ Días:</label>
+                    <input type="number" value={vehiculoEditar.seguro_11_mas || ''} onChange={(e) => setVehiculoEditar({ ...vehiculoEditar, seguro_11_mas: e.target.value })} style={{ width: '100%', padding: '5px', backgroundColor: '#111', border: '1px solid #333', color: '#fff', borderRadius: '4px', fontSize: '11px' }} />
                   </div>
                 </div>
               </div>
 
-              {/* BOTONES DE ACCIÓN */}
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-                <button type="button" onClick={() => setVehiculoEditar(null)} style={{ padding: '8px 16px', backgroundColor: '#3f3f46', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
+              {/* BOTONES DE GUARDAR O CANCELAR */}
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+                <button type="button" onClick={() => setVehiculoEditar(null)} style={{ padding: '7px 14px', backgroundColor: '#222', color: '#ccc', border: '1px solid #333', borderRadius: '4px', cursor: 'pointer', fontSize: '11px' }}>
                   Cancelar
                 </button>
-                <button type="submit" style={{ padding: '8px 20px', backgroundColor: '#d4af37', color: '#000', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
+                <button type="submit" style={{ padding: '7px 18px', backgroundColor: '#d4af37', color: '#000', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', fontSize: '11px' }}>
                   💾 Guardar Cambios
                 </button>
               </div>

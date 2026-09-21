@@ -27,14 +27,14 @@ export default function NuevaReservaManual() {
     clienteNombre: '',
     clienteTelefono: '',
     clienteEmail: '',
-    tipoCliente: 'residente', // residente o turista
+    tipoCliente: 'residente',
     documentoCliente: '',
     vehiculoNombre: 'Kia Picanto 2023',
     precioPorDia: 40,
     inicio: '',
     fin: '',
     seguroFull: false,
-    precioSeguroPorDia: 20,
+    precioSeguroPorDia: 20, // <--- AQUÍ: asegúrate de que tenga esta línea
     lugarEntrega: 'Oficina Monaco Luxury ($0 USD)',
     costoEntrega: 0,
     clienteDireccionRD: '',
@@ -187,10 +187,19 @@ export default function NuevaReservaManual() {
         <fieldset style={{ border: '1px solid #333', padding: '15px', borderRadius: '8px' }}>
           <legend style={{ color: '#d4af37', padding: '0 8px', fontWeight: 'bold' }}>Seguro y Servicios Extra</legend>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', alignItems: 'center' }}>
             <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
               <input type="checkbox" name="seguroFull" checked={formData.seguroFull} onChange={handleChange} style={{ width: '18px', height: '18px' }} />
-              <span>Incluir Seguro Full (USD $20/día - Exonera Depósito de Garantía)</span>
+              <span>Incluir Seguro Full (Exonera Depósito)</span>
             </label>
+
+            {formData.seguroFull && (
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', color: '#aaa', marginBottom: '4px' }}>Precio Seguro Full / Día (USD)</label>
+                <input type="number" name="precioSeguroPorDia" value={formData.precioSeguroPorDia} onChange={handleChange} style={{ width: '100%', padding: '8px', backgroundColor: '#000', border: '1px solid #333', color: '#fff', borderRadius: '4px' }} />
+              </div>
+            )}
+          </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '5px' }}>
               <div>

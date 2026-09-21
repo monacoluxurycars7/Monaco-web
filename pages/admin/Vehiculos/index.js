@@ -88,26 +88,33 @@ export default function GestionVehiculos() {
 
   return (
     <div style={{ padding: '20px', color: '#fff', minHeight: '100vh', backgroundColor: '#0a0a0a', fontFamily: 'sans-serif' }}>
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #333', paddingBottom: '15px' }}>
-        <div>
-          <h1 style={{ fontSize: '20px', margin: 0, color: '#d4af37' }}>Gestión de Flota de Vehículos</h1>
-          <p style={{ color: '#aaa', margin: '5px 0 0 0', fontSize: '12px' }}>Control de disponibilidad, precios y fotos</p>
-        </div>
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <button 
-            onClick={() => router.push('/admin/vehiculos/nuevo')}
-            style={{ padding: '8px 16px', backgroundColor: '#d4af37', color: '#000', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
-          >
-            + Agregar Vehículo
-          </button>
-          <button 
-            onClick={() => router.push('/admin')}
-            style={{ padding: '8px 16px', backgroundColor: '#333', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
-          >
-            ← Volver a Reservas
-          </button>
-        </div>
-      </header>
+     <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #333', paddingBottom: '15px' }}>
+  <div>
+    <h1 style={{ fontSize: '20px', margin: 0 }}>Monaco Luxury - Panel de Control</h1>
+    <p style={{ color: '#aaa', margin: '5px 0 0 0', fontSize: '12px' }}>Gestión de Reservas en tiempo real</p>
+  </div>
+  
+  <div style={{ display: 'flex', gap: '10px' }}>
+    <button 
+      onClick={() => router.push('/admin/vehiculos')}
+      style={{ padding: '8px 16px', backgroundColor: '#181818', color: '#d4af37', border: '1px solid #d4af37', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
+    >
+      🚘 Gestionar Flota
+    </button>
+    <button 
+      onClick={() => router.push('/admin/nueva-reserva')}
+      style={{ padding: '8px 16px', backgroundColor: '#d4af37', color: '#000', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
+    >
+      + Nueva Reserva Manual
+    </button>
+    <button 
+      onClick={() => signOut(getAuth(app))}
+      style={{ padding: '8px 16px', backgroundColor: '#e53935', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
+    >
+      Cerrar Sesión
+    </button>
+  </div>
+</header>
 
       <section style={{ marginTop: '25px' }}>
         {vehiculos.length === 0 ? (

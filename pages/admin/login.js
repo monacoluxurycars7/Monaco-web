@@ -1,78 +1,152 @@
-import React, { useState } from 'react';
-import { initializeApp, getApps } from 'firebase/app';
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
-import { useRouter } from 'next/router';
+import { useState } from 'react';
 
-// Configuración de Firebase
-const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
-};
-
-// Inicializar app si no está inicializada
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
-
-export default function AdminLogin() {
+export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-  const router = useRouter();
 
-  const handleLogin = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setError('');
-    setLoading(true);
-
-    try {
-      const auth = getAuth(app);
-      await signInWithEmailAndPassword(auth, email, password);
-      router.push('/admin');
-    } catch (err) {
-      console.error(err);
-      setError('Correo o contraseña incorrectos.');
-    } finally {
-      setLoading(false);
-    }
+    // Aquí tu lógica de inicio de sesión
   };
 
   return (
-    <div style={{ maxWidth: '400px', margin: '80px auto', padding: '30px', border: '1px solid #333', borderRadius: '12px', backgroundColor: '#111', color: '#fff', textAlign: 'center', fontFamily: 'sans-serif' }}>
-      <h2 style={{ marginBottom: '20px' }}>Acceso Admin</h2>
-      {error && <p style={{ color: '#ff4d4d', marginBottom: '15px' }}>{error}</p>}
-      <form onSubmit={handleLogin}>
-        <div style={{ marginBottom: '15px', textAlign: 'left' }}>
-          <label style={{ fontSize: '14px', color: '#ccc' }}>Correo Electrónico:</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            style={{ width: '100%', padding: '10px', marginTop: '5px', borderRadius: '6px', border: '1px solid #444', backgroundColor: '#222', color: '#fff', boxSizing: 'border-box' }}
-          />
-        </div>
-        <div style={{ marginBottom: '20px', textAlign: 'left' }}>
-          <label style={{ fontSize: '14px', color: '#ccc' }}>Contraseña:</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            style={{ width: '100%', padding: '10px', marginTop: '5px', borderRadius: '6px', border: '1px solid #444', backgroundColor: '#222', color: '#fff', boxSizing: 'border-box' }}
-          />
-        </div>
-        <button 
-          type="submit" 
-          disabled={loading}
-          style={{ width: '100%', padding: '12px', backgroundColor: '#d4af37', color: '#000', fontWeight: 'bold', border: 'none', borderRadius: '6px', cursor: 'pointer', opacity: loading ? 0.7 : 1 }}
-        >
-          {loading ? 'Entrando...' : 'Iniciar Sesión'}
-        </button>
-      </form>
+    <div style={{
+      position: 'relative',
+      minHeight: '100vh',
+      width: '100vw',
+      backgroundColor: '#0a0a0a',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      overflow: 'hidden',
+      color: '#fff'
+    }}>
+      
+      {/* CSS para las animaciones */}
+      <style jsx global>{`
+        /* Animación para deslizar horizontalmente de extremo a extremo */
+        @keyframes floatHorizontal {
+          0% {
+            transform: translateX(-60vw) rotate(0deg);
+            opacity: 0.05;
+          }
+          50% {
+            opacity: 0.15;
+          }
+          100% {
+            transform: translateX(60vw) rotate(360deg);
+            opacity: 0.05;
+          }
+        }
+      `}</style>
+
+      {/* LOGO ANIMADO DE FONDO */}
+      <div style={{
+        position: 'absolute',
+        top: '25%',
+        pointerEvents: 'none',
+        zIndex: 1,
+        animation: 'floatHorizontal 18s linear infinite alternate'
+      }}>
+        <img 
+          src="/logo.png" // Asegúrate de cambiar la ruta si tu logo se llama diferente (ej: /images/logo.png)
+          alt="Monaco Logo Background" 
+          style={{
+            width: '320px',
+            height: 'auto',
+            filter: 'grayscale(30%) brightness(1.2)'
+          }}
+        />
+      </div>
+
+      {/* CAJA DE LOGIN */}
+      <div style={{
+        position: 'relative',
+        zIndex: 10,
+        backgroundColor: '#121212',
+        padding: '40px 30px',
+        borderRadius: '16px',
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.8), 0 0 1px 1px rgba(212, 175, 55, 0.2)',
+        width: '100%',
+        maxWidth: '400px',
+        textAlign: 'center',
+        border: '1px solid #222'
+      }}>
+        <h2 style={{
+          marginBottom: '24px',
+          fontSize: '24px',
+          fontWeight: 'bold',
+          color: '#ffffff',
+          letterSpacing: '0.5px'
+        }}>
+          Acceso Admin
+        </h2>
+
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px', textAlign: 'left' }}>
+          <div>
+            <label style={{ display: 'block', fontSize: '13px', color: '#ccc', marginBottom: '6px' }}>
+              Correo Electrónico:
+            </label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              style={{
+                width: '100%',
+                padding: '12px 14px',
+                borderRadius: '8px',
+                border: '1px solid #333',
+                backgroundColor: '#1a1a1a',
+                color: '#fff',
+                fontSize: '14px',
+                outline: 'none'
+              }}
+            />
+          </div>
+
+          <div>
+            <label style={{ display: 'block', fontSize: '13px', color: '#ccc', marginBottom: '6px' }}>
+              Contraseña:
+            </label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              style={{
+                width: '100%',
+                padding: '12px 14px',
+                borderRadius: '8px',
+                border: '1px solid #333',
+                backgroundColor: '#1a1a1a',
+                color: '#fff',
+                fontSize: '14px',
+                outline: 'none'
+              }}
+            />
+          </div>
+
+          <button
+            type="submit"
+            style={{
+              marginTop: '10px',
+              padding: '12px',
+              borderRadius: '8px',
+              border: 'none',
+              backgroundColor: '#d4af37',
+              color: '#000',
+              fontWeight: 'bold',
+              fontSize: '15px',
+              cursor: 'pointer',
+              transition: 'background-color 0.2s ease'
+            }}
+          >
+            Iniciar Sesión
+          </button>
+        </form>
+      </div>
+
     </div>
   );
 }

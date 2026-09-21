@@ -111,6 +111,7 @@ export default function AdminDashboard() {
   if (loading) return <p style={{ color: '#fff', textAlign: 'center', marginTop: '50px' }}>Cargando panel...</p>;
 
   return (
+    <>
     <div style={{ padding: '20px', color: '#fff', minHeight: '100vh', backgroundColor: '#0a0a0a', fontFamily: 'sans-serif' }}>
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #333', paddingBottom: '15px' }}>
   <div>
@@ -296,13 +297,17 @@ export default function AdminDashboard() {
             </table>
           </div>
         )}
-      </section>
-    </div>
-                          {reservaParaVer && (
+     </section>
+      </div>
+
+      {reservaParaVer && (
         <ContratoModal 
           reserva={reservaParaVer} 
           onClose={() => setReservaParaVer(null)} 
         />
       )}
+    </>
+  );
+}
   );
 }

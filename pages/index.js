@@ -194,11 +194,12 @@ export default function Home() {
     if (!vehiculoSeleccionado || !fechaInicio || !fechaFin) return false;
     const inicioSel = new Date(fechaInicio + 'T00:00:00');
     const finSel = new Date(fechaFin + 'T00:00:00');
-    return reservasExistentes.some((r) => {
-      if (r.vehiculoId !== vehiculoSeleccionado.id) return false;
-      const rInicio = new Date(r.inicio + 'T00:00:00');
-      const rFin = new Date(r.fin + 'T00:00:00');
-      return inicioSel <= rFin && finSel >= rInicio;
+    return reservasExistentes
+    .filter(r => r.vehiculoId === vehiculoSeleccionado.id)
+    .some((r) => {
+        const rInicio = new Date(r.inicio + 'T00:00:00');
+        const rFin = new Date(r.fin + 'T00:00:00');
+        return inicioSel <= rFin && finSel >= rInicio;
     });
   };
   const precioPorDia = vehiculoSeleccionado ? (

@@ -264,6 +264,7 @@ export default function Home() {
 
     // VALIDACIÓN INMEDIATA DE LISTA NEGRA
     try {
+      setEnviando(true);
       const querySnapshot = await getDocs(collection(db, 'clientes'));
       const cedulaInput = String(
         typeof documentoCliente !== 'undefined' ? documentoCliente :
@@ -290,14 +291,16 @@ export default function Home() {
               console.error("⛔ CLIENTE EN LISTA NEGRA. BLOQUEANDO.");
               alert('⚠️ ACCESO DENEGADO: Este número de documento se encuentra en la LISTA NEGRA. No se puede procesar la reserva.');
               setEnviando(false);
-              return; // Frena el código aquí mismo y no guarda nada
+              return; // ⛔ DETIENE EL FLUJO POR COMPLETO AQUÍ
             }
           }
         }
       }
-    } catch (err) {
+   } catch (err) {
       console.error("Error en validación:", err);
+      setEnviando(false);
     }
+  };
     // 2. SI NO ESTÁ BLOQUEADO, PROCEDE A GUARDAR
     setEnviando(true);
     try {

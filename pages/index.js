@@ -262,10 +262,18 @@ export default function Home() {
     if (!aceptaContrato) { alert('Debes aceptar el contrato.'); return; }
     if (!tieneFirma) { alert('Debes firmar digitalmente.'); return; }
 
-    // 1. VALIDACIÓN DE LISTA NEGRA BLOQUEANTE
+    // 1. VALIDACIÓN BLINDADA DE LISTA NEGRA
     try {
       const querySnapshot = await getDocs(collection(db, 'clientes'));
-      const cedulaInput = typeof documentoCliente !== 'undefined' ? String(documentoCliente).trim() : '';
+      
+      // Probamos con todas las posibles variables de estado del formulario
+      const cedulaInput = String(
+        typeof documentoCliente !== 'undefined' ? documentoCliente :
+        typeof cedula !== 'undefined' ? cedula :
+        typeof documento !== 'undefined' ? documento : ''
+      ).trim();
+
+      console.log("Cédula detectada para validar:", cedulaInput);
 
       if (cedulaInput) {
         let bloqueado = false;
@@ -293,8 +301,11 @@ export default function Home() {
 
         if (bloqueado) {
           alert('⚠️ ACCESO DENEGADO: Este número de documento se encuentra en la LISTA NEGRA. No se puede procesar la reserva.');
-          return; // Detiene la ejecución por completo y NO HACE NADA MÁS
+          setEnviando(false);
+          return; // Frena la ejecución por completo
         }
+      } else {
+        console.warn("⚠️ La cédula ingresada está vacía o no se encontró en las variables evaluadas.");
       }
     } catch (error) {
       console.error('Error al verificar lista negra:', error);

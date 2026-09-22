@@ -1,0 +1,199 @@
+import React, { useEffect, useState } from 'react';
+import { collection, getDocs, doc, updateData, setDoc } from 'firebase/firestore';
+import { db } from '../../../lib/firebase';
+import { useRouter } from 'next/router';
+
+export default function AdminClientes() {
+  const [clientes, setClientes] = useState([]);
+  const [cargando, setCargando] = useState(true);
+  const [busqueda, setBusqueda] = useState('');
+  const router = useRouter();
+
+  useEffect(() => {
+    cargarClientesYHistorial();
+  }, []);
+
+  const cargarClientesYHistorial = async () => {
+    try {
+      // Obtenemos las reservas para extraer de ahí los datos de los clientes y su historial
+      const reservasSnap = await getDocs(collection(db, 'reservas'));
+      const reservas = reservasSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+      // Obtenemos también la colección directa de clientes si existe (para estados de lista negra o documentos fijos)
+      const clientesSnap = await getDocs(collection(db, 'clientes'));
+      const clientesDirectos = {};
+      clientesSnap.docs.forEach(doc => {
+        clientesDirectos[doc.id] = { id: doc.id, ...doc.data() };
+      });
+
+      let mapaClientes = {};
+
+      // Agrupar reservas por cliente (usando teléfono o cédula/email como llave única)
+      reservas.forEach(res => {
+        const telefonoKey = res.clienteTelefono || res.telefono || 'sin-telefono';
+        const nombre = res.clienteNombre || res.nombre || 'Cliente sin nombre';
+        const cedula = res.clienteCedula || res.cedula || res.pasaporte || 'No registrada';
+        const licencia = res.clienteLicencia || res.licencia || 'No registrada';
+        
+        const gananciaReserva = res.gananciaNetaMonaco !== undefined ? Number(res.gananciaNetaMonaco) : Number(res.costoTotal || res.costoTotalFinal || 0);
+
+        if (!mapaClientes[telefonoKey]) {
+          // Verificar si está en la lista negra desde clientesDirectos
+          const infoDirecta = clientesDirectos[telefonoKey] || {};
+          
+          mapaClientes[telefonoKey] = {
+            id: telefonoKey,
+            nombre: nombre,
+            telefono: telefonoKey,
+            cedula: cedula,
+            licencia: licencia,
+            totalAlquileres: 0,
+            gastoTotal: 0,
+            autosFrecuentes: {},
+            enListaNegra: infoDirecta.enListaNegra || false,
+            motivoListaNegra: infoDirecta.motivoListaNegra || '',
+            documentos: infoDirecta.documentos || {}
+          };
+        }
+
+        mapaClientes[telefonoKey].totalAlquileres += 1;
+        mapaClientes[telefonoKey].gastoTotal += gananciaReserva;
+
+        const auto = res.vehiculoNombre || res.vehiculoId || 'Vehículo';
+        mapaClientes[telefonoKey].autosFrecuentes[auto] = (mapaClientes[telefonoKey].autosFrecuentes[auto] || 0) + 1;
+      });
+
+      // Convertir a array
+      const listaFinal = Object.values(mapaClientes);
+      setClientes(listaFinal);
+    } catch (error) {
+      console.error("Error cargando clientes:", error);
+    } finally {
+      setCargando(false);
+    }
+  };
+
+  const cambiarEstadoListaNegra = async (telefono, estadoActual, motivoActual) => {
+    const nuevoEstado = !estadoActual;
+    let motivo = motivoActual;
+
+    if (nuevoEstado) {
+      motivo = prompt("Ingrese el motivo por el cual este cliente pasa a Lista Negra (ej: Pagos tardíos, daños al vehículo):", "Mal historial / Daños");
+      if (motivo === null) return; // Cancelado
+    } else {
+      if (!confirm("¿Está seguro de retirar a este cliente de la Lista Negra?")) return;
+      motivo = '';
+    }
+
+    try {
+      // Guardar en la colección 'clientes' de Firestore
+      const clienteRef = doc(db, 'clientes', telefono);
+      await setDoc(clienteRef, {
+        enListaNegra: nuevoEstado,
+        motivoListaNegra: motivo,
+        actualizadoEn: new Date().toISOString()
+      }, { merge: true });
+
+      // Actualizar estado local
+      setClientes(clientes.map(c => c.telefono === telefono ? { ...c, enListaNegra: nuevoEstado, motivoListaNegra: motivo } : c));
+      alert("Estado de lista negra actualizado correctamente.");
+    } catch (error) {
+      console.error("Error al actualizar lista negra:", error);
+      alert("Hubo un error al actualizar el estado.");
+    }
+  };
+
+  // Filtrar por búsqueda
+  const clientesFiltrados = clientes.filter(c => 
+    c.nombre.toLowerCase().includes(busqueda.toLowerCase()) || 
+    c.telefono.includes(busqueda) || 
+    c.cedula.toLowerCase().includes(busqueda.toLowerCase())
+  );
+
+  return (
+    <div style={{ backgroundColor: '#0a0a0a', minHeight: '100vh', color: '#fff', fontFamily: 'sans-serif' }}>
+      
+      {/* BARRA DE NAVEGACIÓN ADMINISTRATIVA */}
+      <nav style={{ backgroundColor: '#111', padding: '15px 20px', borderBottom: '1px solid #222', display: 'flex', gap: '15px', alignItems: 'center', flexWrap: 'wrap' }}>
+        <span style={{ color: '#d4af37', fontWeight: 'bold', marginRight: '10px' }}>MONACO ADMIN</span>
+        <a href="/admin" style={{ color: '#ccc', textDecoration: 'none', fontSize: '13px' }}>📋 Reservas</a>
+        <a href="/admin/vehiculos" style={{ color: '#ccc', textDecoration: 'none', fontSize: '13px' }}>🚗 Flota</a>
+        <a href="/admin/dashboard" style={{ color: '#ccc', textDecoration: 'none', fontSize: '13px' }}>📊 Métricas</a>
+        <a href="/admin/calendario" style={{ color: '#ccc', textDecoration: 'none', fontSize: '13px' }}>📅 Calendario</a>
+        <a href="/admin/clientes" style={{ color: '#d4af37', textDecoration: 'none', fontSize: '13px', fontWeight: 'bold' }}>👥 Clientes / CRM</a>
+      </nav>
+
+      {/* CONTENIDO PRINCIPAL */}
+      <div style={{ padding: '25px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '15px' }}>
+          <h1 style={{ color: '#d4af37', fontSize: '20px', margin: 0, fontWeight: 'bold' }}>👥 Base de Datos de Clientes y CRM</h1>
+          
+          {/* BARRA DE BÚSQUEDA */}
+          <input 
+            type="text" 
+            placeholder="🔍 Buscar por nombre, teléfono o cédula..." 
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
+            style={{ padding: '10px 15px', backgroundColor: '#111', border: '1px solid #333', borderRadius: '6px', color: '#fff', width: '300px', fontSize: '13px' }}
+          />
+        </div>
+
+        {cargando ? (
+          <p style={{ color: '#888', textAlign: 'center', padding: '40px' }}>Cargando historial de clientes...</p>
+        ) : clientesFiltrados.length === 0 ? (
+          <div style={{ backgroundColor: '#111', padding: '30px', textAlign: 'center', borderRadius: '8px', border: '1px solid #222' }}>
+            <p style={{ color: '#888', margin: 0 }}>No se encontraron clientes registrados en las reservas.</p>
+          </div>
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '20px' }}>
+            {clientesFiltrados.map((cli, index) => (
+              <div key={index} style={{ backgroundColor: '#111', borderRadius: '8px', border: cli.enListaNegra ? '1px solid #ef4444' : '1px solid #222', padding: '20px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', position: 'relative' }}>
+                
+                {/* ETIQUETA LISTA NEGRA SI APLICA */}
+                {cli.enListaNegra && (
+                  <div style={{ backgroundColor: 'rgba(239, 68, 68, 0.15)', color: '#ef4444', border: '1px solid #ef4444', padding: '6px 10px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold', marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span>🚨 LISTA NEGRA: {cli.motivoListaNegra || 'Sin motivo especificado'}</span>
+                  </div>
+                )}
+
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
+                    <h3 style={{ fontSize: '16px', color: '#fff', margin: 0, fontWeight: 'bold' }}>{cli.nombre}</h3>
+                    <span style={{ fontSize: '12px', backgroundColor: '#181818', padding: '4px 8px', borderRadius: '4px', color: '#d4af37', border: '1px solid #333' }}>
+                      {cli.totalAlquileres} {cli.totalAlquileres === 1 ? 'alquiler' : 'alquileres'}
+                    </span>
+                  </div>
+
+                  <div style={{ fontSize: '13px', color: '#aaa', display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '15px' }}>
+                    <p style={{ margin: 0 }}>📞 <strong>Teléfono:</strong> {cli.telefono}</p>
+                    <p style={{ margin: 0 }}>🪪 <strong>Cédula/Pasaporte:</strong> {cli.cedula}</p>
+                    <p style={{ margin: 0 }}>🚗 <strong>Licencia:</strong> {cli.licencia}</p>
+                    <p style={{ margin: 0, color: '#22c55e' }}>💰 <strong>Total Generado:</strong> USD ${cli.gastoTotal.toLocaleString()}</p>
+                  </div>
+                </div>
+
+                {/* ACCIONES Y BOTÓN DE LISTA NEGRA */}
+                <div style={{ borderTop: '1px solid #222', paddingTop: '15px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <button
+                    onClick={() => router.push(`/admin/clientes/${encodeURIComponent(cli.telefono)}`)}
+                    style={{ backgroundColor: '#181818', color: '#fff', border: '1px solid #444', padding: '6px 12px', borderRadius: '4px', fontSize: '12px', cursor: 'pointer', fontWeight: 'bold' }}
+                  >
+                    📂 Ver Historial
+                  </button>
+
+                  <button
+                    onClick={() => cambiarEstadoListaNegra(cli.telefono, cli.enListaNegra, cli.motivoListaNegra)}
+                    style={{ backgroundColor: cli.enListaNegra ? '#22c55e' : '#ef4444', color: '#fff', border: 'none', padding: '6px 12px', borderRadius: '4px', fontSize: '12px', cursor: 'pointer', fontWeight: 'bold' }}
+                  >
+                    {cli.enListaNegra ? '✅ Quitar Lista Negra' : '🚨 Marcar Lista Negra'}
+                  </button>
+                </div>
+
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

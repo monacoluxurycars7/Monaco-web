@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { initializeApp, getApps } from 'firebase/app';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { getFirestore, collection, addDoc } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
 import { useRouter } from 'next/router';
 
 const firebaseConfig = {
@@ -67,7 +67,6 @@ export default function NuevaReservaManual() {
         [name]: type === 'checkbox' ? checked : value
       };
 
-      // Si activa el seguro full y el depósito estaba en 400, opcionalmente lo bajamos a 0, o viceversa
       if (name === 'seguroFull' && checked) {
         newState.depositoGarantia = 0;
       } else if (name === 'seguroFull' && !checked && prev.depositoGarantia === 0) {
@@ -119,24 +118,33 @@ export default function NuevaReservaManual() {
     }
 
     try {
-      // 1. Verificamos si el cliente está en lista negra buscando por cédula, correo o teléfono
-      const q = query(collection(db, 'clientes'), where('listaNegra', '==', true));
-      const querySnapshot = await getDocs(q);
-      
+      // 1. Verificación en la colección 'clientes' por teléfono exacto o documento
       let estaBloqueado = false;
-      querySnapshot.forEach((doc) => {
-        const cData = doc.data();
-        if (
-          (cData.cedula && cData.cedula === formData.documentoCliente) ||
-          (cData.email && cData.email === formData.clienteEmail) ||
-          (cData.telefono && cData.telefono === formData.clienteTelefono)
-        ) {
+      let motivoBloqueo = '';
+
+      if (formData.clienteTelefono) {
+        const clienteDocRef = doc(db, 'clientes', formData.clienteTelefono.trim());
+        const clienteDocSnap = await getDoc(clienteDocRef);
+        if (clienteDocSnap.exists() && clienteDocSnap.data().enListaNegra) {
           estaBloqueado = true;
+          motivoBloqueo = clienteDocSnap.data().motivoListaNegra || 'Reportado en sistema';
         }
-      });
+      }
+
+      // Si no se encontró por teléfono, revisamos haciendo un query general a clientes para buscar por cédula/documento
+      if (!estaBloqueado && formData.documentoCliente) {
+        const clientesSnap = await getDocs(collection(db, 'clientes'));
+        clientesSnap.forEach(docSnap => {
+          const data = docSnap.data();
+          if (data.enListaNegra && data.cedula && data.cedula.trim() === formData.documentoCliente.trim()) {
+            estaBloqueado = true;
+            motivoBloqueo = data.motivoListaNegra || 'Reportado en sistema';
+          }
+        });
+      }
 
       if (estaBloqueado) {
-        alert('⚠️ ATENCIÓN: Este cliente se encuentra en la LISTA NEGRA. No se puede procesar la reserva.');
+        alert(`🚨 ATENCIÓN: Este cliente se encuentra en la LISTA NEGRA.\nMotivo: ${motivoBloqueo}\nNo se puede procesar la reserva.`);
         return; // Detiene el registro por completo
       }
     } catch (error) {
@@ -277,7 +285,6 @@ export default function NuevaReservaManual() {
               )}
             </div>
 
-            {/* CAMPO DE DEPÓSITO DE GARANTÍA AÑADIDO */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
               <div>
                 <label style={{ display: 'block', fontSize: '12px', color: '#d4af37', marginBottom: '4px', fontWeight: 'bold' }}>Depósito de Garantía (USD)</label>

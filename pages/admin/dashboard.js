@@ -5,6 +5,8 @@ import { db } from '../../lib/firebase';
 export default function AdminDashboard() {
   const [metricas, setMetricas] = useState({
     ingresosMes: 0,
+    gastosMes: 0,
+    gananciaNetaMes: 0,
     alquileresActivos: 0,
     totalVehiculos: 0,
     autosEnTaller: 0,
@@ -37,12 +39,18 @@ export default function AdminDashboard() {
       const reservasSnap = await getDocs(collection(db, 'reservas'));
       const reservas = reservasSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
+      // 3. Obtener Gastos / Mantenimientos
+      const mantenimientosSnap = await getDocs(collection(db, 'mantenimientos'));
+      const mantenimientos = mantenimientosSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
       const hoy = new Date();
       let ingresosMes = 0;
+      let gastosMes = 0;
       let activos = 0;
       let devoluciones = [];
       let rentabilidadAutos = {};
 
+      // Calcular Ingresos del Mes Actual
       reservas.forEach((res) => {
         const fechaInicio = new Date(res.inicio);
         const fechaFin = new Date(res.fin);
@@ -50,7 +58,6 @@ export default function AdminDashboard() {
         // Ganancia neta para Mónaco (comisión si es tercero, costo total si es propio)
         const gananciaReserva = res.gananciaNetaMonaco !== undefined ? Number(res.gananciaNetaMonaco) : Number(res.costoTotal || res.costoTotalFinal || 0);
 
-        // Calcular Ingresos del Mes Actual
         if (fechaInicio.getMonth() === hoy.getMonth() && fechaInicio.getFullYear() === hoy.getFullYear()) {
           ingresosMes += gananciaReserva;
         }
@@ -75,6 +82,19 @@ export default function AdminDashboard() {
         rentabilidadAutos[nombreAuto].vecesRentado += 1;
       });
 
+      // Calcular Gastos del Mes Actual
+      mantenimientos.forEach((gasto) => {
+        if (gasto.fecha) {
+          const fechaGasto = new Date(gasto.fecha);
+          if (fechaGasto.getMonth() === hoy.getMonth() && fechaGasto.getFullYear() === hoy.getFullYear()) {
+            gastosMes += Number(gasto.costo || 0);
+          }
+        }
+      });
+
+      // Ganancia Neta Real del Mes (Ingresos menos Gastos de mantenimiento/seguros)
+      const gananciaNetaMes = ingresosMes - gastosMes;
+
       // Convertir el objeto a un array ordenado de mayor a menor ganancia
       const rankingArray = Object.keys(rentabilidadAutos).map((auto) => ({
         nombre: auto,
@@ -86,6 +106,8 @@ export default function AdminDashboard() {
 
       setMetricas({
         ingresosMes,
+        gastosMes,
+        gananciaNetaMes,
         alquileresActivos: activos,
         totalVehiculos,
         autosEnTaller,
@@ -104,14 +126,14 @@ export default function AdminDashboard() {
     <div style={{ backgroundColor: '#0a0a0a', minHeight: '100vh', color: '#fff', fontFamily: 'sans-serif' }}>
       
       {/* BARRA DE NAVEGACIÓN ADMINISTRATIVA */}
-     <nav style={{ backgroundColor: '#111', padding: '15px 20px', borderBottom: '1px solid #222', display: 'flex', gap: '15px', alignItems: 'center' }}>
-  <span style={{ color: '#d4af37', fontWeight: 'bold', marginRight: '10px' }}>MONACO ADMIN</span>
-  <a href="/admin" style={{ color: '#ccc', textDecoration: 'none', fontSize: '13px' }}>📋 Reservas</a>
-  <a href="/admin/vehiculos" style={{ color: '#ccc', textDecoration: 'none', fontSize: '13px' }}>🚗 Flota de Vehículos</a>
-  <a href="/admin/dashboard" style={{ color: '#ccc', textDecoration: 'none', fontSize: '13px' }}>📊 Métricas</a>
-  <a href="/admin/calendario" style={{ color: '#d4af37', textDecoration: 'none', fontSize: '13px', fontWeight: 'bold' }}>📅 Calendario</a>
-  <a href="/admin/clientes" style={{ color: '#ccc', textDecoration: 'none', fontSize: '13px' }}>👥 Clientes</a>
-</nav>
+      <nav style={{ backgroundColor: '#111', padding: '15px 20px', borderBottom: '1px solid #222', display: 'flex', gap: '15px', alignItems: 'center' }}>
+        <span style={{ color: '#d4af37', fontWeight: 'bold', marginRight: '10px' }}>MONACO ADMIN</span>
+        <a href="/admin" style={{ color: '#ccc', textDecoration: 'none', fontSize: '13px' }}>📋 Reservas</a>
+        <a href="/admin/vehiculos" style={{ color: '#ccc', textDecoration: 'none', fontSize: '13px' }}>🚗 Flota de Vehículos</a>
+        <a href="/admin/dashboard" style={{ color: '#ccc', textDecoration: 'none', fontSize: '13px' }}>📊 Métricas</a>
+        <a href="/admin/calendario" style={{ color: '#d4af37', textDecoration: 'none', fontSize: '13px', fontWeight: 'bold' }}>📅 Calendario</a>
+        <a href="/admin/clientes" style={{ color: '#ccc', textDecoration: 'none', fontSize: '13px' }}>👥 Clientes</a>
+      </nav>
 
       {/* CONTENIDO PRINCIPAL */}
       <div style={{ padding: '25px' }}>
@@ -121,33 +143,48 @@ export default function AdminDashboard() {
           <p style={{ color: '#888' }}>Cargando datos financieros y de flota...</p>
         ) : (
           <>
-            {/* TARJETAS DE KPIS */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px', marginBottom: '25px' }}>
+            {/* TARJETAS DE KPIS PRINCIPALES */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px', marginBottom: '20px' }}>
               
               <div style={{ backgroundColor: '#111', padding: '18px', borderRadius: '6px', borderLeft: '4px solid #22c55e', border: '1px solid #222' }}>
-                <h3 style={{ fontSize: '12px', color: '#aaa', margin: 0, textTransform: 'uppercase' }}>Ingresos del Mes</h3>
-                <p style={{ fontSize: '24px', fontWeight: 'bold', margin: '8px 0 0 0', color: '#22c55e' }}>
+                <h3 style={{ fontSize: '12px', color: '#aaa', margin: 0, textTransform: 'uppercase' }}>Ingresos Brutos (Mes)</h3>
+                <p style={{ fontSize: '22px', fontWeight: 'bold', margin: '8px 0 0 0', color: '#22c55e' }}>
                   USD ${metricas.ingresosMes.toLocaleString()}
+                </p>
+              </div>
+
+              <div style={{ backgroundColor: '#111', padding: '18px', borderRadius: '6px', borderLeft: '4px solid #ef4444', border: '1px solid #222' }}>
+                <h3 style={{ fontSize: '12px', color: '#aaa', margin: 0, textTransform: 'uppercase' }}>Gastos / Mantenimiento</h3>
+                <p style={{ fontSize: '22px', fontWeight: 'bold', margin: '8px 0 0 0', color: '#ef4444' }}>
+                  USD ${metricas.gastosMes.toLocaleString()}
+                </p>
+              </div>
+
+              {/* TARJETA DESTACADA: GANANCIA NETA REAL */}
+              <div style={{ backgroundColor: '#181818', padding: '18px', borderRadius: '6px', borderLeft: '4px solid #d4af37', border: '2px solid #d4af37' }}>
+                <h3 style={{ fontSize: '12px', color: '#d4af37', margin: 0, textTransform: 'uppercase', fontWeight: 'bold' }}>Ganancia Neta Real</h3>
+                <p style={{ fontSize: '24px', fontWeight: 'bold', margin: '8px 0 0 0', color: '#d4af37' }}>
+                  USD ${metricas.gananciaNetaMes.toLocaleString()}
                 </p>
               </div>
 
               <div style={{ backgroundColor: '#111', padding: '18px', borderRadius: '6px', borderLeft: '4px solid #3b82f6', border: '1px solid #222' }}>
                 <h3 style={{ fontSize: '12px', color: '#aaa', margin: 0, textTransform: 'uppercase' }}>Alquileres Activos</h3>
-                <p style={{ fontSize: '24px', fontWeight: 'bold', margin: '8px 0 0 0', color: '#3b82f6' }}>
+                <p style={{ fontSize: '22px', fontWeight: 'bold', margin: '8px 0 0 0', color: '#3b82f6' }}>
                   {metricas.alquileresActivos} / {metricas.totalVehiculos} autos
                 </p>
               </div>
 
               <div style={{ backgroundColor: '#111', padding: '18px', borderRadius: '6px', borderLeft: '4px solid #f59e0b', border: '1px solid #222' }}>
-                <h3 style={{ fontSize: '12px', color: '#aaa', margin: 0, textTransform: 'uppercase' }}>En Taller / Mantenimiento</h3>
-                <p style={{ fontSize: '24px', fontWeight: 'bold', margin: '8px 0 0 0', color: '#f59e0b' }}>
+                <h3 style={{ fontSize: '12px', color: '#aaa', margin: 0, textTransform: 'uppercase' }}>En Taller</h3>
+                <p style={{ fontSize: '22px', fontWeight: 'bold', margin: '8px 0 0 0', color: '#f59e0b' }}>
                   {metricas.autosEnTaller} autos
                 </p>
               </div>
 
-              <div style={{ backgroundColor: '#111', padding: '18px', borderRadius: '6px', borderLeft: '4px solid #d4af37', border: '1px solid #222' }}>
+              <div style={{ backgroundColor: '#111', padding: '18px', borderRadius: '6px', borderLeft: '4px solid #a855f7', border: '1px solid #222' }}>
                 <h3 style={{ fontSize: '12px', color: '#aaa', margin: 0, textTransform: 'uppercase' }}>Tasa de Ocupación</h3>
-                <p style={{ fontSize: '24px', fontWeight: 'bold', margin: '8px 0 0 0', color: '#d4af37' }}>
+                <p style={{ fontSize: '22px', fontWeight: 'bold', margin: '8px 0 0 0', color: '#a855f7' }}>
                   {metricas.porcentajeOcupacion}%
                 </p>
               </div>

@@ -30,11 +30,13 @@ export default function NuevaReservaManual() {
     tipoCliente: 'residente',
     documentoCliente: '',
     vehiculoNombre: 'Kia Picanto 2023',
+    esTercero: false, // false = Propio Monaco, true = Intermediario
+    comisionDiariaMonaco: 5, // Comisión por día si es de tercero
     precioPorDia: 40,
     inicio: '',
     fin: '',
     seguroFull: false,
-    precioSeguroPorDia: 20, // <--- AQUÍ: asegúrate de que tenga esta línea
+    precioSeguroPorDia: 20,
     lugarEntrega: 'Oficina Monaco Luxury ($0 USD)',
     costoEntrega: 0,
     clienteDireccionRD: '',
@@ -81,7 +83,19 @@ export default function NuevaReservaManual() {
   const subtotalSeguro = formData.seguroFull ? totalDias * Number(formData.precioSeguroPorDia) : 0;
   const costoEntregaVal = Number(formData.costoEntrega);
   const depositoGarantiaVal = formData.seguroFull ? 0 : 400;
+  
+  // Facturación total cobrada al cliente
   const costoTotalFinal = subtotalAlquiler + subtotalSeguro + costoEntregaVal;
+
+  // CÁLCULO DE GANANCIA NETA Y PAGO A PROPIETARIO
+  const comisionDiaria = Number(formData.comisionDiariaMonaco);
+  const gananciaNetaMonaco = formData.esTercero
+    ? (totalDias * comisionDiaria) + subtotalSeguro + costoEntregaVal
+    : costoTotalFinal;
+
+  const pagoPropietario = formData.esTercero
+    ? Math.max(0, subtotalAlquiler - (totalDias * comisionDiaria))
+    : 0;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -98,9 +112,11 @@ export default function NuevaReservaManual() {
         diasTotales: totalDias,
         depositoGarantia: depositoGarantiaVal,
         costoTotal: costoTotalFinal,
+        gananciaNetaMonaco: gananciaNetaMonaco,
+        pagoPropietario: pagoPropietario,
         fechaCreacion: new Date().toISOString(),
         registroManual: true,
-        firmaUrl: null // Indica que fue contrato físico
+        firmaUrl: null
       };
 
       await addDoc(collection(db, 'reservas'), nuevaReserva);
@@ -160,18 +176,39 @@ export default function NuevaReservaManual() {
           </div>
         </fieldset>
 
-        {/* Detalles del Vehículo y Fechas */}
+        {/* Detalles del Vehículo y Propiedad */}
         <fieldset style={{ border: '1px solid #333', padding: '15px', borderRadius: '8px' }}>
-          <legend style={{ color: '#d4af37', padding: '0 8px', fontWeight: 'bold' }}>Vehículo y Alquiler</legend>
+          <legend style={{ color: '#d4af37', padding: '0 8px', fontWeight: 'bold' }}>Vehículo y Modalidad de Propiedad</legend>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
             <div>
               <label style={{ display: 'block', fontSize: '12px', color: '#aaa', marginBottom: '4px' }}>Vehículo</label>
               <input type="text" name="vehiculoNombre" value={formData.vehiculoNombre} onChange={handleChange} style={{ width: '100%', padding: '8px', backgroundColor: '#181818', border: '1px solid #333', color: '#fff', borderRadius: '4px' }} />
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: '12px', color: '#aaa', marginBottom: '4px' }}>Precio Alquiler / Día (USD)</label>
+              <label style={{ display: 'block', fontSize: '12px', color: '#aaa', marginBottom: '4px' }}>Tipo de Propiedad del Vehículo</label>
+              <select 
+                name="esTercero" 
+                value={formData.esTercero} 
+                onChange={(e) => setFormData({ ...formData, esTercero: e.target.value === 'true' })} 
+                style={{ width: '100%', padding: '8px', backgroundColor: '#181818', border: '1px solid #333', color: '#fff', borderRadius: '4px' }}
+              >
+                <option value="false">Propiedad de Monaco (100% Ganancia)</option>
+                <option value="true">Vehículo de Tercero / Intermediario</option>
+              </select>
+            </div>
+
+            <div>
+              <label style={{ display: 'block', fontSize: '12px', color: '#aaa', marginBottom: '4px' }}>Precio Alquiler / Día al Cliente (USD)</label>
               <input type="number" name="precioPorDia" value={formData.precioPorDia} onChange={handleChange} style={{ width: '100%', padding: '8px', backgroundColor: '#181818', border: '1px solid #333', color: '#fff', borderRadius: '4px' }} />
             </div>
+
+            {formData.esTercero && (
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', color: '#d4af37', marginBottom: '4px', fontWeight: 'bold' }}>Comisión Monaco / Día (USD)</label>
+                <input type="number" name="comisionDiariaMonaco" value={formData.comisionDiariaMonaco} onChange={handleChange} style={{ width: '100%', padding: '8px', backgroundColor: '#181818', border: '1px solid #d4af37', color: '#fff', borderRadius: '4px' }} />
+              </div>
+            )}
+
             <div>
               <label style={{ display: 'block', fontSize: '12px', color: '#aaa', marginBottom: '4px' }}>Fecha Inicio *</label>
               <input type="date" name="inicio" value={formData.inicio} onChange={handleChange} required style={{ width: '100%', padding: '8px', backgroundColor: '#181818', border: '1px solid #333', color: '#fff', borderRadius: '4px' }} />
@@ -187,19 +224,19 @@ export default function NuevaReservaManual() {
         <fieldset style={{ border: '1px solid #333', padding: '15px', borderRadius: '8px' }}>
           <legend style={{ color: '#d4af37', padding: '0 8px', fontWeight: 'bold' }}>Seguro y Servicios Extra</legend>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', alignItems: 'center' }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
-              <input type="checkbox" name="seguroFull" checked={formData.seguroFull} onChange={handleChange} style={{ width: '18px', height: '18px' }} />
-              <span>Incluir Seguro Full (Exonera Depósito)</span>
-            </label>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', alignItems: 'center' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
+                <input type="checkbox" name="seguroFull" checked={formData.seguroFull} onChange={handleChange} style={{ width: '18px', height: '18px' }} />
+                <span>Incluir Seguro Full (Exonera Depósito)</span>
+              </label>
 
-            {formData.seguroFull && (
-              <div>
-                <label style={{ display: 'block', fontSize: '12px', color: '#aaa', marginBottom: '4px' }}>Precio Seguro Full / Día (USD)</label>
-                <input type="number" name="precioSeguroPorDia" value={formData.precioSeguroPorDia} onChange={handleChange} style={{ width: '100%', padding: '8px', backgroundColor: '#000', border: '1px solid #333', color: '#fff', borderRadius: '4px' }} />
-              </div>
-            )}
-          </div>
+              {formData.seguroFull && (
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', color: '#aaa', marginBottom: '4px' }}>Precio Seguro Full / Día (USD)</label>
+                  <input type="number" name="precioSeguroPorDia" value={formData.precioSeguroPorDia} onChange={handleChange} style={{ width: '100%', padding: '8px', backgroundColor: '#000', border: '1px solid #333', color: '#fff', borderRadius: '4px' }} />
+                </div>
+              )}
+            </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '5px' }}>
               <div>
@@ -223,12 +260,19 @@ export default function NuevaReservaManual() {
         <div style={{ backgroundColor: '#181818', padding: '15px', borderRadius: '8px', border: '1px solid #d4af37' }}>
           <h3 style={{ margin: '0 0 10px 0', color: '#d4af37', fontSize: '14px' }}>Resumen Calculado:</h3>
           <p style={{ margin: '4px 0', fontSize: '13px' }}>• <strong>Días Totales:</strong> {totalDias} día(s)</p>
-          <p style={{ margin: '4px 0', fontSize: '13px' }}>• <strong>Alquiler:</strong> USD ${subtotalAlquiler}</p>
-          <p style={{ margin: '4px 0', fontSize: '13px' }}>• <strong>Seguro Full:</strong> USD ${subtotalSeguro}</p>
-          <p style={{ margin: '4px 0', fontSize: '13px' }}>• <strong>Entrega:</strong> USD ${costoEntregaVal}</p>
-          <p style={{ margin: '4px 0', fontSize: '13px' }}>• <strong>Depósito Garantía:</strong> USD ${depositoGarantiaVal} {formData.seguroFull ? '(Exonerado)' : ''}</p>
+          <p style={{ margin: '4px 0', fontSize: '13px' }}>• <strong>Facturación Total al Cliente:</strong> USD ${costoTotalFinal}</p>
+          
           <hr style={{ borderColor: '#333', margin: '10px 0' }} />
-          <p style={{ margin: 0, fontSize: '16px', color: '#4caf50', fontWeight: 'bold' }}>Total Estimado: USD ${costoTotalFinal}</p>
+          
+          <p style={{ margin: '4px 0', fontSize: '14px', color: '#22c55e', fontWeight: 'bold' }}>
+            • Ganancia Neta Monaco: USD ${gananciaNetaMonaco} {formData.esTercero ? `($${comisionDiaria}/día × ${totalDias} días)` : '(100% Vehículo Propio)'}
+          </p>
+
+          {formData.esTercero && (
+            <p style={{ margin: '4px 0', fontSize: '13px', color: '#ef4444' }}>
+              • Pago a Entregar al Dueño del Auto: USD ${pagoPropietario}
+            </p>
+          )}
         </div>
 
         <button 

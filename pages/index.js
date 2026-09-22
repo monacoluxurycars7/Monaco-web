@@ -404,19 +404,6 @@ body {
   margin: 0;
   padding: 0;
 }
-
-/* Animación para el fondo flotante global */
-@keyframes floatBackground {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
         input[type="text"],
         input[type="email"],
         input[type="tel"],

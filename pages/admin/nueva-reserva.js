@@ -118,6 +118,31 @@ export default function NuevaReservaManual() {
       return;
     }
 
+    try {
+      // 1. Verificamos si el cliente está en lista negra buscando por cédula, correo o teléfono
+      const q = query(collection(db, 'clientes'), where('listaNegra', '==', true));
+      const querySnapshot = await getDocs(q);
+      
+      let estaBloqueado = false;
+      querySnapshot.forEach((doc) => {
+        const cData = doc.data();
+        if (
+          (cData.cedula && cData.cedula === formData.documentoCliente) ||
+          (cData.email && cData.email === formData.clienteEmail) ||
+          (cData.telefono && cData.telefono === formData.clienteTelefono)
+        ) {
+          estaBloqueado = true;
+        }
+      });
+
+      if (estaBloqueado) {
+        alert('⚠️ ATENCIÓN: Este cliente se encuentra en la LISTA NEGRA. No se puede procesar la reserva.');
+        return; // Detiene el registro por completo
+      }
+    } catch (error) {
+      console.error('Error al verificar lista negra:', error);
+    }
+
     setGuardando(true);
 
     try {

@@ -37,9 +37,10 @@ export default function AdminDashboard() {
 
         // Calcular Ingresos del Mes Actual
         if (fechaInicio.getMonth() === hoy.getMonth() && fechaInicio.getFullYear() === hoy.getFullYear()) {
-const gananciaReserva = res.gananciaNetaMonaco !== undefined ? Number(res.gananciaNetaMonaco) : Number(res.costoTotal || res.costoTotalFinal || 0);
-      ingresosMes += gananciaReserva;
-          
+          const gananciaReserva = res.gananciaNetaMonaco !== undefined ? Number(res.gananciaNetaMonaco) : Number(res.costoTotal || res.costoTotalFinal || 0);
+          ingresosMes += gananciaReserva;
+        }
+
         // Alquileres Activos
         if (hoy >= fechaInicio && hoy <= fechaFin) {
           activos++;

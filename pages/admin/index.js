@@ -333,8 +333,8 @@ export default function AdminDashboard() {
                       typeof res.lugarEntrega === 'string' && res.lugarEntrega.toLowerCase().includes('puntacana') ? 150 : 
                       typeof res.lugarEntrega === 'string' && res.lugarEntrega.toLowerCase().includes('santiago') ? 100 : 0
                     );
-                    const depositoGarantiaVal = res.depositoGarantia !== undefined 
-                      ? res.depositoGarantia 
+                    const depositoGarantiaVal = res.depositoGarantia !== undefined && res.depositoGarantia !== ''
+                      ? Number(res.depositoGarantia)
                       : (tieneSeguroFull ? 0 : 400);
 
                     const totalCalculado = totalAlquiler + totalSeguro + costoEntregaVal;
@@ -510,6 +510,7 @@ function EditarReservaModal({ reservaItem, onClose, db }) {
     precioPorDia: reservaItem.precioPorDia || reservaItem.rentaPorDia || 0,
     diasTotales: reservaItem.diasTotales || 1,
     costoTotal: reservaItem.costoTotal || 0,
+    depositoGarantia: reservaItem.depositoGarantia !== undefined ? reservaItem.depositoGarantia : 400,
     lugarEntrega: reservaItem.lugarEntrega || '',
     clienteDireccionRD: reservaItem.clienteDireccionRD || '',
     seguroFull: reservaItem.seguroFull === true || reservaItem.seguroFull === 'si' ? 'si' : 'no'
@@ -541,6 +542,7 @@ function EditarReservaModal({ reservaItem, onClose, db }) {
         precioPorDia: Number(formData.precioPorDia),
         diasTotales: Number(formData.diasTotales),
         costoTotal: Number(formData.costoTotal),
+        depositoGarantia: Number(formData.depositoGarantia),
         lugarEntrega: formData.lugarEntrega,
         clienteDireccionRD: formData.clienteDireccionRD,
         seguroFull: formData.seguroFull === 'si'
@@ -618,6 +620,11 @@ function EditarReservaModal({ reservaItem, onClose, db }) {
           <div>
             <label style={{ display: 'block', color: '#aaa', marginBottom: '5px' }}>Costo Total (USD)</label>
             <input type="number" name="costoTotal" value={formData.costoTotal} onChange={handleChange} style={{ width: '100%', padding: '8px', backgroundColor: '#222', border: '1px solid #444', color: '#fff', borderRadius: '4px' }} />
+          </div>
+
+          <div>
+            <label style={{ display: 'block', color: '#aaa', marginBottom: '5px' }}>Depósito de Garantía (USD)</label>
+            <input type="number" name="depositoGarantia" value={formData.depositoGarantia} onChange={handleChange} style={{ width: '100%', padding: '8px', backgroundColor: '#222', border: '1px solid #444', color: '#fff', borderRadius: '4px' }} />
           </div>
 
           <div>

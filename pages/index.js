@@ -262,21 +262,14 @@ export default function Home() {
     if (!aceptaContrato) { alert('Debes aceptar el contrato.'); return; }
     if (!tieneFirma) { alert('Debes firmar digitalmente.'); return; }
 
-   // 1. VALIDACIÓN DE LISTA NEGRA (DIAGNÓSTICO)
+   // 1. VALIDACIÓN DE LISTA NEGRA (AL INICIO DE TODO)
     try {
-      console.log("=== INICIANDO VALIDACIÓN DE LISTA NEGRA ===");
-      console.log("Valor de documentoCliente:", typeof documentoCliente !== 'undefined' ? documentoCliente : "NO DEFINIDA");
-
       const querySnapshot = await getDocs(collection(db, 'clientes'));
       const cedulaInput = typeof documentoCliente !== 'undefined' ? String(documentoCliente).trim() : '';
-
-      console.log("Cédula ingresada procesada:", cedulaInput);
 
       if (cedulaInput) {
         for (const docSnap of querySnapshot.docs) {
           const cData = docSnap.data();
-          console.log("Revisando cliente en DB:", cData);
-
           const estaEnNegra = cData.listaNegra === true || cData.enListaNegra === true;
 
           if (estaEnNegra) {
@@ -285,13 +278,10 @@ export default function Home() {
 
             if (cedulaDb === cedulaInput || pasaporteDb === cedulaInput) {
               alert('⚠️ ACCESO DENEGADO: Este número de documento se encuentra en la LISTA NEGRA. No se puede procesar la reserva.');
-              setEnviando(false);
-              return;
+              return; // Frena la función por completo antes de guardar o enviar nada
             }
           }
         }
-      } else {
-        console.warn("⚠️ Advertencia: cedulaInput está vacío, no se pudo validar.");
       }
     } catch (error) {
       console.error('Error al verificar lista negra:', error);

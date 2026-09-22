@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Head from 'next/head';
 import emailjs from '@emailjs/browser';
 import { db } from '../lib/firebase';
-import { collection, addDoc, onSnapshot } from 'firebase/firestore';
+import { collection, addDoc, onSnapshot, getDocs } from 'firebase/firestore';
 
 
 

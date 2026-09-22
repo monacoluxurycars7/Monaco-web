@@ -262,6 +262,31 @@ export default function Home() {
     if (!aceptaContrato) { alert('Debes aceptar el contrato.'); return; }
     if (!tieneFirma) { alert('Debes firmar digitalmente.'); return; }
 
+    // 1. VALIDACIÓN DE LISTA NEGRA PARA EL CLIENTE WEB
+    try {
+      const q = query(collection(db, 'clientes'), where('listaNegra', '==', true));
+      const querySnapshot = await getDocs(q);
+      
+      let estaBloqueado = false;
+      querySnapshot.forEach((doc) => {
+        const cData = doc.data();
+        if (
+          (cData.cedula && cData.cedula === documentoCliente) ||
+          (cData.email && cData.email === email) ||
+          (cData.telefono && cData.telefono === telefono)
+        ) {
+          estaBloqueado = true;
+        }
+      });
+
+      if (estaBloqueado) {
+        alert('Lo sentimos, no es posible procesar su reserva en este momento. Por favor contacte con soporte.');
+        return; // Impide que avance
+      }
+    } catch (error) {
+      console.error('Error al verificar lista negra:', error);
+    }
+    
     setEnviando(true);
 
     try {

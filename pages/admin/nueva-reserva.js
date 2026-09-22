@@ -37,6 +37,7 @@ export default function NuevaReservaManual() {
     fin: '',
     seguroFull: false,
     precioSeguroPorDia: 20,
+    depositoGarantia: 400, // Campo editable de Depósito de Garantía
     lugarEntrega: 'Oficina Monaco Luxury ($0 USD)',
     costoEntrega: 0,
     clienteDireccionRD: '',
@@ -56,12 +57,25 @@ export default function NuevaReservaManual() {
     return () => unsubscribe();
   }, [router]);
 
+  // Al cambiar el estado de seguroFull, ajustamos automáticamente el depósito si el usuario lo desea, pero permitiendo editarlo
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }));
+    
+    setFormData((prev) => {
+      const newState = {
+        ...prev,
+        [name]: type === 'checkbox' ? checked : value
+      };
+
+      // Si activa el seguro full y el depósito estaba en 400, opcionalmente lo bajamos a 0, o viceversa
+      if (name === 'seguroFull' && checked) {
+        newState.depositoGarantia = 0;
+      } else if (name === 'seguroFull' && !checked && prev.depositoGarantia === 0) {
+        newState.depositoGarantia = 400;
+      }
+
+      return newState;
+    });
   };
 
   // Cálculo automático de días y totales
@@ -82,7 +96,7 @@ export default function NuevaReservaManual() {
   const subtotalAlquiler = totalDias * Number(formData.precioPorDia);
   const subtotalSeguro = formData.seguroFull ? totalDias * Number(formData.precioSeguroPorDia) : 0;
   const costoEntregaVal = Number(formData.costoEntrega);
-  const depositoGarantiaVal = formData.seguroFull ? 0 : 400;
+  const depositoGarantiaVal = Number(formData.depositoGarantia) || 0;
   
   // Facturación total cobrada al cliente
   const costoTotalFinal = subtotalAlquiler + subtotalSeguro + costoEntregaVal;
@@ -227,7 +241,7 @@ export default function NuevaReservaManual() {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', alignItems: 'center' }}>
               <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
                 <input type="checkbox" name="seguroFull" checked={formData.seguroFull} onChange={handleChange} style={{ width: '18px', height: '18px' }} />
-                <span>Incluir Seguro Full (Exonera Depósito)</span>
+                <span>Incluir Seguro Full</span>
               </label>
 
               {formData.seguroFull && (
@@ -236,6 +250,14 @@ export default function NuevaReservaManual() {
                   <input type="number" name="precioSeguroPorDia" value={formData.precioSeguroPorDia} onChange={handleChange} style={{ width: '100%', padding: '8px', backgroundColor: '#000', border: '1px solid #333', color: '#fff', borderRadius: '4px' }} />
                 </div>
               )}
+            </div>
+
+            {/* CAMPO DE DEPÓSITO DE GARANTÍA AÑADIDO */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', color: '#d4af37', marginBottom: '4px', fontWeight: 'bold' }}>Depósito de Garantía (USD)</label>
+                <input type="number" name="depositoGarantia" value={formData.depositoGarantia} onChange={handleChange} style={{ width: '100%', padding: '8px', backgroundColor: '#181818', border: '1px solid #d4af37', color: '#fff', borderRadius: '4px' }} />
+              </div>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '5px' }}>
@@ -261,6 +283,7 @@ export default function NuevaReservaManual() {
           <h3 style={{ margin: '0 0 10px 0', color: '#d4af37', fontSize: '14px' }}>Resumen Calculado:</h3>
           <p style={{ margin: '4px 0', fontSize: '13px' }}>• <strong>Días Totales:</strong> {totalDias} día(s)</p>
           <p style={{ margin: '4px 0', fontSize: '13px' }}>• <strong>Facturación Total al Cliente:</strong> USD ${costoTotalFinal}</p>
+          <p style={{ margin: '4px 0', fontSize: '13px', color: '#d4af37' }}>• <strong>Depósito de Garantía:</strong> USD ${depositoGarantiaVal}</p>
           
           <hr style={{ borderColor: '#333', margin: '10px 0' }} />
           

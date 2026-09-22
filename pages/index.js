@@ -262,12 +262,12 @@ export default function Home() {
     if (!aceptaContrato) { alert('Debes aceptar el contrato.'); return; }
     if (!tieneFirma) { alert('Debes firmar digitalmente.'); return; }
 
-   // 1. VALIDACIÓN DE LISTA NEGRA (Únicamente por Número de Documento)
+   // 1. VALIDACIÓN DE LISTA NEGRA
     try {
       const querySnapshot = await getDocs(collection(db, 'clientes'));
       let estaBloqueado = false;
 
-      // Obtén el valor del documento escrito en tu formulario (ajusta el nombre de la variable si es diferente en tu código)
+      // Usamos directamente la variable documentoCliente de tu formulario
       const cedulaInput = typeof documentoCliente !== 'undefined' ? documentoCliente : '';
 
       if (cedulaInput) {
@@ -276,10 +276,9 @@ export default function Home() {
           const estaEnNegra = cData.listaNegra === true || cData.enListaNegra === true;
 
           if (estaEnNegra) {
-            // Compara únicamente con las cédulas o pasaportes registrados en la base de datos de clientes
             if (
-              (cData.cedula && cData.cedula.trim() === cedulaInput.trim()) ||
-              (cData.cedulaPasaporte && cData.cedulaPasaporte.trim() === cedulaInput.trim())
+              (cData.cedula && cData.cedula.trim() === String(cedulaInput).trim()) ||
+              (cData.cedulaPasaporte && cData.cedulaPasaporte.trim() === String(cedulaInput).trim())
             ) {
               estaBloqueado = true;
             }
@@ -288,9 +287,9 @@ export default function Home() {
       }
 
       if (estaBloqueado) {
-        alert('⚠️ ACCESO DENEGADO: El número de documento ingresado se encuentra en la LISTA NEGRA. No se puede procesar la reserva.');
+        alert('⚠️ ACCESO DENEGADO: Este número de documento se encuentra en la LISTA NEGRA. No se puede procesar la reserva.');
         setEnviando(false);
-        return; // Detiene la función por completo y evita que se guarde la reserva
+        return; // Frena la ejecución por completo
       }
     } catch (error) {
       console.error('Error al verificar lista negra:', error);

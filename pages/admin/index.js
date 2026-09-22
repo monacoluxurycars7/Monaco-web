@@ -113,7 +113,7 @@ export default function AdminDashboard() {
             </button>
                 <button 
       onClick={() => router.push('/admin/calendario')}
-      style={{ padding: '8px 16px', backgroundColor: '#181818', color: '#fff', border: '1px solid #333', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
+      style={{ padding: '8px 16px', backgroundColor: '#111111', color: '#d4af37', border: '1px solid #d4af37', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
     >
       📅 Calendario
     </button>

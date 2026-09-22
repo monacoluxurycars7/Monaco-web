@@ -221,11 +221,30 @@ export default function Home() {
   const costoTotal = costoTotalFinal;
   const errorDias = dias < 3;
 
-  const vehiculosFiltrados = vehiculos.filter((v) => {
-    const coincideMarca = busquedaMarca === '' || v.marca.toLowerCase().includes(busquedaMarca.toLowerCase());
-    const coincideModelo = busquedaModelo === '' || v.modelo.toLowerCase().includes(busquedaModelo.toLowerCase()) || v.nombre.toLowerCase().includes(busquedaModelo.toLowerCase());
-    return coincideMarca && coincideModelo;
-  });
+ const vehiculosFiltrados = vehiculos.filter((v) => {
+  const marcaFiltro = busquedaMarca.toLowerCase().trim();
+  const modeloFiltro = busquedaModelo.toLowerCase().trim();
+
+  // Obtener texto de marca y nombre de forma segura evitando undefined
+  const marcaVehiculo = (v.marca || '').toLowerCase();
+  const nombreVehiculo = (v.nombre || '').toLowerCase();
+  const modeloVehiculo = (v.modelo || '').toLowerCase();
+
+  // Coincide la marca si está vacía, o si la marca/nombre contiene el texto buscado
+  const coincideMarca = 
+    busquedaMarca === '' || 
+    busquedaMarca === 'Todas las Marcas' || 
+    marcaVehiculo.includes(marcaFiltro) || 
+    nombreVehiculo.includes(marcaFiltro);
+
+  // Coincide el modelo si está vacío, o si el modelo/nombre contiene el texto buscado
+  const coincideModelo = 
+    busquedaModelo === '' || 
+    modeloVehiculo.includes(modeloFiltro) || 
+    nombreVehiculo.includes(modeloFiltro);
+
+  return coincideMarca && coincideModelo;
+});
 
   const toggleFaq = (index) => {
     setFaqAbierta(faqAbierta === index ? null : index);

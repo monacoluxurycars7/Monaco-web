@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Head from 'next/head';
 import emailjs from '@emailjs/browser';
 import { db } from '../lib/firebase';
-import { collection, addDoc, onSnapshot, getDocs } from 'firebase/firestore';
+import { collection, addDoc, onSnapshot } from 'firebase/firestore';
 
 
 
@@ -261,99 +261,10 @@ export default function Home() {
     if (!direccionRD.trim()) { alert('Por favor ingresa tu dirección de residencia en RD.'); return; }
     if (!aceptaContrato) { alert('Debes aceptar el contrato.'); return; }
     if (!tieneFirma) { alert('Debes firmar digitalmente.'); return; }
-
-    // ==========================================
-    // 🛑 1. VALIDACIÓN INMEDIATA DE LISTA NEGRA
-    // ==========================================
-    try {
-      const querySnapshot = await getDocs(collection(db, 'clientes'));
-      const cedulaInput = String(
-        typeof documentoCliente !== 'undefined' ? documentoCliente :
-        typeof cedula !== 'undefined' ? cedula :
-        typeof documento !== 'undefined' ? documento : ''
-      ).trim();
-
-      console.log("🔍 VALIDANDO CÉDULA:", cedulaInput);
-
-      if (cedulaInput) {
-        for (const docSnap of querySnapshot.docs) {
-          const cData = docSnap.data();
-          const estaEnNegra = 
-            cData.listaNegra === true || cData.listaNegra === "true" || 
-            cData.enListaNegra === true || cData.enListaNegra === "true" ||
-            cData.blacklist === true || cData.blacklist === "true";
-
-          if (estaEnNegra) {
-            const dbCed = cData.cedula ? String(cData.cedula).trim() : '';
-            const dbPas = cData.cedulaPasaporte ? String(cData.cedulaPasaporte).trim() : '';
-            const dbDoc = cData.documento ? String(cData.documento).trim() : '';
-
-            if (dbCed === cedulaInput || dbPas === cedulaInput || dbDoc === cedulaInput || docSnap.id.trim() === cedulaInput) {
-              console.error("⛔ CLIENTE EN LISTA NEGRA. BLOQUEANDO.");
-              alert('⚠️ ACCESO DENEGADO: Este número de documento se encuentra en la LISTA NEGRA. No se puede procesar la reserva.');
-              setEnviando(false);
-              return; // ⛔ Esto frena todo y evita que se guarde o envíe el correo
-            }
-          }
-        }
-      }
-    } catch (err) {
-      console.error("Error en validación de lista negra:", err);
-    }
-
-    // ==========================================
-    // 🚀 2. TU CÓDIGO ORIGINAL (Firebase / EmailJS)
-    // ==========================================
+    
     setEnviando(true);
+
     try {
-      const firmaUrl = canvasRef.current.toDataURL('image/png');
-      
-      await addDoc(collection(db, 'reservas'), {
-        vehiculoId: vehiculoSeleccionado.id,
-        vehiculoNombre: vehiculoSeleccionado.nombre,
-        inicio: fechaInicio,
-        fin: fechaFin,
-        nombre,
-        email,
-        telefono,
-        direccionRD,
-        documentoCliente,
-        firmaUrl,
-        estado: 'pendiente',
-        createdAt: new Date()
-      });
-
-      await emailjs.send(
-        process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID,
-        process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID,
-        {
-          to_name: "Administrador",
-          from_name: nombre,
-          vehiculo: vehiculoSeleccionado.nombre,
-          inicio: fechaInicio,
-          fin: fechaFin,
-          email: email,
-          telefono: telefono,
-          direccion: direccionRD,
-          documento: documentoCliente
-        },
-        process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY
-      );
-
-      alert('¡Reserva realizada con éxito! Nos pondremos en contacto contigo.');
-      setVehiculoSeleccionado(null);
-
-    } catch (error) {
-      console.error("Error al procesar la reserva:", error);
-      alert('Hubo un error al procesar la reserva. Inténtalo de nuevo.');
-    } finally {
-      setEnviando(false);
-    }
-  };
-    // 2. SI NO ESTÁ BLOQUEADO, PROCEDE A GUARDAR
-    setEnviando(true);
-    try {
-      // ... (el resto de tu código de guardar y enviar correo que ya tienes abajo)
       const firmaUrl = canvasRef.current.toDataURL('image/png');
 
       await addDoc(collection(db, 'reservas'), {

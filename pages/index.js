@@ -262,36 +262,39 @@ export default function Home() {
     if (!aceptaContrato) { alert('Debes aceptar el contrato.'); return; }
     if (!tieneFirma) { alert('Debes firmar digitalmente.'); return; }
 
-   // 1. VALIDACIÓN DE LISTA NEGRA
+   // 1. VALIDACIÓN DE LISTA NEGRA (Únicamente por Número de Documento)
     try {
       const querySnapshot = await getDocs(collection(db, 'clientes'));
       let estaBloqueado = false;
-      
-      querySnapshot.forEach((doc) => {
-        const cData = doc.data();
-        const estaEnNegra = cData.listaNegra === true || cData.enListaNegra === true;
 
-        if (estaEnNegra) {
-          if (
-            (cData.cedula && cData.cedula === documentoCliente) ||
-            (cData.cedulaPasaporte && cData.cedulaPasaporte === documentoCliente) ||
-            (cData.telefono && cData.telefono === telefono) ||
-            (cData.email && cData.email === email)
-          ) {
-            estaBloqueado = true;
+      // Obtén el valor del documento escrito en tu formulario (ajusta el nombre de la variable si es diferente en tu código)
+      const cedulaInput = typeof documentoCliente !== 'undefined' ? documentoCliente : '';
+
+      if (cedulaInput) {
+        querySnapshot.forEach((docSnap) => {
+          const cData = docSnap.data();
+          const estaEnNegra = cData.listaNegra === true || cData.enListaNegra === true;
+
+          if (estaEnNegra) {
+            // Compara únicamente con las cédulas o pasaportes registrados en la base de datos de clientes
+            if (
+              (cData.cedula && cData.cedula.trim() === cedulaInput.trim()) ||
+              (cData.cedulaPasaporte && cData.cedulaPasaporte.trim() === cedulaInput.trim())
+            ) {
+              estaBloqueado = true;
+            }
           }
-        }
-      });
+        });
+      }
 
       if (estaBloqueado) {
-        alert('Lo sentimos, no es posible procesar su reserva en este momento. Por favor contacte con soporte.');
-        setEnviando(false); // Detenemos el estado de carga
-        return; // <--- ESTE RETURN ES VITAL PARA QUE SE DETENGA AQUÍ Y NO GUARDE NADA
+        alert('⚠️ ACCESO DENEGADO: El número de documento ingresado se encuentra en la LISTA NEGRA. No se puede procesar la reserva.');
+        setEnviando(false);
+        return; // Detiene la función por completo y evita que se guarde la reserva
       }
     } catch (error) {
       console.error('Error al verificar lista negra:', error);
     }
-
     // 2. SI NO ESTÁ BLOQUEADO, PROCEDE A GUARDAR
     setEnviando(true);
     try {

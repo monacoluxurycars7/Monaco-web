@@ -262,30 +262,36 @@ export default function Home() {
     if (!aceptaContrato) { alert('Debes aceptar el contrato.'); return; }
     if (!tieneFirma) { alert('Debes firmar digitalmente.'); return; }
 
-    // 1. VALIDACIÓN DE LISTA NEGRA PARA EL CLIENTE WEB
-    try {
-      const q = query(collection(db, 'clientes'), where('listaNegra', '==', true));
-      const querySnapshot = await getDocs(q);
+   // VALIDACIÓN DE LISTA NEGRA (Colección: clientes)
+  try {
+    const querySnapshot = await getDocs(collection(db, 'clientes'));
+    let estaBloqueado = false;
+
+    querySnapshot.forEach((doc) => {
+      const cData = doc.data();
+      // Verificamos si está marcado en lista negra y si coincide la cédula o el teléfono
+      const esListaNegra = cData.listaNegra === true || cData.enListaNegra === true; 
       
-      let estaBloqueado = false;
-      querySnapshot.forEach((doc) => {
-        const cData = doc.data();
+      if (esListaNegra) {
         if (
           (cData.cedula && cData.cedula === documentoCliente) ||
-          (cData.email && cData.email === email) ||
-          (cData.telefono && cData.telefono === telefono)
+          (cData.cedulaPasaporte && cData.cedulaPasaporte === documentoCliente) ||
+          (cData.telefono && cData.telefono === telefono) ||
+          (cData.email && cData.email === email)
         ) {
           estaBloqueado = true;
         }
-      });
-
-      if (estaBloqueado) {
-        alert('Lo sentimos, no es posible procesar su reserva en este momento. Por favor contacte con soporte.');
-        return; // Impide que avance
       }
-    } catch (error) {
-      console.error('Error al verificar lista negra:', error);
+    });
+
+    if (estaBloqueado) {
+      alert('Lo sentimos, no es posible procesar su reserva en este momento. Por favor contacte con soporte.');
+      setEnviando(false);
+      return; // Detiene la reserva por completo
     }
+  } catch (error) {
+    console.error('Error al verificar lista negra:', error);
+  }
     
     setEnviando(true);
 

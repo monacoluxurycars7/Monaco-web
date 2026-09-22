@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
 import { initializeApp, getApps } from 'firebase/app';
 import { getFirestore, collection, getDocs, addDoc, doc, updateDoc, query, where } from 'firebase/firestore';
 
@@ -28,6 +27,11 @@ export default function MantenimientoVehiculos() {
   const [kilometrajeMomento, setKilometrajeMomento] = useState('');
   const [fecha, setFecha] = useState(new Date().toISOString().split('T')[0]);
 
+  // Fechas del vehículo seleccionado (Seguro y Marbete)
+  const [vencimientoSeguro, setVencimientoSeguro] = useState('');
+  const [vencimientoMarbete, setVencimientoMarbete] = useState('');
+  const [kilometrajeActual, setKilometrajeActual] = useState('');
+
   useEffect(() => {
     cargarVehiculos();
   }, []);
@@ -47,6 +51,10 @@ export default function MantenimientoVehiculos() {
 
   const seleccionarVehiculo = async (vehiculo) => {
     setVehiculoSeleccionado(vehiculo);
+    setVencimientoSeguro(vehiculo.vencimientoSeguro || '');
+    setVencimientoMarbete(vehiculo.vencimientoMarbete || '');
+    setKilometrajeActual(vehiculo.kilometrajeActual || '');
+
     try {
       const q = query(collection(db, 'mantenimientos'), where('vehiculoId', '==', vehiculo.id));
       const snap = await getDocs(q);
@@ -54,6 +62,24 @@ export default function MantenimientoVehiculos() {
       setHistorialGastos(gastos);
     } catch (error) {
       console.error("Error cargando gastos:", error);
+    }
+  };
+
+  const actualizarFechasVehiculo = async (e) => {
+    e.preventDefault();
+    if (!vehiculoSeleccionado) return;
+
+    try {
+      await updateDoc(doc(db, 'vehiculos', vehiculoSeleccionado.id), {
+        vencimientoSeguro,
+        vencimientoMarbete,
+        kilometrajeActual: Number(kilometrajeActual)
+      });
+      alert('¡Fechas y kilometraje actualizados correctamente!');
+      cargarVehiculos();
+    } catch (error) {
+      console.error("Error al actualizar vehículo:", error);
+      alert('Hubo un error al actualizar los datos del vehículo.');
     }
   };
 
@@ -75,14 +101,14 @@ export default function MantenimientoVehiculos() {
 
       await addDoc(collection(db, 'mantenimientos'), nuevoGasto);
 
-      // Si el usuario actualizó el kilometraje en el mantenimiento, actualizar el vehículo
       if (kilometrajeMomento) {
         await updateDoc(doc(db, 'vehiculos', vehiculoSeleccionado.id), {
           kilometrajeActual: Number(kilometrajeMomento)
         });
+        setKilometrajeActual(kilometrajeMomento);
       }
 
-      alert('¡Gasto/Mantenimiento registrado con éxito!');
+      alert('¡Gasto o mantenimiento registrado con éxito!');
       setDescripcion('');
       setCosto('');
       setKilometrajeMomento('');
@@ -93,127 +119,202 @@ export default function MantenimientoVehiculos() {
     }
   };
 
-  if (cargando) return <div style={{ padding: '40px', color: '#fff', backgroundColor: '#0a0a0a', minHeight: '100vh' }}>Cargando módulo de mantenimiento...</div>;
+  // Función para verificar alertas (días restantes para vencer)
+  const verificarAlertaFecha = (fechaStr) => {
+    if (!fechaStr) return { estado: 'ok', texto: 'No configurado' };
+    const hoy = new Date();
+    const vencimiento = new Date(fechaStr);
+    const diferenciaDias = Math.ceil((vencimiento - hoy) / (1000 * 60 * 60 * 24));
+
+    if (diferenciaDias < 0) return { estado: 'vencido', texto: '¡VENCIDO!' };
+    if (diferenciaDias <= 15) return { estado: 'proximo', texto: `Vence en ${diferenciaDias} días` };
+    return { estado: 'ok', texto: `Vence en ${diferenciaDias} días` };
+  };
+
+  if (cargando) return <div style={{ padding: '40px', color: '#fff', backgroundColor: '#0a0a0a', minHeight: '100vh' }}>Cargando módulo...</div>;
 
   return (
     <div style={{ backgroundColor: '#0a0a0a', minHeight: '100vh', color: '#fff', padding: '30px', fontFamily: 'sans-serif' }}>
-      <h1>🛠️ Control de Mantenimiento y Gastos por Vehículo</h1>
+      <h1>🛠️ Mantenimiento y Control de Gastos por Vehículo</h1>
       
       {/* Selector de Vehículos */}
       <div style={{ display: 'flex', gap: '15px', margin: '20px 0', overflowX: 'auto' }}>
-        {vehiculos.map(v => (
-          <button
-            key={v.id}
-            onClick={() => seleccionarVehiculo(v)}
-            style={{
-              padding: '12px 20px',
-              backgroundColor: vehiculoSeleccionado?.id === v.id ? '#D4AF37' : '#1a1a1a',
-              color: vehiculoSeleccionado?.id === v.id ? '#000' : '#fff',
-              border: '1px solid #333',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              fontWeight: 'bold',
-              whiteSpace: 'nowrap'
-            }}
-          >
-            {v.nombre || v.modelo || 'Vehículo sin nombre'}
-          </button>
-        ))}
+        {vehiculos.map(v => {
+          const alertaSeguro = verificarAlertaFecha(v.vencimientoSeguro);
+          const alertaMarbete = verificarAlertaFecha(v.vencimientoMarbete);
+          const tieneAlerta = alertaSeguro.estado === 'vencido' || alertaSeguro.estado === 'proximo' || alertaMarbete.estado === 'vencido' || alertaMarbete.estado === 'proximo';
+
+          return (
+            <button
+              key={v.id}
+              onClick={() => seleccionarVehiculo(v)}
+              style={{
+                padding: '12px 20px',
+                backgroundColor: vehiculoSeleccionado?.id === v.id ? '#D4AF37' : '#1a1a1a',
+                color: vehiculoSeleccionado?.id === v.id ? '#000' : '#fff',
+                border: tieneAlerta ? '2px solid #ff4d4d' : '1px solid #333',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontWeight: 'bold',
+                whiteSpace: 'nowrap',
+                position: 'relative'
+              }}
+            >
+              {v.nombre || v.modelo || 'Vehículo'} {tieneAlerta && '⚠️'}
+            </button>
+          );
+        })}
       </div>
 
       {vehiculoSeleccionado && (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px', marginTop: '20px' }}>
           
-          {/* Formulario de Registro */}
-          <div style={{ backgroundColor: '#141414', padding: '25px', borderRadius: '12px', border: '1px solid #222' }}>
-            <h3>Registrar Nuevo Gasto o Mantenimiento</h3>
-            <form onSubmit={registrarGasto} style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '15px' }}>
-              <div>
-                <label style={{ display: 'block', fontSize: '13px', color: '#aaa', marginBottom: '5px' }}>Tipo de Registro</label>
-                <select 
-                  value={tipo} 
-                  onChange={e => setTipo(e.target.value)}
-                  style={{ width: '100%', padding: '10px', backgroundColor: '#222', color: '#fff', border: '1px solid #441', borderRadius: '6px' }}
-                >
-                  <option value="Mantenimiento (Aceite/Frenos)">Cambio de Aceite / Frenos / Neumáticos</option>
-                  <option value="Seguro">Pago de Seguro</option>
-                  <option value="Marbete/Placa">Marbete / Impuesto Vehicular</option>
-                  <option value="Reparación Mecánica">Reparación Mecánica / Taller</option>
-                  <option value="Estética/Detallado">Estética / Lavado Premium</option>
-                </select>
-              </div>
-
-              <div>
-                <label style={{ display: 'block', fontSize: '13px', color: '#aaa', marginBottom: '5px' }}>Descripción / Detalle</label>
-                <input 
-                  type="text" 
-                  placeholder="Ej. Cambio de pastillas de freno delanteras"
-                  value={descripcion}
-                  onChange={e => setDescripcion(e.target.value)}
-                  required
-                  style={{ width: '100%', padding: '10px', backgroundColor: '#222', color: '#fff', border: '1px solid #441', borderRadius: '6px' }}
-                />
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '13px', color: '#aaa', marginBottom: '5px' }}>Costo (USD)</label>
-                  <input 
-                    type="number" 
-                    placeholder="0.00"
-                    value={costo}
-                    onChange={e => setCosto(e.target.value)}
-                    required
-                    style={{ width: '100%', padding: '10px', backgroundColor: '#222', color: '#fff', border: '1px solid #441', borderRadius: '6px' }}
-                  />
+          {/* Columna Izquierda: Configuración de Documentos y Formulario de Gastos */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            
+            {/* Panel de Vencimientos y Alertas */}
+            <div style={{ backgroundColor: '#141414', padding: '20px', borderRadius: '12px', border: '1px solid #222' }}>
+              <h3>🚨 Estado y Vencimientos</h3>
+              <form onSubmit={actualizarFechasVehiculo} style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '10px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '12px', color: '#aaa', marginBottom: '4px' }}>Vencimiento Seguro</label>
+                    <input 
+                      type="date" 
+                      value={vencimientoSeguro}
+                      onChange={e => setVencimientoSeguro(e.target.value)}
+                      style={{ width: '100%', padding: '8px', backgroundColor: '#222', color: '#fff', border: '1px solid #441', borderRadius: '6px' }}
+                    />
+                    <small style={{ color: verificarAlertaFecha(vencimientoSeguro).estado === 'vencido' ? '#ff4d4d' : '#aaa' }}>
+                      {verificarAlertaFecha(vencimientoSeguro).texto}
+                    </small>
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '12px', color: '#aaa', marginBottom: '4px' }}>Vencimiento Marbete</label>
+                    <input 
+                      type="date" 
+                      value={vencimientoMarbete}
+                      onChange={e => setVencimientoMarbete(e.target.value)}
+                      style={{ width: '100%', padding: '8px', backgroundColor: '#222', color: '#fff', border: '1px solid #441', borderRadius: '6px' }}
+                    />
+                    <small style={{ color: verificarAlertaFecha(vencimientoMarbete).estado === 'vencido' ? '#ff4d4d' : '#aaa' }}>
+                      {verificarAlertaFecha(vencimientoMarbete).texto}
+                    </small>
+                  </div>
                 </div>
+
                 <div>
-                  <label style={{ display: 'block', fontSize: '13px', color: '#aaa', marginBottom: '5px' }}>Kilometraje Actual (opcional)</label>
+                  <label style={{ display: 'block', fontSize: '12px', color: '#aaa', marginBottom: '4px' }}>Kilometraje Actual</label>
                   <input 
                     type="number" 
+                    value={kilometrajeActual}
+                    onChange={e => setKilometrajeActual(e.target.value)}
                     placeholder="Ej. 45000"
-                    value={kilometrajeMomento}
-                    onChange={e => setKilometrajeMomento(e.target.value)}
-                    style={{ width: '100%', padding: '10px', backgroundColor: '#222', color: '#fff', border: '1px solid #441', borderRadius: '6px' }}
+                    style={{ width: '100%', padding: '8px', backgroundColor: '#222', color: '#fff', border: '1px solid #441', borderRadius: '6px' }}
                   />
                 </div>
-              </div>
 
-              <div>
-                <label style={{ display: 'block', fontSize: '13px', color: '#aaa', marginBottom: '5px' }}>Fecha</label>
-                <input 
-                  type="date" 
-                  value={fecha}
-                  onChange={e => setFecha(e.target.value)}
-                  required
-                  style={{ width: '100%', padding: '10px', backgroundColor: '#222', color: '#fff', border: '1px solid #441', borderRadius: '6px' }}
-                />
-              </div>
+                <button 
+                  type="submit"
+                  style={{ backgroundColor: '#333', color: '#fff', padding: '8px', border: '1px solid #555', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
+                >
+                  Actualizar Datos del Vehículo
+                </button>
+              </form>
+            </div>
 
-              <button 
-                type="submit"
-                style={{ backgroundColor: '#D4AF37', color: '#000', padding: '12px', fontWeight: 'bold', border: 'none', borderRadius: '6px', cursor: 'pointer', marginTop: '10px' }}
-              >
-                Guardar Gasto
-              </button>
-            </form>
+            {/* Formulario de Registro de Gastos */}
+            <div style={{ backgroundColor: '#141414', padding: '20px', borderRadius: '12px', border: '1px solid #222' }}>
+              <h3>Registrar Gasto o Mantenimiento</h3>
+              <form onSubmit={registrarGasto} style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '10px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', color: '#aaa', marginBottom: '4px' }}>Tipo</label>
+                  <select 
+                    value={tipo} 
+                    onChange={e => setTipo(e.target.value)}
+                    style={{ width: '100%', padding: '8px', backgroundColor: '#222', color: '#fff', border: '1px solid #441', borderRadius: '6px' }}
+                  >
+                    <option value="Mantenimiento (Aceite/Frenos)">Cambio de Aceite / Frenos / Neumáticos</option>
+                    <option value="Seguro">Pago de Seguro</option>
+                    <option value="Marbete/Placa">Marbete / Impuesto Vehicular</option>
+                    <option value="Reparación Mecánica">Reparación Mecánica / Taller</option>
+                    <option value="Estética/Detallado">Estética / Lavado Premium</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', color: '#aaa', marginBottom: '4px' }}>Descripción</label>
+                  <input 
+                    type="text" 
+                    placeholder="Ej. Cambio de pastillas de freno"
+                    value={descripcion}
+                    onChange={e => setDescripcion(e.target.value)}
+                    required
+                    style={{ width: '100%', padding: '8px', backgroundColor: '#222', color: '#fff', border: '1px solid #441', borderRadius: '6px' }}
+                  />
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '12px', color: '#aaa', marginBottom: '4px' }}>Costo (USD)</label>
+                    <input 
+                      type="number" 
+                      placeholder="0.00"
+                      value={costo}
+                      onChange={e => setCosto(e.target.value)}
+                      required
+                      style={{ width: '100%', padding: '8px', backgroundColor: '#222', color: '#fff', border: '1px solid #441', borderRadius: '6px' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '12px', color: '#aaa', marginBottom: '4px' }}>Km al momento</label>
+                    <input 
+                      type="number" 
+                      placeholder="Ej. 45000"
+                      value={kilometrajeMomento}
+                      onChange={e => setKilometrajeMomento(e.target.value)}
+                      style={{ width: '100%', padding: '8px', backgroundColor: '#222', color: '#fff', border: '1px solid #441', borderRadius: '6px' }}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', color: '#aaa', marginBottom: '4px' }}>Fecha</label>
+                  <input 
+                    type="date" 
+                    value={fecha}
+                    onChange={e => setFecha(e.target.value)}
+                    required
+                    style={{ width: '100%', padding: '8px', backgroundColor: '#222', color: '#fff', border: '1px solid #441', borderRadius: '6px' }}
+                  />
+                </div>
+
+                <button 
+                  type="submit"
+                  style={{ backgroundColor: '#D4AF37', color: '#000', padding: '10px', fontWeight: 'bold', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
+                >
+                  Guardar Gasto
+                </button>
+              </form>
+            </div>
+
           </div>
 
-          {/* Historial de Gastos del Vehículo */}
-          <div style={{ backgroundColor: '#141414', padding: '25px', borderRadius: '12px', border: '1px solid #222' }}>
+          {/* Columna Derecha: Historial de Gastos */}
+          <div style={{ backgroundColor: '#141414', padding: '20px', borderRadius: '12px', border: '1px solid #222' }}>
             <h3>Historial de Costos - {vehiculoSeleccionado.nombre || vehiculoSeleccionado.modelo}</h3>
-            <div style={{ marginTop: '15px', maxHeight: '400px', overflowY: 'auto' }}>
+            <div style={{ marginTop: '15px', maxHeight: '550px', overflowY: 'auto' }}>
               {historialGastos.length === 0 ? (
                 <p style={{ color: '#666', fontStyle: 'italic' }}>No hay registros de gastos para este vehículo.</p>
               ) : (
                 historialGastos.map(g => (
-                  <div key={g.id} style={{ padding: '12px', borderBottom: '1px solid #222', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div key={g.id} style={{ padding: '10px 0', borderBottom: '1px solid #222', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
                       <strong style={{ color: '#D4AF37' }}>{g.tipo}</strong>
                       <p style={{ margin: '4px 0', fontSize: '14px', color: '#ccc' }}>{g.descripcion}</p>
-                      <small style={{ color: '#666' }}>Fecha: {g.fecha} {g.kilometrajeMomento ? `• ${g.kilometrajeMomento} km` : ''}</small>
+                      <small style={{ color: '#777' }}>Fecha: {g.fecha} {g.kilometrajeMomento ? `• ${g.kilometrajeMomento} km` : ''}</small>
                     </div>
-                    <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#ff6b6b' }}>
+                    <div style={{ fontSize: '15px', fontWeight: 'bold', color: '#ff6b6b' }}>
                       -${g.costo} USD
                     </div>
                   </div>

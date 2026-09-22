@@ -262,39 +262,38 @@ export default function Home() {
     if (!aceptaContrato) { alert('Debes aceptar el contrato.'); return; }
     if (!tieneFirma) { alert('Debes firmar digitalmente.'); return; }
 
-   // VALIDACIÓN DE LISTA NEGRA (Colección: clientes)
-  try {
-    const querySnapshot = await getDocs(collection(db, 'clientes'));
-    let estaBloqueado = false;
-
-    querySnapshot.forEach((doc) => {
-      const cData = doc.data();
-      // Verificamos si está marcado en lista negra y si coincide la cédula o el teléfono
-      const esListaNegra = cData.listaNegra === true || cData.enListaNegra === true; 
+   // 1. VALIDACIÓN DE LISTA NEGRA
+    try {
+      const querySnapshot = await getDocs(collection(db, 'clientes'));
+      let estaBloqueado = false;
       
-      if (esListaNegra) {
-        if (
-          (cData.cedula && cData.cedula === documentoCliente) ||
-          (cData.cedulaPasaporte && cData.cedulaPasaporte === documentoCliente) ||
-          (cData.telefono && cData.telefono === telefono) ||
-          (cData.email && cData.email === email)
-        ) {
-          estaBloqueado = true;
+      querySnapshot.forEach((doc) => {
+        const cData = doc.data();
+        const estaEnNegra = cData.listaNegra === true || cData.enListaNegra === true;
+
+        if (estaEnNegra) {
+          if (
+            (cData.cedula && cData.cedula === documentoCliente) ||
+            (cData.cedulaPasaporte && cData.cedulaPasaporte === documentoCliente) ||
+            (cData.telefono && cData.telefono === telefono) ||
+            (cData.email && cData.email === email)
+          ) {
+            estaBloqueado = true;
+          }
         }
+      });
+
+      if (estaBloqueado) {
+        alert('Lo sentimos, no es posible procesar su reserva en este momento. Por favor contacte con soporte.');
+        setEnviando(false); // Detenemos el estado de carga
+        return; // <--- ESTE RETURN ES VITAL PARA QUE SE DETENGA AQUÍ Y NO GUARDE NADA
       }
-    });
-
-    if (estaBloqueado) {
-      alert('Lo sentimos, no es posible procesar su reserva en este momento. Por favor contacte con soporte.');
-      setEnviando(false);
-      return; // Detiene la reserva por completo
+    } catch (error) {
+      console.error('Error al verificar lista negra:', error);
     }
-  } catch (error) {
-    console.error('Error al verificar lista negra:', error);
-  }
-    
-    setEnviando(true);
 
+    // 2. SI NO ESTÁ BLOQUEADO, PROCEDE A GUARDAR
+    setEnviando(true);
     try {
       const firmaUrl = canvasRef.current.toDataURL('image/png');
 

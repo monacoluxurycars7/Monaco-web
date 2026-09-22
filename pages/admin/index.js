@@ -117,6 +117,12 @@ export default function AdminDashboard() {
     >
       📅 Calendario
     </button>
+        <button 
+  onClick={() => router.push('/admin/clientes')}
+  style={{ padding: '8px 16px', backgroundColor: '#181818', color: '#fff', border: '1px solid #333', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
+>
+  👥 Clientes
+</button>
             <button 
               onClick={() => router.push('/admin/nueva-reserva')}
               style={{ padding: '8px 16px', backgroundColor: '#d4af37', color: '#000', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}

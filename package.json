@@ -9,6 +9,10 @@
   },
   "dependencies": {
     "@emailjs/browser": "^3.12.0",
+    "@fullcalendar/react": "^6.1.11",
+    "@fullcalendar/daygrid": "^6.1.11",
+    "@fullcalendar/timegrid": "^6.1.11",
+    "@fullcalendar/interaction": "^6.1.11",
     "firebase": "^10.8.0",
     "next": "14.1.0",
     "react": "^18.2.0",

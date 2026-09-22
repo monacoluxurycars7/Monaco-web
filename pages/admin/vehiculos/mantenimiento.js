@@ -133,9 +133,19 @@ export default function MantenimientoVehiculos() {
 
   if (cargando) return <div style={{ padding: '40px', color: '#fff', backgroundColor: '#0a0a0a', minHeight: '100vh' }}>Cargando módulo...</div>;
 
-  return (
+ return (
     <div style={{ backgroundColor: '#0a0a0a', minHeight: '100vh', color: '#fff', padding: '30px', fontFamily: 'sans-serif' }}>
-      <h1>🛠️ Mantenimiento y Control de Gastos por Vehículo</h1>
+      
+      {/* ENCABEZADO CON BOTÓN DE REGRESO */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '1px solid #333', paddingBottom: '15px' }}>
+        <h1 style={{ fontSize: '22px', margin: '0' }}>🛠️ Mantenimiento y Control de Gastos por Vehículo</h1>
+        <a 
+          href="/admin/vehiculos" 
+          style={{ padding: '8px 14px', backgroundColor: '#222', color: '#ccc', textDecoration: 'none', borderRadius: '4px', border: '1px solid #444', fontSize: '13px', fontWeight: 'bold' }}
+        >
+          ← Volver a Flota
+        </a>
+      </div>
       
       {/* Selector de Vehículos */}
       <div style={{ display: 'flex', gap: '15px', margin: '20px 0', overflowX: 'auto' }}>

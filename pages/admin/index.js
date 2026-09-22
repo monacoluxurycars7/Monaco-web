@@ -1,19 +1,28 @@
-<div style={{ display: 'flex', gap: '10px' }}>
-  <button 
-    onClick={() => router.push('/admin/vehiculos')}
-    style={{ padding: '8px 16px', backgroundColor: '#222', color: '#d4af37', border: '1px solid #d4af37', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
+<div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+  <a 
+    href="/admin/vehiculos" 
+    style={{ backgroundColor: '#333', color: '#fff', padding: '8px 14px', borderRadius: '6px', textDecoration: 'none', fontSize: '13px', fontWeight: 'bold' }}
   >
     🚘 Gestionar Flota
-  </button>
+  </a>
+
+  <a 
+    href="/admin/dashboard" 
+    style={{ backgroundColor: '#111', color: '#d4af37', border: '1px solid #d4af37', padding: '8px 14px', borderRadius: '6px', textDecoration: 'none', fontSize: '13px', fontWeight: 'bold' }}
+  >
+    📊 Métricas
+  </a>
+
   <button 
-    onClick={() => router.push('/admin/nueva-reserva')}
-    style={{ padding: '8px 16px', backgroundColor: '#d4af37', color: '#000', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
+    onClick={() => setMostrarModalNueva(true)} 
+    style={{ backgroundColor: '#d4af37', color: '#000', border: 'none', padding: '8px 14px', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}
   >
     + Nueva Reserva Manual
   </button>
+
   <button 
-    onClick={() => signOut(getAuth(app))}
-    style={{ padding: '8px 16px', backgroundColor: '#e53935', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
+    onClick={cerrarSesion} 
+    style={{ backgroundColor: '#ef4444', color: '#fff', border: 'none', padding: '8px 14px', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}
   >
     Cerrar Sesión
   </button>

@@ -262,7 +262,10 @@ export default function Home() {
     if (!aceptaContrato) { alert('Debes aceptar el contrato.'); return; }
     if (!tieneFirma) { alert('Debes firmar digitalmente.'); return; }
 
-   // 1. VALIDACIÓN DEFINITIVA DE LISTA NEGRA
+   const handleSubmitReserva = async (e) => {
+    e.preventDefault();
+    
+    // VALIDACIÓN INMEDIATA DE LISTA NEGRA
     try {
       const querySnapshot = await getDocs(collection(db, 'clientes'));
       const cedulaInput = String(
@@ -271,41 +274,33 @@ export default function Home() {
         typeof documento !== 'undefined' ? documento : ''
       ).trim();
 
+      console.log("🔍 VALIDANDO CÉDULA:", cedulaInput);
+
       if (cedulaInput) {
-        let estaBloqueado = false;
-
-        querySnapshot.forEach((docSnap) => {
+        for (const docSnap of querySnapshot.docs) {
           const cData = docSnap.data();
-          const enLista = 
+          const estaEnNegra = 
             cData.listaNegra === true || cData.listaNegra === "true" || 
-            cData.enListaNegra === true || cData.enListaNegra === "true";
+            cData.enListaNegra === true || cData.enListaNegra === "true" ||
+            cData.blacklist === true || cData.blacklist === "true";
 
-          if (enLista) {
-            const dbCedula = cData.cedula ? String(cData.cedula).trim() : '';
-            const dbPasaporte = cData.cedulaPasaporte ? String(cData.cedulaPasaporte).trim() : '';
+          if (estaEnNegra) {
+            const dbCed = cData.cedula ? String(cData.cedula).trim() : '';
+            const dbPas = cData.cedulaPasaporte ? String(cData.cedulaPasaporte).trim() : '';
             const dbDoc = cData.documento ? String(cData.documento).trim() : '';
 
-            if (
-              dbCedula === cedulaInput || 
-              dbPasaporte === cedulaInput || 
-              dbDoc === cedulaInput || 
-              docSnap.id.trim() === cedulaInput
-            ) {
-              estaBloqueado = true;
+            if (dbCed === cedulaInput || dbPas === cedulaInput || dbDoc === cedulaInput || docSnap.id.trim() === cedulaInput) {
+              console.error("⛔ CLIENTE EN LISTA NEGRA. BLOQUEANDO.");
+              alert('⚠️ ACCESO DENEGADO: Este número de documento se encuentra en la LISTA NEGRA. No se puede procesar la reserva.');
+              setEnviando(false);
+              return; // Frena el código aquí mismo y no guarda nada
             }
           }
-        });
-
-        if (estaBloqueado) {
-          alert('⚠️ ACCESO DENEGADO: Este número de documento se encuentra en la LISTA NEGRA. No se puede procesar la reserva.');
-          setEnviando(false);
-          return; // Detiene la ejecución aquí mismo por completo
         }
       }
-    } catch (error) {
-      console.error('Error al verificar lista negra:', error);
+    } catch (err) {
+      console.error("Error en validación:", err);
     }
-
     // 2. SI NO ESTÁ BLOQUEADO, PROCEDE A GUARDAR
     setEnviando(true);
     try {

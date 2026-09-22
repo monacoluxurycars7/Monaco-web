@@ -107,7 +107,7 @@ export default function AdminDashboard() {
             </button>
             <button 
               onClick={() => router.push('/admin/dashboard')}
-              style={{ padding: '8px 16px', backgroundColor: '#181818', color: '#d4af37', border: '1px solid #d4af37', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
+              style={{ padding: '8px 16px', backgroundColor: '#ffffff', color: '#000000', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
             >
               📊 Métricas
             </button>

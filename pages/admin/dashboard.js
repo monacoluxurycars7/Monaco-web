@@ -110,6 +110,7 @@ export default function AdminDashboard() {
   <a href="/admin/vehiculos" style={{ color: '#ccc', textDecoration: 'none', fontSize: '13px' }}>🚗 Flota de Vehículos</a>
   <a href="/admin/dashboard" style={{ color: '#ccc', textDecoration: 'none', fontSize: '13px' }}>📊 Métricas</a>
   <a href="/admin/calendario" style={{ color: '#d4af37', textDecoration: 'none', fontSize: '13px', fontWeight: 'bold' }}>📅 Calendario</a>
+  <a href="/admin/clientes" style={{ color: '#ccc', textDecoration: 'none', fontSize: '13px' }}>👥 Clientes</a>
 </nav>
 
       {/* CONTENIDO PRINCIPAL */}

@@ -35,7 +35,7 @@ MODALIDAD: Aceptación / Términos y Condiciones de Servicio
 3.1. Seguro Básico de Tránsito: Todos los vehículos incluyen un seguro de tránsito obligatorio únicamente para circular legalmente. Este seguro no cubre daños físicos ni pérdidas materiales en caso de accidente.
 3.2. Depósito de Garantía: Salvo que se adquiera la cobertura completa, el CLIENTE debe dejar un depósito de garantía de USD $400.00.
 3.3. Responsabilidad por Daños: Si el vehículo sufre daños o accidentes y el CLIENTE no cuenta con seguro full, el CLIENTE se hace totalmente responsable por los costos de reparación. Si el monto de los daños supera los USD $400.00 del depósito, el CLIENTE está obligado a pagar la diferencia restante.
-3.4. Seguro Full (Cobertura Total Exclusiva): Si el CLIENTE contrata la opción de Seguro Full directamente con MONACO LUXURY RENT A CAR: queda totalmente exonerado del depósito de garantía de USD $400.00, y en caso de accidente o siniestro, el CLIENTE solo responderá por el pago del monto correspondiente al deducible del seguro.
+3.4. Seguro Full (Cobertura Total Exclusiva): Si el CLIENTE contrata la opción de Seguro Full directamente con MONACO LUXURY RENT A CAR: en caso de accidente o siniestro, el CLIENTE solo responderá por el pago del monto correspondiente al deducible del seguro.
 
 4. TIEMPO DE RENTA, HORARIOS Y PENALIZACIONES
 4.1. Hora de Entrega: El vehículo debe ser devuelto a la misma hora exacta en la que fue entregado por MONACO LUXURY RENT A CAR.
@@ -834,7 +834,7 @@ export default function Home() {
                   <label style={{ display: 'block', textTransform: 'uppercase', fontSize: '0.75rem', color: '#aaa', marginBottom: '0.3rem' }}>Opción de Seguro</label>
                   <select value={seguroFull ? 'si' : 'no'} onChange={(e) => setSeguroFull(e.target.value === 'si')} style={{ width: '100%' }}>
                     <option value="no">Seguro Básico (Depósito USD $400)</option>
-                    <option value="si">Seguro Full (Exonerado de Depósito)</option>
+                    <option value="si">Seguro Full </option>
                   </select>
                 </div>
               </div>
@@ -902,7 +902,7 @@ export default function Home() {
                 <div style={{ backgroundColor: '#1a1a1a', padding: '1rem', borderRadius: '8px', marginTop: '1rem' }}>
                   <p style={{ margin: '0 0 0.3rem', color: '#f59e0b', fontWeight: 'bold' }}>Desglose Estimado ({dias} Días):</p>
                   <p style={{ margin: '0 0 0.2rem' }}>• Alquiler: USD ${costoRenta} (${precioPorDia}/día)</p>
-                  <p style={{ margin: '0 0 0.2rem' }}>• Depósito Garantía: USD ${depositoGarantia} {seguroFull && '(Exonerado)'}</p>
+                  <p style={{ margin: '0 0 0.2rem' }}> Depósito Garantía: USD ${depositoGarantia}</p>                  
                   <p style={{ margin: '0 0 0.2rem' }}>• Seguro Full: USD ${costoSeguro} (${precioSeguroPorDia}/día)</p>
                   
                   {costoEntrega > 0 && (

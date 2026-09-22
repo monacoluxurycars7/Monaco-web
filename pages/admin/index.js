@@ -22,6 +22,7 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [reservaParaVer, setReservaParaVer] = useState(null);
   const [reservations, setReservations] = useState([]);
+  const [vehiculosMap, setVehiculosMap] = useState({}); // Mapa para buscar si es propio o subrentado
   const router = useRouter();
 
   useEffect(() => {
@@ -36,6 +37,24 @@ export default function AdminDashboard() {
     });
     return () => unsubscribeAuth();
   }, [router]);
+
+  // Cargar lista de vehículos para saber su propiedad (Propio vs Subrentado)
+  useEffect(() => {
+    if (!user) return;
+    const unsubscribeVehiculos = onSnapshot(collection(db, 'vehiculos'), (snapshot) => {
+      const map = {};
+      snapshot.docs.forEach(doc => {
+        const data = doc.data();
+        // Guardamos tanto por ID como por nombre (en caso de que la reserva guarde el nombre en vez del ID)
+        if (data.nombre) {
+          map[data.nombre.trim().toLowerCase()] = data.tipoPropietario || data.propietario || data.tipo || 'Propio';
+        }
+        map[doc.id] = data.tipoPropietario || data.propietario || data.tipo || 'Propio';
+      });
+      setVehiculosMap(map);
+    });
+    return () => unsubscribeVehiculos();
+  }, [user]);
 
   useEffect(() => {
     if (!user) return;
@@ -87,6 +106,24 @@ export default function AdminDashboard() {
     }
   };
 
+  // Función para obtener la condición del vehículo (Propio o Subrentado)
+  const obtenerTipoVehiculo = (res) => {
+    // Si la reserva ya trae guardado el tipo explícitamente
+    if (res.tipoVehiculo) return res.tipoVehiculo;
+    if (res.esSubrentado !== undefined) return res.esSubrentado ? 'Subrentado' : 'Propio';
+    
+    // Si no, lo buscamos en el mapa de vehículos usando el nombre o ID
+    const nombreVehiculo = (res.vehiculoNombre || '').trim().toLowerCase();
+    if (vehiculosMap[nombreVehiculo]) {
+      return vehiculosMap[nombreVehiculo];
+    }
+    if (res.vehiculoId && vehiculosMap[res.vehiculoId]) {
+      return vehiculosMap[res.vehiculoId];
+    }
+
+    return 'Propio'; // Valor por defecto si no se encuentra
+  };
+
   if (loading) return <p style={{ color: '#fff', textAlign: 'center', marginTop: '50px' }}>Cargando panel...</p>;
 
   // --- CÁLCULOS Y FLUJO DE OPERACIÓN ---
@@ -94,11 +131,10 @@ export default function AdminDashboard() {
   hoy.setHours(0, 0, 0, 0);
 
   let volumenTotalRentas = 0;
-  const pendientesEntrega = []; // Vehículos que entregaremos al cliente en el futuro
-  const proximasDevoluciones = []; // Vehículos que el cliente nos debe devolver pronto
+  const pendientesEntrega = []; 
+  const proximasDevoluciones = []; 
 
   reservations.forEach(res => {
-    // Calcular gran total para la fluidez
     const totalDias = calcularDias(res.inicio, res.fin, res.diasTotales);
     const rentaPorDia = Number(res.precioPorDia) || Number(res.rentaPorDia) || 0;
     const totalAlquiler = totalDias * rentaPorDia;
@@ -111,7 +147,6 @@ export default function AdminDashboard() {
 
     volumenTotalRentas += granTotal;
 
-    // Fechas de inicio y fin para alertas
     if (res.inicio && res.fin) {
       const fechaInicioRenta = new Date(res.inicio);
       fechaInicioRenta.setHours(0, 0, 0, 0);
@@ -122,12 +157,10 @@ export default function AdminDashboard() {
       const diffDiasInicio = Math.ceil((fechaInicioRenta - hoy) / (1000 * 60 * 60 * 24));
       const diffDiasFin = Math.ceil((fechaFinRenta - hoy) / (1000 * 60 * 60 * 24));
 
-      // Si la entrega al cliente es en el futuro (Pendiente de Entrega)
       if (diffDiasInicio > 0) {
         pendientesEntrega.push({ ...res, diasFaltantes: diffDiasInicio });
       }
 
-      // Si la devolución del cliente es hoy, mañana o en los próximos 2 días (Próxima Devolución)
       if (diffDiasFin >= 0 && diffDiasFin <= 2) {
         proximasDevoluciones.push({ ...res, diasRestantesDevolucion: diffDiasFin });
       }
@@ -185,8 +218,6 @@ export default function AdminDashboard() {
 
         {/* TARJETAS DE FLUJO Y RESUMEN RÁPIDO */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '15px', marginTop: '20px' }}>
-          
-          {/* Fluidez de Rentas (Total histórico) */}
           <div style={{ backgroundColor: '#111', padding: '18px', borderRadius: '6px', borderLeft: '4px solid #d4af37', border: '1px solid #222' }}>
             <h3 style={{ fontSize: '12px', color: '#aaa', margin: 0, textTransform: 'uppercase' }}>Volumen Total de Rentas (Fluidez)</h3>
             <p style={{ fontSize: '24px', fontWeight: 'bold', margin: '8px 0 0 0', color: '#d4af37' }}>
@@ -194,7 +225,6 @@ export default function AdminDashboard() {
             </p>
           </div>
 
-          {/* Pendientes de Entrega (Salidas Futuras) */}
           <div style={{ backgroundColor: '#111', padding: '18px', borderRadius: '6px', borderLeft: '4px solid #3b82f6', border: '1px solid #222' }}>
             <h3 style={{ fontSize: '12px', color: '#aaa', margin: 0, textTransform: 'uppercase' }}>🚗 Pendientes de Entrega (Salidas)</h3>
             <p style={{ fontSize: '24px', fontWeight: 'bold', margin: '8px 0 0 0', color: '#3b82f6' }}>
@@ -202,20 +232,16 @@ export default function AdminDashboard() {
             </p>
           </div>
 
-          {/* Devoluciones Cercanas */}
           <div style={{ backgroundColor: '#111', padding: '18px', borderRadius: '6px', borderLeft: '4px solid #ef4444', border: '1px solid #222' }}>
             <h3 style={{ fontSize: '12px', color: '#aaa', margin: 0, textTransform: 'uppercase' }}>🔔 Próximas Devoluciones (Recepción)</h3>
             <p style={{ fontSize: '24px', fontWeight: 'bold', margin: '8px 0 0 0', color: '#ef4444' }}>
               {proximasDevoluciones.length} devoluciones próximas
             </p>
           </div>
-
         </div>
 
-        {/* SECCIÓN VISUAL DE ALERTAS OPERATIVAS (PENDIENTES Y DEVOLUCIONES) */}
+        {/* SECCIÓN VISUAL DE ALERTAS OPERATIVAS */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '15px', marginTop: '20px' }}>
-          
-          {/* Panel de Pendientes de Entrega */}
           <div style={{ backgroundColor: '#111', padding: '15px', borderRadius: '6px', border: '1px solid #222' }}>
             <h3 style={{ fontSize: '14px', color: '#3b82f6', marginTop: 0, marginBottom: '10px' }}>📦 Próximas Entregas a Clientes</h3>
             {pendientesEntrega.length === 0 ? (
@@ -238,7 +264,6 @@ export default function AdminDashboard() {
             )}
           </div>
 
-          {/* Panel de Próximas Devoluciones */}
           <div style={{ backgroundColor: '#111', padding: '15px', borderRadius: '6px', border: '1px solid #222' }}>
             <h3 style={{ fontSize: '14px', color: '#ef4444', marginTop: 0, marginBottom: '10px' }}>⏰ Alertas de Devolución (Recordatorio Cliente)</h3>
             {proximasDevoluciones.length === 0 ? (
@@ -260,7 +285,6 @@ export default function AdminDashboard() {
               </div>
             )}
           </div>
-
         </div>
 
         <section style={{ marginTop: '30px' }}>
@@ -275,7 +299,7 @@ export default function AdminDashboard() {
                     <th style={{ padding: '10px' }}>Fecha Reserva</th>
                     <th style={{ padding: '10px' }}>Cliente</th>
                     <th style={{ padding: '10px' }}>Tipo / Doc.</th>
-                    <th style={{ padding: '10px' }}>Vehículo</th>
+                    <th style={{ padding: '10px' }}>Vehículo / Condición</th>
                     <th style={{ padding: '10px' }}>Fechas Renta</th>
                     <th style={{ padding: '10px' }}>Seguro Full</th>
                     <th style={{ padding: '10px', minWidth: '220px' }}>Desglose Estimado</th>
@@ -309,6 +333,10 @@ export default function AdminDashboard() {
                     const totalCalculado = totalAlquiler + totalSeguro + costoEntregaVal;
                     const granTotal = res.costoTotal ? res.costoTotal : totalCalculado;
 
+                    // Identificar si es Propio o Subrentado
+                    const tipoVehiculo = obtenerTipoVehiculo(res);
+                    const esSubrentado = tipoVehiculo.toLowerCase().includes('subrent');
+
                     return (
                       <tr key={res.id} style={{ borderBottom: '1px solid #222', verticalAlign: 'top' }}>
                         {/* Fecha Reserva */}
@@ -336,9 +364,23 @@ export default function AdminDashboard() {
                           <span style={{ color: '#aaa' }}>{res.documentoCliente || '-'}</span>
                         </td>
 
-                        {/* Vehículo */}
-                        <td style={{ padding: '10px', color: '#d4af37', fontWeight: 'bold' }}>
-                          {res.vehiculoNombre || '-'}
+                        {/* Vehículo y Condición (Propio / Subrentado) */}
+                        <td style={{ padding: '10px' }}>
+                          <span style={{ color: '#d4af37', fontWeight: 'bold', display: 'block', marginBottom: '4px' }}>
+                            {res.vehiculoNombre || '-'}
+                          </span>
+                          <span style={{ 
+                            padding: '2px 6px', 
+                            borderRadius: '4px', 
+                            fontSize: '10px', 
+                            fontWeight: 'bold',
+                            display: 'inline-block',
+                            backgroundColor: esSubrentado ? '#451a03' : '#064e3b',
+                            color: esSubrentado ? '#fdba74' : '#6ee7b7',
+                            border: `1px solid ${esSubrentado ? '#9a3412' : '#047857'}`
+                          }}>
+                            {esSubrentado ? '🔄 Subrentado' : '🚗 Propio'}
+                          </span>
                         </td>
 
                         {/* Fechas Renta */}

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { initializeApp, getApps } from 'firebase/app';
-import { getFirestore, collection, getDocs, addDoc, doc, updateDoc, query, where } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, addDoc, doc, updateDoc, deleteDoc, query, where } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -119,7 +119,17 @@ export default function MantenimientoVehiculos() {
     }
   };
 
-  // Función para verificar alertas (días restantes para vencer)
+  const eliminarGasto = async (idGasto) => {
+    if (!window.confirm('¿Estás seguro de eliminar este registro de gasto?')) return;
+    try {
+      await deleteDoc(doc(db, 'mantenimientos', idGasto));
+      seleccionarVehiculo(vehiculoSeleccionado);
+    } catch (error) {
+      console.error("Error al eliminar gasto:", error);
+      alert('Hubo un error al eliminar el registro.');
+    }
+  };
+
   const verificarAlertaFecha = (fechaStr) => {
     if (!fechaStr) return { estado: 'ok', texto: 'No configurado' };
     const hoy = new Date();
@@ -131,9 +141,12 @@ export default function MantenimientoVehiculos() {
     return { estado: 'ok', texto: `Vence en ${diferenciaDias} días` };
   };
 
+  // Calcular el total de gastos del vehículo seleccionado
+  const totalGastos = historialGastos.reduce((acc, curr) => acc + Number(curr.costo || 0), 0);
+
   if (cargando) return <div style={{ padding: '40px', color: '#fff', backgroundColor: '#0a0a0a', minHeight: '100vh' }}>Cargando módulo...</div>;
 
- return (
+  return (
     <div style={{ backgroundColor: '#0a0a0a', minHeight: '100vh', color: '#fff', padding: '30px', fontFamily: 'sans-serif' }}>
       
       {/* ENCABEZADO CON BOTÓN DE REGRESO */}
@@ -146,7 +159,7 @@ export default function MantenimientoVehiculos() {
           ← Volver a Flota
         </a>
       </div>
-      
+
       {/* Selector de Vehículos */}
       <div style={{ display: 'flex', gap: '15px', margin: '20px 0', overflowX: 'auto' }}>
         {vehiculos.map(v => {
@@ -310,22 +323,38 @@ export default function MantenimientoVehiculos() {
 
           </div>
 
-          {/* Columna Derecha: Historial de Gastos */}
-          <div style={{ backgroundColor: '#141414', padding: '20px', borderRadius: '12px', border: '1px solid #222' }}>
-            <h3>Historial de Costos - {vehiculoSeleccionado.nombre || vehiculoSeleccionado.modelo}</h3>
-            <div style={{ marginTop: '15px', maxHeight: '550px', overflowY: 'auto' }}>
+          {/* Columna Derecha: Historial de Gastos y Total */}
+          <div style={{ backgroundColor: '#141414', padding: '20px', borderRadius: '12px', border: '1px solid #222', display: 'flex', flexDirection: 'column', height: 'fit-content' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #333', paddingBottom: '15px' }}>
+              <h3 style={{ margin: 0 }}>Historial de Costos</h3>
+              <div style={{ textAlign: 'right' }}>
+                <span style={{ fontSize: '12px', color: '#aaa', display: 'block' }}>Total Invertido</span>
+                <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#D4AF37' }}>${totalGastos.toLocaleString()} USD</span>
+              </div>
+            </div>
+
+            <div style={{ marginTop: '15px', maxHeight: '500px', overflowY: 'auto' }}>
               {historialGastos.length === 0 ? (
-                <p style={{ color: '#666', fontStyle: 'italic' }}>No hay registros de gastos para este vehículo.</p>
+                <p style={{ color: '#666', fontStyle: 'italic', textAlign: 'center', padding: '30px 0' }}>No hay registros de gastos para este vehículo.</p>
               ) : (
                 historialGastos.map(g => (
-                  <div key={g.id} style={{ padding: '10px 0', borderBottom: '1px solid #222', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div key={g.id} style={{ padding: '12px 0', borderBottom: '1px solid #222', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
                       <strong style={{ color: '#D4AF37' }}>{g.tipo}</strong>
                       <p style={{ margin: '4px 0', fontSize: '14px', color: '#ccc' }}>{g.descripcion}</p>
                       <small style={{ color: '#777' }}>Fecha: {g.fecha} {g.kilometrajeMomento ? `• ${g.kilometrajeMomento} km` : ''}</small>
                     </div>
-                    <div style={{ fontSize: '15px', fontWeight: 'bold', color: '#ff6b6b' }}>
-                      -${g.costo} USD
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                      <div style={{ fontSize: '15px', fontWeight: 'bold', color: '#ff6b6b' }}>
+                        -${g.costo} USD
+                      </div>
+                      <button 
+                        onClick={() => eliminarGasto(g.id)}
+                        title="Eliminar registro"
+                        style={{ backgroundColor: 'transparent', border: 'none', color: '#ff4d4d', cursor: 'pointer', fontSize: '16px', padding: '4px' }}
+                      >
+                        🗑️
+                      </button>
                     </div>
                   </div>
                 ))

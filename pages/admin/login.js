@@ -171,10 +171,10 @@ export default function Login() {
         />
       </div>
 
-      {/* LOGO INFERIOR: Derecha a Izquierda (Ajustado más arriba para que NUNCA se corte) */}
+      {/* LOGO INFERIOR: Derecha a Izquierda */}
       <div style={{
         position: 'absolute',
-        bottom: '26%', // Subido para dar espacio completo y despejar el borde
+        bottom: '26%',
         left: '0',
         width: '100vw',
         height: '140px',
@@ -207,7 +207,7 @@ export default function Login() {
         />
       </div>
 
-      {/* CAJA DE LOGIN PEQUEÑA Y COMPACTA */}
+      {/* CAJA DE LOGIN */}
       <div style={{
         position: 'relative',
         zIndex: 10,
@@ -229,6 +229,36 @@ export default function Login() {
         }}>
           Acceso Admin
         </h2>
+
+        {/* 1. MUESTRA ERRORES */}
+        {error && (
+          <div style={{
+            backgroundColor: 'rgba(255, 0, 0, 0.15)',
+            border: '1px solid #ff4d4d',
+            color: '#ff4d4d',
+            padding: '8px',
+            borderRadius: '6px',
+            fontSize: '12px',
+            marginBottom: '14px'
+          }}>
+            {error}
+          </div>
+        )}
+
+        {/* 2. MENSAJE DE ÉXITO */}
+        {message && (
+          <div style={{
+            backgroundColor: 'rgba(0, 255, 128, 0.15)',
+            border: '1px solid #00ff80',
+            color: '#00ff80',
+            padding: '8px',
+            borderRadius: '6px',
+            fontSize: '12px',
+            marginBottom: '14px'
+          }}>
+            {message}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px', textAlign: 'left' }}>
           <div>
@@ -279,6 +309,7 @@ export default function Login() {
 
           <button
             type="submit"
+            disabled={loading}
             style={{
               marginTop: '8px',
               padding: '11px',
@@ -289,12 +320,30 @@ export default function Login() {
               fontWeight: 'bold',
               fontSize: '14px',
               cursor: 'pointer',
-              boxShadow: '0 0 12px rgba(212, 175, 55, 0.4)'
+              boxShadow: '0 0 12px rgba(212, 175, 55, 0.4)',
+              opacity: loading ? 0.7 : 1
             }}
           >
-            Iniciar Sesión
+            {loading ? 'Ingresando...' : 'Iniciar Sesión'}
           </button>
         </form>
+
+        {/* 3. BOTÓN PARA RESTABLECER CONTRASEÑA */}
+        <button
+          onClick={handleResetPassword}
+          type="button"
+          style={{
+            background: 'none',
+            border: 'none',
+            color: '#d4af37',
+            fontSize: '12px',
+            marginTop: '15px',
+            cursor: 'pointer',
+            textDecoration: 'underline'
+          }}
+        >
+          ¿Olvidaste tu contraseña?
+        </button>
       </div>
 
     </div>

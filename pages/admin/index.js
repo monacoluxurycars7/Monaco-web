@@ -1,28 +1,67 @@
 <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
   <a 
     href="/admin/vehiculos" 
-    style={{ backgroundColor: '#333', color: '#fff', padding: '8px 14px', borderRadius: '6px', textDecoration: 'none', fontSize: '13px', fontWeight: 'bold' }}
+    style={{ 
+      backgroundColor: '#333', 
+      color: '#fff', 
+      padding: '8px 14px', 
+      borderRadius: '6px', 
+      textDecoration: 'none', 
+      fontSize: '13px', 
+      fontWeight: 'bold', 
+      display: 'inline-flex', 
+      alignItems: 'center', 
+      gap: '6px' 
+    }}
   >
     🚘 Gestionar Flota
   </a>
 
   <a 
     href="/admin/dashboard" 
-    style={{ backgroundColor: '#111', color: '#d4af37', border: '1px solid #d4af37', padding: '8px 14px', borderRadius: '6px', textDecoration: 'none', fontSize: '13px', fontWeight: 'bold' }}
+    style={{ 
+      backgroundColor: '#d4af37', 
+      color: '#000', 
+      padding: '8px 14px', 
+      borderRadius: '6px', 
+      textDecoration: 'none', 
+      fontSize: '13px', 
+      fontWeight: 'bold', 
+      display: 'inline-flex', 
+      alignItems: 'center', 
+      gap: '6px' 
+    }}
   >
     📊 Métricas
   </a>
 
   <button 
     onClick={() => setMostrarModalNueva && setMostrarModalNueva(true)} 
-    style={{ backgroundColor: '#d4af37', color: '#000', border: 'none', padding: '8px 14px', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}
+    style={{ 
+      backgroundColor: '#d4af37', 
+      color: '#000', 
+      border: 'none', 
+      padding: '8px 14px', 
+      borderRadius: '6px', 
+      cursor: 'pointer', 
+      fontSize: '13px', 
+      fontWeight: 'bold' 
+    }}
   >
     + Nueva Reserva Manual
   </button>
 
   <a 
     href="/admin/login" 
-    style={{ backgroundColor: '#ef4444', color: '#fff', padding: '8px 14px', borderRadius: '6px', textDecoration: 'none', fontSize: '13px', fontWeight: 'bold' }}
+    style={{ 
+      backgroundColor: '#ef4444', 
+      color: '#fff', 
+      padding: '8px 14px', 
+      borderRadius: '6px', 
+      textDecoration: 'none', 
+      fontSize: '13px', 
+      fontWeight: 'bold' 
+    }}
   >
     Cerrar Sesión
   </a>

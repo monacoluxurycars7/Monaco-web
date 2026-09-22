@@ -89,6 +89,51 @@ export default function AdminDashboard() {
 
   if (loading) return <p style={{ color: '#fff', textAlign: 'center', marginTop: '50px' }}>Cargando panel...</p>;
 
+  // --- CÁLCULOS Y FLUJO DE OPERACIÓN ---
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+
+  let volumenTotalRentas = 0;
+  const pendientesEntrega = []; // Vehículos que entregaremos al cliente en el futuro
+  const proximasDevoluciones = []; // Vehículos que el cliente nos debe devolver pronto
+
+  reservations.forEach(res => {
+    // Calcular gran total para la fluidez
+    const totalDias = calcularDias(res.inicio, res.fin, res.diasTotales);
+    const rentaPorDia = Number(res.precioPorDia) || Number(res.rentaPorDia) || 0;
+    const totalAlquiler = totalDias * rentaPorDia;
+    const tieneSeguroFull = res.seguroFull === true || res.seguroFull === 'si' || (typeof res.opcionSeguro === 'string' && res.opcionSeguro.includes('Seguro Full'));
+    const seguroPorDia = tieneSeguroFull ? (Number(res.precioSeguroPorDia) || Number(res.seguroPorDia) || 0) : 0;
+    const totalSeguro = totalDias * seguroPorDia;
+    const costoEntregaVal = Number(res.costoEntrega) || (typeof res.lugarEntrega === 'string' && res.lugarEntrega.toLowerCase().includes('puntacana') ? 150 : typeof res.lugarEntrega === 'string' && res.lugarEntrega.toLowerCase().includes('santiago') ? 100 : 0);
+    const totalCalculado = totalAlquiler + totalSeguro + costoEntregaVal;
+    const granTotal = res.costoTotal ? Number(res.costoTotal) : totalCalculado;
+
+    volumenTotalRentas += granTotal;
+
+    // Fechas de inicio y fin para alertas
+    if (res.inicio && res.fin) {
+      const fechaInicioRenta = new Date(res.inicio);
+      fechaInicioRenta.setHours(0, 0, 0, 0);
+
+      const fechaFinRenta = new Date(res.fin);
+      fechaFinRenta.setHours(0, 0, 0, 0);
+
+      const diffDiasInicio = Math.ceil((fechaInicioRenta - hoy) / (1000 * 60 * 60 * 24));
+      const diffDiasFin = Math.ceil((fechaFinRenta - hoy) / (1000 * 60 * 60 * 24));
+
+      // Si la entrega al cliente es en el futuro (Pendiente de Entrega)
+      if (diffDiasInicio > 0) {
+        pendientesEntrega.push({ ...res, diasFaltantes: diffDiasInicio });
+      }
+
+      // Si la devolución del cliente es hoy, mañana o en los próximos 2 días (Próxima Devolución)
+      if (diffDiasFin >= 0 && diffDiasFin <= 2) {
+        proximasDevoluciones.push({ ...res, diasRestantesDevolucion: diffDiasFin });
+      }
+    }
+  });
+
   return (
     <>
       <div style={{ padding: '20px', color: '#fff', minHeight: '100vh', backgroundColor: '#0a0a0a', fontFamily: 'sans-serif' }}>
@@ -111,18 +156,18 @@ export default function AdminDashboard() {
             >
               📊 Métricas
             </button>
-                <button 
-      onClick={() => router.push('/admin/calendario')}
-      style={{ padding: '8px 16px', backgroundColor: '#111111', color: '#d4af37', border: '1px solid #d4af37', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
-    >
-      📅 Calendario
-    </button>
-        <button 
-  onClick={() => router.push('/admin/clientes')}
-  style={{ padding: '8px 16px', backgroundColor: '#181818', color: '#fff', border: '1px solid #333', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
->
-  👥 Clientes
-</button>
+            <button 
+              onClick={() => router.push('/admin/calendario')}
+              style={{ padding: '8px 16px', backgroundColor: '#111111', color: '#d4af37', border: '1px solid #d4af37', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
+            >
+              📅 Calendario
+            </button>
+            <button 
+              onClick={() => router.push('/admin/clientes')}
+              style={{ padding: '8px 16px', backgroundColor: '#181818', color: '#fff', border: '1px solid #333', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
+            >
+              👥 Clientes
+            </button>
             <button 
               onClick={() => router.push('/admin/nueva-reserva')}
               style={{ padding: '8px 16px', backgroundColor: '#d4af37', color: '#000', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
@@ -138,7 +183,87 @@ export default function AdminDashboard() {
           </div>
         </header>
 
-        <section style={{ marginTop: '25px' }}>
+        {/* TARJETAS DE FLUJO Y RESUMEN RÁPIDO */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '15px', marginTop: '20px' }}>
+          
+          {/* Fluidez de Rentas (Total histórico) */}
+          <div style={{ backgroundColor: '#111', padding: '18px', borderRadius: '6px', borderLeft: '4px solid #d4af37', border: '1px solid #222' }}>
+            <h3 style={{ fontSize: '12px', color: '#aaa', margin: 0, textTransform: 'uppercase' }}>Volumen Total de Rentas (Fluidez)</h3>
+            <p style={{ fontSize: '24px', fontWeight: 'bold', margin: '8px 0 0 0', color: '#d4af37' }}>
+              USD ${volumenTotalRentas.toLocaleString()}
+            </p>
+          </div>
+
+          {/* Pendientes de Entrega (Salidas Futuras) */}
+          <div style={{ backgroundColor: '#111', padding: '18px', borderRadius: '6px', borderLeft: '4px solid #3b82f6', border: '1px solid #222' }}>
+            <h3 style={{ fontSize: '12px', color: '#aaa', margin: 0, textTransform: 'uppercase' }}>🚗 Pendientes de Entrega (Salidas)</h3>
+            <p style={{ fontSize: '24px', fontWeight: 'bold', margin: '8px 0 0 0', color: '#3b82f6' }}>
+              {pendientesEntrega.length} vehículos por entregar
+            </p>
+          </div>
+
+          {/* Devoluciones Cercanas */}
+          <div style={{ backgroundColor: '#111', padding: '18px', borderRadius: '6px', borderLeft: '4px solid #ef4444', border: '1px solid #222' }}>
+            <h3 style={{ fontSize: '12px', color: '#aaa', margin: 0, textTransform: 'uppercase' }}>🔔 Próximas Devoluciones (Recepción)</h3>
+            <p style={{ fontSize: '24px', fontWeight: 'bold', margin: '8px 0 0 0', color: '#ef4444' }}>
+              {proximasDevoluciones.length} devoluciones próximas
+            </p>
+          </div>
+
+        </div>
+
+        {/* SECCIÓN VISUAL DE ALERTAS OPERATIVAS (PENDIENTES Y DEVOLUCIONES) */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '15px', marginTop: '20px' }}>
+          
+          {/* Panel de Pendientes de Entrega */}
+          <div style={{ backgroundColor: '#111', padding: '15px', borderRadius: '6px', border: '1px solid #222' }}>
+            <h3 style={{ fontSize: '14px', color: '#3b82f6', marginTop: 0, marginBottom: '10px' }}>📦 Próximas Entregas a Clientes</h3>
+            {pendientesEntrega.length === 0 ? (
+              <p style={{ color: '#666', fontSize: '12px', margin: 0 }}>No hay entregas futuras programadas.</p>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '180px', overflowY: 'auto' }}>
+                {pendientesEntrega.map((item) => (
+                  <div key={item.id} style={{ backgroundColor: '#181818', padding: '10px', borderRadius: '4px', border: '1px solid #333', fontSize: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                      <strong style={{ color: '#fff' }}>{item.vehiculoNombre}</strong><br />
+                      <span style={{ color: '#aaa' }}>Cliente: {item.clienteNombre} ({item.clienteTelefono || 'Sin tel'})</span><br />
+                      <span style={{ color: '#3b82f6' }}>Entrega el: {item.inicio}</span>
+                    </div>
+                    <div style={{ backgroundColor: '#1e3a8a', color: '#93c5fd', padding: '4px 8px', borderRadius: '4px', fontWeight: 'bold', fontSize: '11px', whiteSpace: 'nowrap' }}>
+                      En {item.diasFaltantes} {item.diasFaltantes === 1 ? 'día' : 'días'}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Panel de Próximas Devoluciones */}
+          <div style={{ backgroundColor: '#111', padding: '15px', borderRadius: '6px', border: '1px solid #222' }}>
+            <h3 style={{ fontSize: '14px', color: '#ef4444', marginTop: 0, marginBottom: '10px' }}>⏰ Alertas de Devolución (Recordatorio Cliente)</h3>
+            {proximasDevoluciones.length === 0 ? (
+              <p style={{ color: '#666', fontSize: '12px', margin: 0 }}>No hay devoluciones cercanas para hoy o mañana.</p>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '180px', overflowY: 'auto' }}>
+                {proximasDevoluciones.map((item) => (
+                  <div key={item.id} style={{ backgroundColor: '#181818', padding: '10px', borderRadius: '4px', border: '1px solid #333', fontSize: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                      <strong style={{ color: '#fff' }}>{item.vehiculoNombre}</strong><br />
+                      <span style={{ color: '#aaa' }}>Cliente: {item.clienteNombre} ({item.clienteTelefono || 'Sin tel'})</span><br />
+                      <span style={{ color: '#ef4444' }}>Devuelve el: {item.fin}</span>
+                    </div>
+                    <div style={{ backgroundColor: '#7f1d1d', color: '#fca5a5', padding: '4px 8px', borderRadius: '4px', fontWeight: 'bold', fontSize: '11px', whiteSpace: 'nowrap' }}>
+                      {item.diasRestantesDevolucion === 0 ? '¡Devolución Hoy!' : `Vence en ${item.diasRestantesDevolucion} días`}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+        </div>
+
+        <section style={{ marginTop: '30px' }}>
           <h2>Reservas Recibidas ({reservations.length})</h2>
           {reservations.length === 0 ? (
             <p style={{ color: '#888', marginTop: '15px' }}>No hay reservas registradas aún.</p>

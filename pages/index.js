@@ -265,35 +265,29 @@ export default function Home() {
    // 1. VALIDACIÓN DE LISTA NEGRA
     try {
       const querySnapshot = await getDocs(collection(db, 'clientes'));
-      let estaBloqueado = false;
-
-      // Usamos directamente la variable documentoCliente de tu formulario
-      const cedulaInput = typeof documentoCliente !== 'undefined' ? documentoCliente : '';
+      const cedulaInput = typeof documentoCliente !== 'undefined' ? String(documentoCliente).trim() : '';
 
       if (cedulaInput) {
-        querySnapshot.forEach((docSnap) => {
+        for (const docSnap of querySnapshot.docs) {
           const cData = docSnap.data();
           const estaEnNegra = cData.listaNegra === true || cData.enListaNegra === true;
 
           if (estaEnNegra) {
-            if (
-              (cData.cedula && cData.cedula.trim() === String(cedulaInput).trim()) ||
-              (cData.cedulaPasaporte && cData.cedulaPasaporte.trim() === String(cedulaInput).trim())
-            ) {
-              estaBloqueado = true;
+            const cedulaDb = cData.cedula ? String(cData.cedula).trim() : '';
+            const pasaporteDb = cData.cedulaPasaporte ? String(cData.cedulaPasaporte).trim() : '';
+
+            if (cedulaDb === cedulaInput || pasaporteDb === cedulaInput) {
+              alert('⚠️ ACCESO DENEGADO: Este número de documento se encuentra en la LISTA NEGRA. No se puede procesar la reserva.');
+              setEnviando(false);
+              return; // Detiene la función por completo aquí mismo
             }
           }
-        });
-      }
-
-      if (estaBloqueado) {
-        alert('⚠️ ACCESO DENEGADO: Este número de documento se encuentra en la LISTA NEGRA. No se puede procesar la reserva.');
-        setEnviando(false);
-        return; // Frena la ejecución por completo
+        }
       }
     } catch (error) {
       console.error('Error al verificar lista negra:', error);
     }
+    
     // 2. SI NO ESTÁ BLOQUEADO, PROCEDE A GUARDAR
     setEnviando(true);
     try {

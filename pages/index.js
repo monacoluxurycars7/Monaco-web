@@ -837,7 +837,7 @@ export default function Home() {
                 <div>
                   <label style={{ display: 'block', textTransform: 'uppercase', fontSize: '0.75rem', color: '#aaa', marginBottom: '0.3rem' }}>Opción de Seguro</label>
                   <select value={seguroFull ? 'si' : 'no'} onChange={(e) => setSeguroFull(e.target.value === 'si')} style={{ width: '100%' }}>
-                    <option value="no">Seguro Básico (Depósito USD $400)</option>
+                    <option value="no">Seguro Básico </option>
                     <option value="si">Seguro Full </option>
                   </select>
                 </div>

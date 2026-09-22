@@ -56,8 +56,8 @@ export default function DetalleCliente() {
         setCliente({
           nombre: primera.clienteNombre || primera.nombre || 'Cliente sin nombre',
           telefono: telefono,
-          cedula: primera.clienteCedula || primera.cedula || primera.pasaporte || 'No registrada',
-          licencia: primera.clienteLicencia || primera.licencia || 'No registrada',
+          cedula: primera.cedula || primera.pasaporte || primera.documento || primera.clienteCedula || primera.clientePasaporte || 'No registrada',
+          licencia: primera.licencia || primera.clienteLicencia || 'No registrada',
           totalAlquileres: filtradas.length,
           gastoTotal: gastoTotal,
           enListaNegra: infoExtra.enListaNegra || false,

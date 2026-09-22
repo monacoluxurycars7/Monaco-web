@@ -32,9 +32,8 @@ export default function AdminClientes() {
       reservas.forEach(res => {
         const telefonoKey = res.clienteTelefono || res.telefono || 'sin-telefono';
         const nombre = res.clienteNombre || res.nombre || 'Cliente sin nombre';
-        const cedula = res.cedula || res.pasaporte || res.documento || res.clienteCedula || res.clientePasaporte || 'No registrada';
+        const cedula = res.documentoCliente || res.cedula || res.pasaporte || res.documento || res.clienteCedula || res.clientePasaporte || 'No registrada';       
         const licencia = res.licencia || res.clienteLicencia || 'No registrada';
-        
         const gananciaReserva = res.gananciaNetaMonaco !== undefined ? Number(res.gananciaNetaMonaco) : Number(res.costoTotal || res.costoTotalFinal || 0);
 
         if (!mapaClientes[telefonoKey]) {

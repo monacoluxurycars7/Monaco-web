@@ -262,7 +262,7 @@ export default function Home() {
     if (!aceptaContrato) { alert('Debes aceptar el contrato.'); return; }
     if (!tieneFirma) { alert('Debes firmar digitalmente.'); return; }
 
-   const handleSubmitReserva = async (e) => {
+  const handleSubmitReserva = async (e) => {
     e.preventDefault();
     
     // VALIDACIÓN INMEDIATA DE LISTA NEGRA

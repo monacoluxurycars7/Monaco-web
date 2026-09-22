@@ -263,8 +263,10 @@ export default function Home() {
     if (!tieneFirma) { alert('Debes firmar digitalmente.'); return; }
 
     // VALIDACIÓN INMEDIATA DE LISTA NEGRA
+    // ==========================================
+    // 🛑 1. VALIDACIÓN INMEDIATA DE LISTA NEGRA
+    // ==========================================
     try {
-      setEnviando(true);
       const querySnapshot = await getDocs(collection(db, 'clientes'));
       const cedulaInput = String(
         typeof documentoCliente !== 'undefined' ? documentoCliente :
@@ -291,13 +293,62 @@ export default function Home() {
               console.error("⛔ CLIENTE EN LISTA NEGRA. BLOQUEANDO.");
               alert('⚠️ ACCESO DENEGADO: Este número de documento se encuentra en la LISTA NEGRA. No se puede procesar la reserva.');
               setEnviando(false);
-              return; // ⛔ DETIENE EL FLUJO POR COMPLETO AQUÍ
+              return; // ⛔ Esto frena todo y evita que se guarde o envíe el correo
             }
           }
         }
       }
-   } catch (err) {
-      console.error("Error en validación:", err);
+    } catch (err) {
+      console.error("Error en validación de lista negra:", err);
+    }
+
+    // ==========================================
+    // 🚀 2. TU CÓDIGO ORIGINAL (Firebase / EmailJS)
+    // ==========================================
+    setEnviando(true);
+    try {
+      const firmaUrl = canvasRef.current.toDataURL('image/png');
+      
+      await addDoc(collection(db, 'reservas'), {
+        vehiculoId: vehiculoSeleccionado.id,
+        vehiculoNombre: vehiculoSeleccionado.nombre,
+        inicio: fechaInicio,
+        fin: fechaFin,
+        nombre,
+        email,
+        telefono,
+        direccionRD,
+        documentoCliente,
+        firmaUrl,
+        estado: 'pendiente',
+        createdAt: new Date()
+      });
+
+      await emailjs.send(
+        process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID,
+        process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID,
+        {
+          to_name: "Administrador",
+          from_name: nombre,
+          vehiculo: vehiculoSeleccionado.nombre,
+          inicio: fechaInicio,
+          fin: fechaFin,
+          email: email,
+          telefono: telefono,
+          direccion: direccionRD,
+          documento: documentoCliente
+        },
+        process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY
+      );
+
+      alert('¡Reserva realizada con éxito! Nos pondremos en contacto contigo.');
+      setVehiculoSeleccionado(null);
+      // ... (cualquier otro reseteo de estados que tengas aquí)
+
+    } catch (error) {
+      console.error("Error al procesar la reserva:", error);
+      alert('Hubo un error al procesar la reserva. Inténtalo de nuevo.');
+    } finally {
       setEnviando(false);
     }
   };

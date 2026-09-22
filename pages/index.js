@@ -981,9 +981,9 @@ export default function Home() {
                 <button type="button" onClick={() => setVehiculoSeleccionado(null)} style={{ flex: 1, padding: '0.75rem', backgroundColor: '#333', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>
                   Cancelar
                 </button>
-                <button type="submit" disabled={enviando} style={{ flex: 1, padding: '0.75rem', backgroundColor: '#ff0000', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>
-                  {enviando ? 'Procesando...' : 'Confirmar Reserva'}
-                </button>
+               <button type="submit" disabled={enviando || estaReservado()} style={{ flex: 1, padding: '0.75rem', backgroundColor: '#ff0000', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', opacity: (enviando || estaReservado()) ? 0.6 : 1 }}>
+  {enviando ? 'Procesando...' : 'Confirmar Reserva'}
+</button>
               </div>
 
             </form>

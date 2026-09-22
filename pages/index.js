@@ -262,34 +262,48 @@ export default function Home() {
     if (!aceptaContrato) { alert('Debes aceptar el contrato.'); return; }
     if (!tieneFirma) { alert('Debes firmar digitalmente.'); return; }
 
-   // 1. VALIDACIÓN DE LISTA NEGRA (AL INICIO DE TODO)
+    // 1. VALIDACIÓN DE LISTA NEGRA BLOQUEANTE
     try {
       const querySnapshot = await getDocs(collection(db, 'clientes'));
       const cedulaInput = typeof documentoCliente !== 'undefined' ? String(documentoCliente).trim() : '';
 
       if (cedulaInput) {
-        for (const docSnap of querySnapshot.docs) {
+        let bloqueado = false;
+        querySnapshot.forEach((docSnap) => {
           const cData = docSnap.data();
-          const estaEnNegra = cData.listaNegra === true || cData.enListaNegra === true;
+          const estaEnNegra = 
+            cData.listaNegra === true || cData.listaNegra === "true" || 
+            cData.enListaNegra === true || cData.enListaNegra === "true";
 
           if (estaEnNegra) {
             const cedulaDb = cData.cedula ? String(cData.cedula).trim() : '';
             const pasaporteDb = cData.cedulaPasaporte ? String(cData.cedulaPasaporte).trim() : '';
+            const documentoDb = cData.documento ? String(cData.documento).trim() : '';
 
-            if (cedulaDb === cedulaInput || pasaporteDb === cedulaInput) {
-              alert('⚠️ ACCESO DENEGADO: Este número de documento se encuentra en la LISTA NEGRA. No se puede procesar la reserva.');
-              return; // Frena la función por completo antes de guardar o enviar nada
+            if (
+              cedulaDb === cedulaInput || 
+              pasaporteDb === cedulaInput || 
+              documentoDb === cedulaInput || 
+              docSnap.id.trim() === cedulaInput
+            ) {
+              bloqueado = true;
             }
           }
+        });
+
+        if (bloqueado) {
+          alert('⚠️ ACCESO DENEGADO: Este número de documento se encuentra en la LISTA NEGRA. No se puede procesar la reserva.');
+          return; // Detiene la ejecución por completo y NO HACE NADA MÁS
         }
       }
     } catch (error) {
       console.error('Error al verificar lista negra:', error);
     }
-    
+
     // 2. SI NO ESTÁ BLOQUEADO, PROCEDE A GUARDAR
     setEnviando(true);
     try {
+      // ... (el resto de tu código de guardar y enviar correo que ya tienes abajo)
       const firmaUrl = canvasRef.current.toDataURL('image/png');
 
       await addDoc(collection(db, 'reservas'), {

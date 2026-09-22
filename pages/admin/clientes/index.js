@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { collection, getDocs, doc, updateData, setDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, setDoc } from 'firebase/firestore';
 import { db } from '../../../lib/firebase';
 import { useRouter } from 'next/router';
 
@@ -28,7 +28,7 @@ export default function AdminClientes() {
 
       let mapaClientes = {};
 
-      // Agrupar reservas por cliente (usando teléfono o cédula/email como llave única)
+      // 1. Procesar clientes desde las reservas
       reservas.forEach(res => {
         const telefonoKey = res.clienteTelefono || res.telefono || 'sin-telefono';
         const nombre = res.clienteNombre || res.nombre || 'Cliente sin nombre';
@@ -37,7 +37,6 @@ export default function AdminClientes() {
         const gananciaReserva = res.gananciaNetaMonaco !== undefined ? Number(res.gananciaNetaMonaco) : Number(res.costoTotal || res.costoTotalFinal || 0);
 
         if (!mapaClientes[telefonoKey]) {
-          // Verificar si está en la lista negra desde clientesDirectos
           const infoDirecta = clientesDirectos[telefonoKey] || {};
           
           mapaClientes[telefonoKey] = {
@@ -62,6 +61,32 @@ export default function AdminClientes() {
         mapaClientes[telefonoKey].autosFrecuentes[auto] = (mapaClientes[telefonoKey].autosFrecuentes[auto] || 0) + 1;
       });
 
+      // 2. Agregar clientes que están en Firestore (colección 'clientes') pero NO tienen reservas previas (ej: agregados manuales de Telegram/WhatsApp)
+      Object.values(clientesDirectos).forEach(cliDir => {
+        const telKey = cliDir.telefono || cliDir.id;
+        if (!mapaClientes[telKey]) {
+          mapaClientes[telKey] = {
+            id: telKey,
+            nombre: cliDir.nombre || 'Estafador / Reportado (Sin Renta)',
+            telefono: cliDir.telefono || telKey,
+            cedula: cliDir.cedula || 'No registrada',
+            licencia: 'No registrada',
+            totalAlquileres: 0,
+            gastoTotal: 0,
+            autosFrecuentes: {},
+            enListaNegra: cliDir.enListaNegra || false,
+            motivoListaNegra: cliDir.motivoListaNegra || 'Reporte externo (WhatsApp/Telegram)',
+            documentos: cliDir.documentos || {}
+          };
+        } else {
+          // Si ya existía pero solo por reserva, aseguramos su estatus de lista negra directo
+          if (cliDir.enListaNegra) {
+            mapaClientes[telKey].enListaNegra = true;
+            mapaClientes[telKey].motivoListaNegra = cliDir.motivoListaNegra;
+          }
+        }
+      });
+
       // Convertir a array
       const listaFinal = Object.values(mapaClientes);
       setClientes(listaFinal);
@@ -78,14 +103,13 @@ export default function AdminClientes() {
 
     if (nuevoEstado) {
       motivo = prompt("Ingrese el motivo por el cual este cliente pasa a Lista Negra (ej: Pagos tardíos, daños al vehículo):", "Mal historial / Daños");
-      if (motivo === null) return; // Cancelado
+      if (motivo === null) return;
     } else {
       if (!confirm("¿Está seguro de retirar a este cliente de la Lista Negra?")) return;
       motivo = '';
     }
 
     try {
-      // Guardar en la colección 'clientes' de Firestore
       const clienteRef = doc(db, 'clientes', telefono);
       await setDoc(clienteRef, {
         enListaNegra: nuevoEstado,
@@ -93,12 +117,43 @@ export default function AdminClientes() {
         actualizadoEn: new Date().toISOString()
       }, { merge: true });
 
-      // Actualizar estado local
       setClientes(clientes.map(c => c.telefono === telefono ? { ...c, enListaNegra: nuevoEstado, motivoListaNegra: motivo } : c));
       alert("Estado de lista negra actualizado correctamente.");
     } catch (error) {
       console.error("Error al actualizar lista negra:", error);
       alert("Hubo un error al actualizar el estado.");
+    }
+  };
+
+  // NUEVA FUNCIÓN: Agregar un infractor de WhatsApp o Telegram manualmente
+  const agregarNuevoListaNegra = async () => {
+    const nombre = prompt("Ingrese el Nombre o Alias del estafador reportado:");
+    if (!nombre) return;
+
+    const cedula = prompt("Ingrese la Cédula o Pasaporte (si la tiene):") || "No registrada";
+    const telefono = prompt("Ingrese el Teléfono (obligatorio como identificador único):");
+    if (!telefono) {
+      alert("El teléfono es obligatorio para registrarlo en el sistema.");
+      return;
+    }
+    const motivo = prompt("Ingrese el motivo o detalles del reporte (ej: Estafa reportada en grupo de WhatsApp):", "Reporte externo (WhatsApp/Telegram)");
+
+    try {
+      const clienteRef = doc(db, 'clientes', telefono);
+      await setDoc(clienteRef, {
+        nombre: nombre,
+        cedula: cedula,
+        telefono: telefono,
+        enListaNegra: true,
+        motivoListaNegra: motivo || 'Reporte externo',
+        fechaRegistro: new Date().toISOString()
+      }, { merge: true });
+
+      alert("¡Estafador agregado a la Lista Negra exitosamente!");
+      cargarClientesYHistorial(); // Recargar lista
+    } catch (error) {
+      console.error("Error al agregar a lista negra:", error);
+      alert("Hubo un error al registrar el cliente.");
     }
   };
 
@@ -127,21 +182,31 @@ export default function AdminClientes() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '15px' }}>
           <h1 style={{ color: '#d4af37', fontSize: '20px', margin: 0, fontWeight: 'bold' }}>👥 Base de Datos de Clientes y CRM</h1>
           
-          {/* BARRA DE BÚSQUEDA */}
-          <input 
-            type="text" 
-            placeholder="🔍 Buscar por nombre, teléfono o cédula..." 
-            value={busqueda}
-            onChange={(e) => setBusqueda(e.target.value)}
-            style={{ padding: '10px 15px', backgroundColor: '#111', border: '1px solid #333', borderRadius: '6px', color: '#fff', width: '300px', fontSize: '13px' }}
-          />
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+            {/* BOTÓN PARA AGREGAR NUEVO A LISTA NEGRA */}
+            <button
+              onClick={agregarNuevoListaNegra}
+              style={{ backgroundColor: '#ef4444', color: '#fff', border: 'none', padding: '10px 15px', borderRadius: '6px', fontSize: '13px', cursor: 'pointer', fontWeight: 'bold' }}
+            >
+              🚨 + Agregar a Lista Negra
+            </button>
+
+            {/* BARRA DE BÚSQUEDA */}
+            <input 
+              type="text" 
+              placeholder="🔍 Buscar por nombre, teléfono o cédula..." 
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
+              style={{ padding: '10px 15px', backgroundColor: '#111', border: '1px solid #333', borderRadius: '6px', color: '#fff', width: '280px', fontSize: '13px' }}
+            />
+          </div>
         </div>
 
         {cargando ? (
           <p style={{ color: '#888', textAlign: 'center', padding: '40px' }}>Cargando historial de clientes...</p>
         ) : clientesFiltrados.length === 0 ? (
           <div style={{ backgroundColor: '#111', padding: '30px', textAlign: 'center', borderRadius: '8px', border: '1px solid #222' }}>
-            <p style={{ color: '#888', margin: 0 }}>No se encontraron clientes registrados en las reservas.</p>
+            <p style={{ color: '#888', margin: 0 }}>No se encontraron clientes registrados.</p>
           </div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '20px' }}>

@@ -7,6 +7,7 @@ export default function AdminDashboard() {
     ingresosMes: 0,
     alquileresActivos: 0,
     totalVehiculos: 0,
+    autosEnTaller: 0,
     porcentajeOcupacion: 0,
     proximasDevoluciones: [],
     rankingAutos: []
@@ -19,9 +20,18 @@ export default function AdminDashboard() {
 
   const cargarMetricas = async () => {
     try {
-      // 1. Obtener Vehículos
+      // 1. Obtener Vehículos y contar los que están en taller
       const vehiculosSnap = await getDocs(collection(db, 'vehiculos'));
       const totalVehiculos = vehiculosSnap.size;
+      
+      let autosEnTaller = 0;
+      vehiculosSnap.docs.forEach((doc) => {
+        const vData = doc.data();
+        const estado = (vData.estado || '').toLowerCase();
+        if (estado.includes('taller') || estado.includes('mantenimiento')) {
+          autosEnTaller++;
+        }
+      });
 
       // 2. Obtener Reservas
       const reservasSnap = await getDocs(collection(db, 'reservas'));
@@ -78,6 +88,7 @@ export default function AdminDashboard() {
         ingresosMes,
         alquileresActivos: activos,
         totalVehiculos,
+        autosEnTaller,
         porcentajeOcupacion: ocupacion,
         proximasDevoluciones: devoluciones,
         rankingAutos: rankingArray
@@ -109,7 +120,7 @@ export default function AdminDashboard() {
         ) : (
           <>
             {/* TARJETAS DE KPIS */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '15px', marginBottom: '25px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px', marginBottom: '25px' }}>
               
               <div style={{ backgroundColor: '#111', padding: '18px', borderRadius: '6px', borderLeft: '4px solid #22c55e', border: '1px solid #222' }}>
                 <h3 style={{ fontSize: '12px', color: '#aaa', margin: 0, textTransform: 'uppercase' }}>Ingresos del Mes</h3>
@@ -122,6 +133,13 @@ export default function AdminDashboard() {
                 <h3 style={{ fontSize: '12px', color: '#aaa', margin: 0, textTransform: 'uppercase' }}>Alquileres Activos</h3>
                 <p style={{ fontSize: '24px', fontWeight: 'bold', margin: '8px 0 0 0', color: '#3b82f6' }}>
                   {metricas.alquileresActivos} / {metricas.totalVehiculos} autos
+                </p>
+              </div>
+
+              <div style={{ backgroundColor: '#111', padding: '18px', borderRadius: '6px', borderLeft: '4px solid #f59e0b', border: '1px solid #222' }}>
+                <h3 style={{ fontSize: '12px', color: '#aaa', margin: 0, textTransform: 'uppercase' }}>En Taller / Mantenimiento</h3>
+                <p style={{ fontSize: '24px', fontWeight: 'bold', margin: '8px 0 0 0', color: '#f59e0b' }}>
+                  {metricas.autosEnTaller} autos
                 </p>
               </div>
 

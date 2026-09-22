@@ -393,12 +393,26 @@ export default function Home() {
           scroll-behavior: smooth;
         }
         body {
-          background: radial-gradient(circle at top, #1a0002 0%, #050505 50%, #000000 100%) !important;
-          background-attachment: fixed !important;
-          color: #f8fafc;
-          margin: 0;
-          padding: 0;
-        }
+  background: linear-gradient(135deg, #0a0a0a, #1a0000, #330000, #0a0a0a) !important;
+  background-size: 400% 400% !important;
+  animation: floatBackground 18s ease infinite !important;
+  color: #f8fafc;
+  margin: 0;
+  padding: 0;
+}
+
+/* Animación para el fondo flotante */
+@keyframes floatBackground {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
         input[type="text"],
         input[type="email"],
         input[type="tel"],

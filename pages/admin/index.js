@@ -1,71 +1,39 @@
-<div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-  <a 
-    href="/admin/vehiculos" 
-    style={{ 
-      backgroundColor: '#333', 
-      color: '#fff', 
-      padding: '8px 14px', 
-      borderRadius: '6px', 
-      textDecoration: 'none', 
-      fontSize: '13px', 
-      fontWeight: 'bold', 
-      display: 'inline-flex', 
-      alignItems: 'center', 
-      gap: '6px' 
-    }}
-  >
-    🚘 Gestionar Flota
-  </a>
+<header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #333', paddingBottom: '15px' }}>
+  <div>
+    <h1 style={{ fontSize: '20px', margin: 0 }}>Monaco Luxury - Panel de Control</h1>
+    <p style={{ color: '#aaa', margin: '5px 0 0 0', fontSize: '12px' }}>Gestión de Reservas en tiempo real</p>
+  </div>
+  
+  <div style={{ display: 'flex', gap: '10px' }}>
+    <button 
+      onClick={() => router.push('/admin/vehiculos')}
+      style={{ padding: '8px 16px', backgroundColor: '#181818', color: '#fff', border: '1px solid #333', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
+    >
+      🚘 Gestionar Flota
+    </button>
 
-  <a 
-    href="/admin/dashboard" 
-    style={{ 
-      backgroundColor: '#d4af37', 
-      color: '#000', 
-      padding: '8px 14px', 
-      borderRadius: '6px', 
-      textDecoration: 'none', 
-      fontSize: '13px', 
-      fontWeight: 'bold', 
-      display: 'inline-flex', 
-      alignItems: 'center', 
-      gap: '6px' 
-    }}
-  >
-    📊 Métricas
-  </a>
+    <button 
+      onClick={() => router.push('/admin/dashboard')}
+      style={{ padding: '8px 16px', backgroundColor: '#181818', color: '#d4af37', border: '1px solid #d4af37', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
+    >
+      📊 Métricas
+    </button>
 
-  <button 
-    onClick={() => setMostrarModalNueva && setMostrarModalNueva(true)} 
-    style={{ 
-      backgroundColor: '#d4af37', 
-      color: '#000', 
-      border: 'none', 
-      padding: '8px 14px', 
-      borderRadius: '6px', 
-      cursor: 'pointer', 
-      fontSize: '13px', 
-      fontWeight: 'bold' 
-    }}
-  >
-    + Nueva Reserva Manual
-  </button>
+    <button 
+      onClick={() => router.push('/admin/nueva-reserva')}
+      style={{ padding: '8px 16px', backgroundColor: '#d4af37', color: '#000', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
+    >
+      + Nueva Reserva Manual
+    </button>
 
-  <a 
-    href="/admin/login" 
-    style={{ 
-      backgroundColor: '#ef4444', 
-      color: '#fff', 
-      padding: '8px 14px', 
-      borderRadius: '6px', 
-      textDecoration: 'none', 
-      fontSize: '13px', 
-      fontWeight: 'bold' 
-    }}
-  >
-    Cerrar Sesión
-  </a>
-</div>
+    <button 
+      onClick={() => signOut(getAuth(app))}
+      style={{ padding: '8px 16px', backgroundColor: '#e53935', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
+    >
+      Cerrar Sesión
+    </button>
+  </div>
+</header>
       
 import React, { useState, useEffect } from 'react';
 import ContratoModal from './ContratoModal';

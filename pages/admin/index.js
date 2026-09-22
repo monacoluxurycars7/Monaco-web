@@ -21,7 +21,7 @@ export default function AdminDashboard() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [reservaParaVer, setReservaParaVer] = useState(null);
-  const [reservaParaEditar, setReservaParaEditar] = useState(null); // Estado para el modal de edición
+  const [reservaParaEditar, setReservaParaEditar] = useState(null);
   const [reservations, setReservations] = useState([]);
   const [vehiculosMap, setVehiculosMap] = useState({});
   const router = useRouter();
@@ -120,7 +120,6 @@ export default function AdminDashboard() {
     return 'Propio';
   };
 
-  // Función para eliminar reserva
   const handleEliminarReserva = async (id) => {
     if (window.confirm('¿Estás seguro de que deseas eliminar esta reserva? Esta acción no se puede deshacer.')) {
       try {
@@ -453,7 +452,6 @@ export default function AdminDashboard() {
                           )}
                         </td>
 
-                        {/* ACCIONES: EDITAR Y ELIMINAR */}
                         <td style={{ padding: '10px', textAlign: 'center', whiteSpace: 'nowrap' }}>
                           <button 
                             onClick={() => setReservaParaEditar(res)}
@@ -487,10 +485,9 @@ export default function AdminDashboard() {
         />
       )}
 
-      {/* MODAL DE EDICIÓN DE RESERVA */}
       {reservaParaEditar && (
         <EditarReservaModal 
-          reserva={reservaParaEditar} 
+          reservaItem={reservaParaEditar} 
           onClose={() => setReservaParaEditar(null)} 
           db={db}
         />
@@ -499,24 +496,23 @@ export default function AdminDashboard() {
   );
 }
 
-// COMPONENTE MODAL PARA EDITAR RESERVAS
-function EditarReservaModal({ reserva, onClose, db }) {
+function EditarReservaModal({ reservaItem, onClose, db }) {
   const [formData, setFormData] = useState({
-    clienteNombre: reserva.clienteNombre || '',
-    clienteTelefono: reserva.clienteTelefono || '',
-    clienteEmail: reserva.clienteEmail || '',
-    documentoCliente: reserva.documentoCliente || '',
-    tipoCliente: reserva.tipoCliente || 'Residente',
-    vehiculoNombre: reserva.vehiculoNombre || '',
-    tipoVehiculo: reserva.tipoVehiculo || (res.esSubrentado ? 'Subrentado' : 'Propio'),
-    inicio: reserva.inicio || '',
-    fin: reserva.fin || '',
-    precioPorDia: reserva.precioPorDia || reserva.rentaPorDia || 0,
-    diasTotales: reserva.diasTotales || 1,
-    costoTotal: reserva.costoTotal || 0,
-    lugarEntrega: reserva.lugarEntrega || '',
-    clienteDireccionRD: reserva.clienteDireccionRD || '',
-    seguroFull: reserva.seguroFull === true || reserva.seguroFull === 'si' ? 'si' : 'no'
+    clienteNombre: reservaItem.clienteNombre || '',
+    clienteTelefono: reservaItem.clienteTelefono || '',
+    clienteEmail: reservaItem.clienteEmail || '',
+    documentoCliente: reservaItem.documentoCliente || '',
+    tipoCliente: reservaItem.tipoCliente || 'Residente',
+    vehiculoNombre: reservaItem.vehiculoNombre || '',
+    tipoVehiculo: reservaItem.tipoVehiculo || (reservaItem.esSubrentado ? 'Subrentado' : 'Propio'),
+    inicio: reservaItem.inicio || '',
+    fin: reservaItem.fin || '',
+    precioPorDia: reservaItem.precioPorDia || reservaItem.rentaPorDia || 0,
+    diasTotales: reservaItem.diasTotales || 1,
+    costoTotal: reservaItem.costoTotal || 0,
+    lugarEntrega: reservaItem.lugarEntrega || '',
+    clienteDireccionRD: reservaItem.clienteDireccionRD || '',
+    seguroFull: reservaItem.seguroFull === true || reservaItem.seguroFull === 'si' ? 'si' : 'no'
   });
 
   const [guardando, setGuardando] = useState(false);
@@ -530,7 +526,7 @@ function EditarReservaModal({ reserva, onClose, db }) {
     e.preventDefault();
     setGuardando(true);
     try {
-      const docRef = doc(db, 'reservas', reserva.id);
+      const docRef = doc(db, 'reservas', reservaItem.id);
       await updateDoc(docRef, {
         clienteNombre: formData.clienteNombre,
         clienteTelefono: formData.clienteTelefono,
@@ -562,7 +558,7 @@ function EditarReservaModal({ reserva, onClose, db }) {
   return (
     <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: 'rgba(0,0,0,0.8)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, padding: '20px' }}>
       <div style={{ backgroundColor: '#141414', border: '1px solid #333', borderRadius: '8px', padding: '25px', width: '100%', maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto', color: '#fff' }}>
-        <h2 style={{ color: '#d4af37', marginTop: 0, marginBottom: '20px', fontSize: '18px' }}>Editar Reserva - {reserva.vehiculoNombre}</h2>
+        <h2 style={{ color: '#d4af37', marginTop: 0, marginBottom: '20px', fontSize: '18px' }}>Editar Reserva - {reservaItem.vehiculoNombre}</h2>
         
         <form onSubmit={handleGuardar} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', fontSize: '13px' }}>
           

@@ -14,18 +14,18 @@
   </a>
 
   <button 
-    onClick={() => setMostrarModalNueva(true)} 
+    onClick={() => setMostrarModalNueva && setMostrarModalNueva(true)} 
     style={{ backgroundColor: '#d4af37', color: '#000', border: 'none', padding: '8px 14px', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}
   >
     + Nueva Reserva Manual
   </button>
 
-  <button 
-    onClick={cerrarSesion} 
-    style={{ backgroundColor: '#ef4444', color: '#fff', border: 'none', padding: '8px 14px', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}
+  <a 
+    href="/admin/login" 
+    style={{ backgroundColor: '#ef4444', color: '#fff', padding: '8px 14px', borderRadius: '6px', textDecoration: 'none', fontSize: '13px', fontWeight: 'bold' }}
   >
     Cerrar Sesión
-  </button>
+  </a>
 </div>
       
 import React, { useState, useEffect } from 'react';

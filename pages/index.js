@@ -262,7 +262,6 @@ export default function Home() {
     if (!aceptaContrato) { alert('Debes aceptar el contrato.'); return; }
     if (!tieneFirma) { alert('Debes firmar digitalmente.'); return; }
 
-    // VALIDACIÓN INMEDIATA DE LISTA NEGRA
     // ==========================================
     // 🛑 1. VALIDACIÓN INMEDIATA DE LISTA NEGRA
     // ==========================================
@@ -343,7 +342,6 @@ export default function Home() {
 
       alert('¡Reserva realizada con éxito! Nos pondremos en contacto contigo.');
       setVehiculoSeleccionado(null);
-      // ... (cualquier otro reseteo de estados que tengas aquí)
 
     } catch (error) {
       console.error("Error al procesar la reserva:", error);

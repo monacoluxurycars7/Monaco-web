@@ -123,14 +123,17 @@ export default function GestionVehiculos() {
           <h1 style={{ fontSize: '20px', margin: 0, color: '#d4af37', fontWeight: 'bold' }}>Gestión de Flota de Vehículos</h1>
           <p style={{ fontSize: '11px', color: '#888', margin: '4px 0 0' }}>Control de disponibilidad, precios por escala y seguros</p>
         </div>
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <a href="/admin/vehiculos/nuevo" style={{ padding: '8px 14px', backgroundColor: '#d4af37', color: '#000', textDecoration: 'none', borderRadius: '4px', fontSize: '12px', fontWeight: 'bold' }}>
-            + Agregar Vehículo
-          </a>
-          <a href="/admin" style={{ padding: '8px 14px', backgroundColor: '#222', color: '#ccc', textDecoration: 'none', borderRadius: '4px', fontSize: '12px', border: '1px solid #333' }}>
-            ← Volver a Reservas
-          </a>
-        </div>
+       <div style={{ display: 'flex', gap: '10px' }}>
+  <a href="/admin/dashboard" style={{ padding: '8px 14px', backgroundColor: '#d4af37', color: '#000', textDecoration: 'none', borderRadius: '4px', fontSize: '12px', fontWeight: 'bold' }}>
+    📊 Métricas
+  </a>
+  <a href="/admin/vehiculos/nuevo" style={{ padding: '8px 14px', backgroundColor: '#222', color: '#ccc', textDecoration: 'none', borderRadius: '4px', fontSize: '12px', border: '1px solid #333' }}>
+    + Agregar Vehículo
+  </a>
+  <a href="/admin" style={{ padding: '8px 14px', backgroundColor: '#222', color: '#ccc', textDecoration: 'none', borderRadius: '4px', fontSize: '12px', border: '1px solid #333' }}>
+    ← Volver a Reservas
+  </a>
+</div>
       </div>
 
       {/* TARJETAS DE VEHÍCULOS */}

@@ -392,16 +392,20 @@ export default function Home() {
         html {
           scroll-behavior: smooth;
         }
-        body {
+        html, body, div#__next {
   background: linear-gradient(135deg, #0a0a0a, #1a0000, #330000, #0a0a0a) !important;
   background-size: 400% 400% !important;
   animation: floatBackground 18s ease infinite !important;
+  min-height: 100vh;
+}
+
+body {
   color: #f8fafc;
   margin: 0;
   padding: 0;
 }
 
-/* Animación para el fondo flotante */
+/* Animación para el fondo flotante global */
 @keyframes floatBackground {
   0% {
     background-position: 0% 50%;

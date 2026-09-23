@@ -110,24 +110,21 @@ export default function Login() {
         <span>{isPlaying ? '🔊 Pausar Música' : '🎵 Música Ambiental'}</span>
       </button>
 
-      {/* Animaciones CSS */}
+      {/* Animaciones CSS para marquesina continua */}
       <style jsx global>{`
-        @keyframes marqueeLeftToRight {
+        @keyframes scrollHorizontal {
           0% {
-            transform: translateX(-450px);
+            transform: translateX(0);
           }
           100% {
-            transform: translateX(100vw);
+            transform: translateX(-50%);
           }
         }
 
-        @keyframes marqueeRightToLeft {
-          0% {
-            transform: translateX(100vw);
-          }
-          100% {
-            transform: translateX(-450px);
-          }
+        .marquee-track {
+          display: flex;
+          width: 200%;
+          animation: scrollHorizontal 25s linear infinite;
         }
 
         .glow-title {
@@ -139,75 +136,58 @@ export default function Login() {
         }
       `}</style>
 
-      {/* LOGO SUPERIOR: Izquierda a Derecha */}
+      {/* FRANJA SUPERIOR: Logos pequeños en movimiento */}
       <div style={{
         position: 'absolute',
-        top: '2%',
+        top: '6%',
         left: '0',
         width: '100vw',
-        height: '140px',
+        overflow: 'hidden',
         pointerEvents: 'none',
         zIndex: 1
       }}>
-        <img 
-          src="/logo sin fondo.png" 
-          alt="Monaco Logo Top 1" 
-          style={{
-            position: 'absolute',
-            width: '380px',
-            height: 'auto',
-            opacity: 0.95,
-            animation: 'marqueeLeftToRight 9s linear infinite'
-          }}
-        />
-        <img 
-          src="/logo sin fondo.png" 
-          alt="Monaco Logo Top 2" 
-          style={{
-            position: 'absolute',
-            width: '380px',
-            height: 'auto',
-            opacity: 0.95,
-            animation: 'marqueeLeftToRight 9s linear infinite',
-            animationDelay: '4.5s'
-          }}
-        />
+        <div className="marquee-track">
+          {[...Array(14)].map((_, i) => (
+            <img 
+              key={`top-${i}`}
+              src="/logo sin fondo.png" 
+              alt="Monaco Logo Top" 
+              style={{
+                width: '100px',
+                height: 'auto',
+                marginRight: '50px',
+                opacity: 0.9
+              }}
+            />
+          ))}
+        </div>
       </div>
 
-      {/* LOGO INFERIOR: Derecha a Izquierda */}
+      {/* FRANJA INFERIOR: Logos pequeños en movimiento (sentido inverso) */}
       <div style={{
         position: 'absolute',
-        bottom: '26%',
+        bottom: '12%',
         left: '0',
         width: '100vw',
-        height: '140px',
+        overflow: 'hidden',
         pointerEvents: 'none',
         zIndex: 1
       }}>
-        <img 
-          src="/logo sin fondo.png" 
-          alt="Monaco Logo Bottom 1" 
-          style={{
-            position: 'absolute',
-            width: '380px',
-            height: 'auto',
-            opacity: 0.95,
-            animation: 'marqueeRightToLeft 9s linear infinite',
-            animationDelay: '1s'
-          }}
-        />
-        <img 
-          src="/logo sin fondo.png" 
-          alt="Monaco Logo Bottom 2" 
-          style={{
-            position: 'absolute',
-            width: '380px',
-            height: 'auto',
-            opacity: 0.95,
-            animation: 'marqueeRightToLeft 9s linear infinite',
-            animationDelay: '5.5s'
-          }}
-        />
+        <div className="marquee-track" style={{ animationDirection: 'reverse' }}>
+          {[...Array(14)].map((_, i) => (
+            <img 
+              key={`bottom-${i}`}
+              src="/logo sin fondo.png" 
+              alt="Monaco Logo Bottom" 
+              style={{
+                width: '100px',
+                height: 'auto',
+                marginRight: '50px',
+                opacity: 0.9
+              }}
+            />
+          ))}
+        </div>
       </div>
 
       {/* CAJA DE LOGIN */}

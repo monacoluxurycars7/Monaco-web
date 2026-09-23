@@ -187,22 +187,24 @@ export default function AdminDashboard() {
 <button 
   onClick={() => router.push('/admin/facturas')}
   style={{
-    padding: '14px 20px',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '8px 12px',
     backgroundColor: '#d4af37',
     color: '#000',
     border: 'none',
-    borderRadius: '8px',
-    fontWeight: 'bold',
+    borderRadius: '6px',
     cursor: 'pointer',
-    fontSize: '14px',
-    display: 'flex',
-    alignItem: 'center',
-    gap: '8px',
-    boxShadow: '0 4px 10px rgba(212, 175, 55, 0.3)',
-    transition: 'transform 0.2s'
+    fontWeight: 'bold',
+    fontSize: '12px',
+    textAlign: 'center',
+    lineHeight: '1.2'
   }}
 >
-  📄 Ver Facturas y Contratos
+  <span style={{ fontSize: '15px', marginBottom: '2px' }}>📄</span>
+  <span>Facturas</span>
 </button>
             <button 
               onClick={() => router.push('/admin/vehiculos')}

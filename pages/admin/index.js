@@ -183,13 +183,7 @@ export default function AdminDashboard() {
           </div>
           
           <div style={{ display: 'flex', gap: '10px' }}>
-            <button 
-              onClick={() => router.push('/admin/facturas')}
-              style={{ padding: '8px 16px', backgroundColor: '#d4af37', color: '#000', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
-            >
-              📄 Facturas
-            </button>
-
+         
             <button 
               onClick={() => router.push('/admin/vehiculos')}
               style={{ padding: '8px 16px', backgroundColor: '#181818', color: '#fff', border: '1px solid #333', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}

@@ -13,282 +13,233 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
 };
 
-// Inicialización segura para evitar errores en el servidor de Vercel
 function getFirebaseDb() {
   const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
   return getFirestore(app);
 }
 
-export default function FacturaReserva() {
+export default function DetalleFactura() {
   const router = useRouter();
   const { id } = router.query;
 
   const [reserva, setReserva] = useState(null);
   const [loading, setLoading] = useState(true);
   const [enviandoEmail, setEnviandoEmail] = useState(false);
-  const [copiado, setCopiado] = useState(false);
+  const [mensajeEstado, setMensajeEstado] = useState('');
 
   useEffect(() => {
-    if (!router.isReady || !id) return;
-    
+    if (!id) return;
     const fetchReserva = async () => {
       try {
         const db = getFirebaseDb();
         const docRef = doc(db, 'reservas', id);
         const docSnap = await getDoc(docRef);
+
         if (docSnap.exists()) {
           setReserva({ id: docSnap.id, ...docSnap.data() });
         } else {
-          alert('No se encontró la reserva.');
+          setMensajeEstado('No se encontró la factura en la base de datos.');
         }
       } catch (error) {
-        console.error('Error al cargar la reserva:', error);
+        console.error('Error al obtener la factura:', error);
+        setMensajeEstado('Error al cargar los datos.');
       } finally {
         setLoading(false);
       }
     };
     fetchReserva();
-  }, [router.isReady, id]);
+  }, [id]);
 
   const handlePrint = () => {
     window.print();
   };
 
-  const handleEnviarCorreo = async () => {
-    if (!reserva?.clienteEmail) {
-      alert('Este cliente no tiene un correo registrado en esta reserva.');
+  const handleEnviarEmail = async () => {
+    if (!reserva || !reserva.clienteEmail) {
+      alert('El cliente no tiene un correo electrónico registrado.');
       return;
     }
 
     setEnviandoEmail(true);
+    setMensajeEstado('');
+
     try {
-      const subtotalSeguro = reserva.seguroFull ? (reserva.diasTotales * 20) : 0;
       const templateParams = {
-        to_name: reserva.clienteNombre,
         to_email: reserva.clienteEmail,
-        cliente_nombre: reserva.clienteNombre,
-        vehiculo: reserva.vehiculoNombre,
-        tipo_cliente: reserva.tipoCliente === 'residente' ? 'Residente RD' : 'Turista / Extranjero',
-        documento_cliente: reserva.documentoCliente || 'No especificado',
-        fecha_inicio: reserva.inicio,
-        fecha_fin: reserva.fin,
-        dias_totales: reserva.diasTotales,
-        precio_por_dia: reserva.precioPorDia,
-        seguro_full: reserva.seguroFull ? `Sí ($${subtotalSeguro} USD)` : 'No',
-        depositoGarantia: reserva.depositoGarantia,
-        lugarEntrega: reserva.lugarEntrega,
-        costoEntrega: reserva.costoEntrega,
-        costoTotalFinal: reserva.costoTotal,
-        cuentas_bancarias: 'Banco Popular Dominicano: C/A 123-45678-9<br/>Banco BHD León: C/A 987-65432-1',
-        contrato_texto: 'El cliente se compromete a devolver el vehículo en las mismas condiciones óptimas de entrega y respetar las leyes de tránsito de la Rep. Dominicana...',
-        firma_url: ''
+        to_name: reserva.clienteNombre || 'Estimado cliente',
+        vehiculo: reserva.vehiculoNombre || 'Vehículo de lujo',
+        inicio: reserva.inicio || '',
+        fin: reserva.fin || '',
+        total: reserva.costoTotal || '0',
+        referencia: reserva.id
       };
 
+      // Configura tus credenciales de EmailJS aquí o mediante variables de entorno
       await emailjs.send(
-        'service_av3mxdg',
-        'template_d2myfzs',
+        'service_xxx', // Reemplaza con tu Service ID de EmailJS
+        'template_xxx', // Reemplaza con tu Template ID de EmailJS
         templateParams,
-        'bn6WeQnxOIluVFxfB'
+        'public_key_xxx' // Reemplaza con tu Public Key de EmailJS
       );
 
-      alert('¡Comprobante y detalles enviados con éxito al correo del cliente!');
+      setMensajeEstado('¡Factura enviada por correo exitosamente al cliente!');
     } catch (error) {
       console.error('Error al enviar correo:', error);
-      alert('Hubo un error al enviar el correo.');
+      setMensajeEstado('Hubo un error al enviar el correo. Verifica tus credenciales de EmailJS.');
     } finally {
       setEnviandoEmail(false);
     }
   };
 
-  const mensajeProfesional = reserva ? `Estimado/a ${reserva.clienteNombre}, 
-
-Le saludamos desde Mónaco Luxury. Nos complace confirmarle los detalles de su reserva para el vehículo ${reserva.vehiculoNombre}.
-
-📅 Fechas: Del ${reserva.inicio} al ${reserva.fin} (${reserva.diasTotales} días)
-📍 Lugar de entrega: ${reserva.lugarEntrega}
-💰 Total a pagar: $${reserva.costoTotal} USD (Depósito de garantía reembolsable: $${reserva.depositoGarantia} USD)
-
-Cuentas bancarias autorizadas para depósito/transferencia:
-• Banco Popular Dominicano: C/A 123-45678-9
-• Banco BHD León: C/A 987-65432-1
-
-Por favor, envíenos el comprobante de pago por esta vía para dejar su unidad totalmente asegurada. ¡Gracias por confiar en nosotros!` : '';
-
-  const handleCopiarMensaje = () => {
-    navigator.clipboard.writeText(mensajeProfesional);
-    setCopiado(true);
-    setTimeout(() => setCopiado(false), 3000);
+  const handleCopiarWhatsApp = () => {
+    if (!reserva) return;
+    const texto = `Estimado/a *${reserva.clienteNombre}*, gracias por elegir *Mónaco Luxury Car*. Su reserva del vehículo *${reserva.vehiculoNombre}* del ${reserva.inicio} al ${reserva.fin} ha sido confirmada. Total: $${reserva.costoTotal} USD. Ref: #${reserva.id}`;
+    navigator.clipboard.writeText(texto);
+    alert('¡Mensaje copiado al portapapeles para enviar por WhatsApp!');
   };
 
-  if (loading) return <p style={{ color: '#fff', textAlign: 'center', marginTop: '50px' }}>Cargando factura...</p>;
-  if (!reserva) return <p style={{ color: '#fff', textAlign: 'center', marginTop: '50px' }}>Reserva no encontrada.</p>;
+  if (loading) {
+    return <div style={{ backgroundColor: '#121212', color: '#fff', minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>Cargando factura...</div>;
+  }
 
-  const subtotalAlquiler = reserva.diasTotales * Number(reserva.precioPorDia);
-  const subtotalSeguro = reserva.seguroFull ? (reserva.diasTotales * 20) : 0;
+  if (!reserva) {
+    return (
+      <div style={{ backgroundColor: '#121212', color: '#fff', minHeight: '100vh', padding: '40px', textAlign: 'center' }}>
+        <h2>{mensajeEstado || 'Factura no encontrada'}</h2>
+        <button onClick={() => router.push('/admin/facturas')} style={{ marginTop: '20px', padding: '10px 20px', backgroundColor: '#d4af37', color: '#000', border: 'none', borderRadius: '5px', fontWeight: 'bold', cursor: 'pointer' }}>
+          ← Volver al Historial
+        </button>
+      </div>
+    );
+  }
 
   return (
-    <div style={{ backgroundColor: '#121212', color: '#e0e0e0', minHeight: '100vh', padding: '20px', fontFamily: 'sans-serif' }}>
+    <div style={{ backgroundColor: '#121212', color: '#e0e0e0', minHeight: '100vh', padding: '40px 20px', fontFamily: 'sans-serif' }}>
       
-      {/* Botones de acción */}
+      {/* Botones de acción superior (No se imprimen) */}
       <div className="no-print" style={{ maxWidth: '800px', margin: '0 auto 20px auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
         <button 
           onClick={() => router.push('/admin/facturas')}
-          style={{ padding: '10px 16px', backgroundColor: '#333', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
+          style={{ padding: '8px 14px', backgroundColor: '#333', color: '#fff', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}
         >
           ← Volver al Historial
         </button>
         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
           <button 
-            onClick={handlePrint}
-            style={{ padding: '10px 20px', backgroundColor: '#d4af37', color: '#000', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}
+            onClick={handleCopiarWhatsApp}
+            style={{ padding: '8px 14px', backgroundColor: '#25D366', color: '#fff', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}
           >
-            🖨️ Imprimir / Guardar PDF
+            💬 Copiar para WhatsApp
           </button>
           <button 
-            onClick={handleEnviarCorreo}
+            onClick={handleEnviarEmail}
             disabled={enviandoEmail}
-            style={{ padding: '10px 20px', backgroundColor: '#2563eb', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}
+            style={{ padding: '8px 14px', backgroundColor: '#2563eb', color: '#fff', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}
           >
             {enviandoEmail ? 'Enviando...' : '📧 Enviar por Correo'}
           </button>
+          <button 
+            onClick={handlePrint}
+            style={{ padding: '8px 14px', backgroundColor: '#d4af37', color: '#000', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}
+          >
+            🖨️ Imprimir / Guardar PDF
+          </button>
         </div>
       </div>
 
-      {/* Contenedor de la Factura */}
-      <div style={{ maxWidth: '800px', margin: '0 auto', backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px', padding: '40px', boxShadow: '0 4px 15px rgba(0,0,0,0.5)' }} id="factura-print">
+      {mensajeEstado && (
+        <div style={{ maxWidth: '800px', margin: '0 auto 15px auto', padding: '10px', backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '5px', color: '#38bdf8', textAlign: 'center', fontSize: '13px' }}>
+          {mensajeEstado}
+        </div>
+      )}
+
+      {/* Recibo / Factura oficial */}
+      <div style={{ maxWidth: '800px', margin: '0 auto', backgroundColor: '#ffffff', color: '#000000', padding: '40px', borderRadius: '8px', boxShadow: '0 4px 20px rgba(0,0,0,0.3)' }}>
         
-        {/* Cabecera */}
+        {/* Cabecera de la factura */}
         <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '2px solid #d4af37', paddingBottom: '20px', marginBottom: '20px' }}>
           <div>
-            <h1 style={{ color: '#d4af37', margin: 0, fontSize: '24px', letterSpacing: '1px' }}>MÓNACO LUXURY</h1>
-            <p style={{ margin: '4px 0', fontSize: '13px', color: '#aaa' }}>Alquiler de Vehículos Exclusivos</p>
-            <p style={{ margin: '2px 0', fontSize: '12px', color: '#888' }}>Santo Domingo, Rep. Dom. | Tel: +1 (800) 000-0000</p>
+            <h1 style={{ color: '#111', margin: 0, fontSize: '26px', letterSpacing: '1px' }}>MÓNACO LUXURY</h1>
+            <p style={{ color: '#555', margin: '4px 0 0 0', fontSize: '12px' }}>Alquiler de Vehículos Exclusivos</p>
           </div>
           <div style={{ textAlign: 'right' }}>
-            <h2 style={{ margin: 0, fontSize: '18px', color: '#fff' }}>CONSTANCIA DE RESERVA</h2>
-            <p style={{ margin: '4px 0', fontSize: '13px', color: '#d4af37' }}>Ref: #{reserva.id.slice(-6).toUpperCase()}</p>
-            <p style={{ margin: '2px 0', fontSize: '12px', color: '#aaa' }}>Fecha Emisión: {new Date().toLocaleDateString()}</p>
+            <h3 style={{ margin: 0, color: '#d4af37', fontSize: '18px' }}>FACTURA / CONTRATO</h3>
+            <p style={{ margin: '4px 0 0 0', fontSize: '13px', fontWeight: 'bold' }}>Ref: #{reserva.id.slice(-6).toUpperCase()}</p>
+            <p style={{ margin: '2px 0 0 0', fontSize: '11px', color: '#666' }}>Fecha: {reserva.fechaCreacion || 'N/A'}</p>
           </div>
         </div>
 
-        {/* Información del Cliente y Vehículo */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '25px', backgroundColor: '#161616', padding: '15px', borderRadius: '6px', border: '1px solid #262626' }}>
+        {/* Datos del Cliente y Alquiler */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '30px', fontSize: '14px' }}>
           <div>
-            <h3 style={{ color: '#d4af37', fontSize: '14px', margin: '0 0 8px 0', borderBottom: '1px solid #333', paddingBottom: '4px' }}>DATOS DEL CLIENTE</h3>
-            <p style={{ margin: '4px 0', fontSize: '13px' }}><strong>Nombre:</strong> {reserva.clienteNombre}</p>
-            <p style={{ margin: '4px 0', fontSize: '13px' }}><strong>Teléfono:</strong> {reserva.clienteTelefono || 'N/A'}</p>
-            <p style={{ margin: '4px 0', fontSize: '13px' }}><strong>Email:</strong> {reserva.clienteEmail || 'N/A'}</p>
-            <p style={{ margin: '4px 0', fontSize: '13px' }}><strong>Documento (Cédula/Pasaporte):</strong> {reserva.documentoCliente || 'Pendiente'}</p>
-            <p style={{ margin: '4px 0', fontSize: '13px' }}><strong>Tipo:</strong> {reserva.tipoCliente === 'residente' ? 'Residente RD' : 'Turista / Extranjero'}</p>
+            <h4 style={{ color: '#333', borderBottom: '1px solid #ddd', paddingBottom: '5px', marginBottom: '10px' }}>Datos del Cliente</h4>
+            <p style={{ margin: '4px 0' }}><strong>Nombre:</strong> {reserva.clienteNombre || 'N/A'}</p>
+            <p style={{ margin: '4px 0' }}><strong>Documento:</strong> {reserva.documentoCliente || 'N/A'}</p>
+            <p style={{ margin: '4px 0' }}><strong>Teléfono:</strong> {reserva.clienteTelefono || 'N/A'}</p>
+            <p style={{ margin: '4px 0' }}><strong>Correo:</strong> {reserva.clienteEmail || 'N/A'}</p>
           </div>
-
           <div>
-            <h3 style={{ color: '#d4af37', fontSize: '14px', margin: '0 0 8px 0', borderBottom: '1px solid #333', paddingBottom: '4px' }}>DATOS DE LA RENTA</h3>
-            <p style={{ margin: '4px 0', fontSize: '13px' }}><strong>Vehículo:</strong> {reserva.vehiculoNombre}</p>
-            <p style={{ margin: '4px 0', fontSize: '13px' }}><strong>Fecha Inicio:</strong> {reserva.inicio}</p>
-            <p style={{ margin: '4px 0', fontSize: '13px' }}><strong>Fecha Fin:</strong> {reserva.fin}</p>
-            <p style={{ margin: '4px 0', fontSize: '13px' }}><strong>Duración:</strong> {reserva.diasTotales} día(s)</p>
-            <p style={{ margin: '4px 0', fontSize: '13px' }}><strong>Lugar de Entrega:</strong> {reserva.lugarEntrega}</p>
+            <h4 style={{ color: '#333', borderBottom: '1px solid #ddd', paddingBottom: '5px', marginBottom: '10px' }}>Detalles del Servicio</h4>
+            <p style={{ margin: '4px 0' }}><strong>Vehículo:</strong> {reserva.vehiculoNombre || 'N/A'}</p>
+            <p style={{ margin: '4px 0' }}><strong>Retiro:</strong> {reserva.inicio || 'N/A'}</p>
+            <p style={{ margin: '4px 0' }}><strong>Devolución:</strong> {reserva.fin || 'N/A'}</p>
+            <p style={{ margin: '4px 0' }}><strong>Duración:</strong> {reserva.diasTotales || 0} días</p>
           </div>
         </div>
 
-        {/* Tabla de Desglose de Costos */}
-        <h3 style={{ color: '#d4af37', fontSize: '14px', margin: '0 0 10px 0' }}>DESGLOSE FINANCIERO</h3>
-        <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '20px', fontSize: '13px' }}>
+        {/* Tabla de costos */}
+        <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '30px', fontSize: '14px' }}>
           <thead>
-            <tr style={{ backgroundColor: '#222', color: '#d4af37', textAlign: 'left' }}>
-              <th style={{ padding: '10px', border: '1px solid #333' }}>Concepto</th>
-              <th style={{ padding: '10px', border: '1px solid #333', textAlign: 'center' }}>Cant. / Días</th>
-              <th style={{ padding: '10px', border: '1px solid #333', textAlign: 'right' }}>Precio Unit.</th>
-              <th style={{ padding: '10px', border: '1px solid #333', textAlign: 'right' }}>Subtotal</th>
+            <tr style={{ backgroundColor: '#f3f4f6', borderBottom: '2px solid #ddd' }}>
+              <th style={{ padding: '10px', textAlign: 'left' }}>Descripción</th>
+              <th style={{ padding: '10px', textAlign: 'center' }}>Cant / Días</th>
+              <th style={{ padding: '10px', textAlign: 'right' }}>Subtotal</th>
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td style={{ padding: '8px', border: '1px solid #333' }}>Alquiler de Vehículo ({reserva.vehiculoNombre})</td>
-              <td style={{ padding: '8px', border: '1px solid #333', textAlign: 'center' }}>{reserva.diasTotales}</td>
-              <td style={{ padding: '8px', border: '1px solid #333', textAlign: 'right' }}>${reserva.precioPorDia} USD</td>
-              <td style={{ padding: '8px', border: '1px solid #333', textAlign: 'right' }}>${subtotalAlquiler} USD</td>
+            <tr style={{ borderBottom: '1px solid #eee' }}>
+              <td style={{ padding: '12px 10px' }}>Alquiler de {reserva.vehiculoNombre || 'Vehículo'}</td>
+              <td style={{ padding: '12px 10px', textAlign: 'center' }}>{reserva.diasTotales || 1} días</td>
+              <td style={{ padding: '12px 10px', textAlign: 'right' }}>${reserva.costoTotal || 0} USD</td>
             </tr>
-            {reserva.seguroFull && (
-              <tr>
-                <td style={{ padding: '8px', border: '1px solid #333' }}>Seguro Full / Cobertura Total</td>
-                <td style={{ padding: '8px', border: '1px solid #333', textAlign: 'center' }}>{reserva.diasTotales}</td>
-                <td style={{ padding: '8px', border: '1px solid #333', textAlign: 'right' }}>$20 USD</td>
-                <td style={{ padding: '8px', border: '1px solid #333', textAlign: 'right' }}>${subtotalSeguro} USD</td>
-              </tr>
-            )}
-            {Number(reserva.costoEntrega) > 0 && (
-              <tr>
-                <td style={{ padding: '8px', border: '1px solid #333' }}>Costo de Movilización / Entrega</td>
-                <td style={{ padding: '8px', border: '1px solid #333', textAlign: 'center' }}>1</td>
-                <td style={{ padding: '8px', border: '1px solid #333', textAlign: 'right' }}>${reserva.costoEntrega} USD</td>
-                <td style={{ padding: '8px', border: '1px solid #333', textAlign: 'right' }}>${reserva.costoEntrega} USD</td>
-              </tr>
-            )}
           </tbody>
         </table>
 
-        {/* Totales y Garantía */}
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '30px' }}>
-          <div style={{ width: '300px', backgroundColor: '#161616', padding: '15px', borderRadius: '6px', border: '1px solid #262626' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '13px' }}>
-              <span>Depósito de Garantía (Reembolsable):</span>
-              <strong style={{ color: '#d4af37' }}>${reserva.depositoGarantia} USD</strong>
+        {/* Totales */}
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '40px' }}>
+          <div style={{ width: '250px', fontSize: '14px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid #eee' }}>
+              <span>Subtotal:</span>
+              <span>${reserva.costoTotal || 0} USD</span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid #333', paddingTop: '8px', fontSize: '15px' }}>
-              <strong style={{ color: '#fff' }}>TOTAL A PAGAR:</strong>
-              <strong style={{ color: '#22c55e' }}>${reserva.costoTotal} USD</strong>
+            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', fontWeight: 'bold', fontSize: '16px', color: '#111' }}>
+              <span>Total a Pagar:</span>
+              <span style={{ color: '#16a34a' }}>${reserva.costoTotal || 0} USD</span>
             </div>
           </div>
         </div>
 
-        {/* Cuentas Bancarias */}
-        <div style={{ marginBottom: '25px', backgroundColor: '#161616', padding: '15px', borderRadius: '6px', border: '1px solid #262626' }}>
-          <h3 style={{ color: '#d4af37', fontSize: '14px', margin: '0 0 8px 0' }}>MÉTODOS DE PAGO / CUENTAS BANCARIAS</h3>
-          <p style={{ margin: '4px 0', fontSize: '13px' }}>• <strong>Banco Popular Dominicano:</strong> C/A 123-45678-9 (Mónaco Luxury SRL)</p>
-          <p style={{ margin: '4px 0', fontSize: '13px' }}>• <strong>Banco BHD León:</strong> C/A 987-65432-1 (Mónaco Luxury SRL)</p>
-        </div>
-
-        {/* Términos y Contrato */}
-        <div style={{ borderTop: '1px solid #333', paddingTop: '15px' }}>
-          <h3 style={{ color: '#d4af37', fontSize: '14px', margin: '0 0 6px 0' }}>TÉRMINOS Y CONDICIONES DEL CONTRATO</h3>
-          <p style={{ fontSize: '11px', color: '#999', lineHeight: '1.4', margin: 0 }}>
-            1. El presente documento sirve como constancia oficial de reserva de vehículo en Mónaco Luxury.<br/>
-            2. El arrendatario se compromete a entregar el vehículo en las mismas condiciones óptimas en las que lo recibe, respetando las leyes de tránsito vigentes en la República Dominicana.<br/>
-            3. Queda estrictamente prohibido conducir bajo los efectos del alcohol, subarrendar el vehículo o sacarlo de territorio nacional sin autorización expresa por escrito.<br/>
-            4. El contrato físico definitivo será firmado por ambas partes al momento de la entrega presencial de la unidad.
-          </p>
+        {/* Firmas */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px', marginTop: '60px', textAlign: 'center', fontSize: '13px' }}>
+          <div>
+            <div style={{ borderTop: '1px solid #333', paddingTop: '8px' }}>Firma de la Empresa</div>
+          </div>
+          <div>
+            <div style={{ borderTop: '1px solid #333', paddingTop: '8px' }}>Firma del Cliente</div>
+          </div>
         </div>
 
       </div>
 
-      {/* Generador de Mensaje Profesional */}
-      <div className="no-print" style={{ maxWidth: '800px', margin: '30px auto 0 auto', backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px', padding: '25px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-          <h3 style={{ color: '#d4af37', fontSize: '15px', margin: 0 }}>💬 Mensaje Profesional para Cliente (WhatsApp / Correo)</h3>
-          <button
-            onClick={handleCopiarMensaje}
-            style={{ padding: '8px 16px', backgroundColor: copiado ? '#16a34a' : '#d4af37', color: '#000', border: 'none', borderRadius: '6px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer', transition: '0.2s' }}
-          >
-            {copiado ? '¡Copiado con éxito! ✅' : '📋 Copiar Mensaje'}
-          </button>
-        </div>
-        <textarea
-          readOnly
-          value={mensajeProfesional}
-          rows={7}
-          style={{ width: '100%', backgroundColor: '#121212', color: '#ddd', border: '1px solid #333', borderRadius: '6px', padding: '12px', fontSize: '13px', fontFamily: 'monospace', resize: 'vertical' }}
-        />
-      </div>
-
+      {/* Estilos CSS para ocultar botones al imprimir */}
       <style jsx global>{`
         @media print {
-          .no-print { display: none !important; }
-          body { background-color: #fff !important; color: #000 !important; }
-          div#factura-print { background-color: #fff !important; color: #000 !important; border: none !important; box-shadow: none !important; padding: 0 !important; }
-          h1, h2, h3, strong { color: #000 !important; }
-          p, span, td, th { color: #333 !important; }
+          .no-print {
+            display: none !important;
+          }
+          body {
+            background-color: #ffffff !important;
+          }
         }
       `}</style>
 

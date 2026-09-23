@@ -155,39 +155,40 @@ export default function DetalleFacturaContrato() {
         </div>
       )}
 
-      {/* DOCUMENTO OFICIAL: Estilo Mónaco Luxury (Negro, Rojo, Blanco) */}
+      {/* DOCUMENTO OFICIAL: Estilo Limpio, Blanco y Rojo con Líneas Negras */}
       <div style={{ maxWidth: '850px', margin: '0 auto', backgroundColor: '#ffffff', color: '#111111', padding: '45px', borderRadius: '8px', boxShadow: '0 4px 25px rgba(0,0,0,0.4)', lineHeight: '1.5', borderTop: '6px solid #dc2626' }}>
         
-        {/* Encabezado con Logo y Marca */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #000', paddingBottom: '20px', marginBottom: '25px' }}>
+        {/* Encabezado con el Logo real sin fondo */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #111', paddingBottom: '20px', marginBottom: '25px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-            {/* Logo de Mónaco (Puedes reemplazar el src con el enlace directo de tu logo si lo tienes alojado) */}
-            <div style={{ width: '55px', height: '55px', backgroundColor: '#000', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: '900', fontSize: '20px', border: '2px solid #dc2626' }}>
-              M
-            </div>
+            <img 
+              src="/logo sin fondo.png" 
+              alt="Mónaco Luxury Logo" 
+              style={{ height: '55px', objectFit: 'contain' }} 
+            />
             <div>
-              <h1 style={{ color: '#000', margin: 0, fontSize: '24px', letterSpacing: '1px', fontWeight: '900' }}>MÓNACO LUXURY</h1>
-              <p style={{ color: '#dc2626', margin: '2px 0 0 0', fontSize: '12px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px' }}>Rent Car & Services</p>
+              <h1 style={{ color: '#111', margin: 0, fontSize: '22px', letterSpacing: '0.5px', fontWeight: '900' }}>MÓNACO LUXURY</h1>
+              <p style={{ color: '#dc2626', margin: '2px 0 0 0', fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px' }}>Rent Car & Services</p>
             </div>
           </div>
           <div style={{ textAlign: 'right' }}>
-            <span style={{ backgroundColor: '#000', color: '#fff', padding: '4px 10px', fontSize: '12px', fontWeight: 'bold', borderRadius: '4px' }}>FACTURA & CONTRATO</span>
-            <p style={{ margin: '8px 0 0 0', fontSize: '14px', fontWeight: 'bold', color: '#dc2626' }}>Ref: #{reserva.id.slice(-6).toUpperCase()}</p>
+            <span style={{ backgroundColor: '#dc2626', color: '#fff', padding: '4px 10px', fontSize: '11px', fontWeight: 'bold', borderRadius: '4px', textTransform: 'uppercase' }}>Factura & Contrato</span>
+            <p style={{ margin: '8px 0 0 0', fontSize: '14px', fontWeight: 'bold', color: '#111' }}>Ref: #{reserva.id.slice(-6).toUpperCase()}</p>
             <p style={{ margin: '2px 0 0 0', fontSize: '11px', color: '#555' }}>Emisión: {reserva.fechaCreacion || 'N/A'}</p>
           </div>
         </div>
 
         {/* Datos del Cliente y del Vehículo */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '25px', fontSize: '13px', backgroundColor: '#f8fafc', padding: '15px', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '25px', fontSize: '13px', backgroundColor: '#fcfcfc', padding: '15px', borderRadius: '6px', border: '1px solid #e5e7eb' }}>
           <div>
-            <h4 style={{ color: '#000', borderBottom: '2px solid #dc2626', paddingBottom: '4px', marginBottom: '8px', fontSize: '13px', textTransform: 'uppercase' }}>👤 Datos del Cliente</h4>
+            <h4 style={{ color: '#111', borderBottom: '2px solid #dc2626', paddingBottom: '4px', marginBottom: '8px', fontSize: '13px', textTransform: 'uppercase' }}>👤 Datos del Cliente</h4>
             <p style={{ margin: '3px 0' }}><strong>Nombre:</strong> {reserva.clienteNombre || 'N/A'}</p>
             <p style={{ margin: '3px 0' }}><strong>Documento:</strong> {reserva.documentoCliente || 'N/A'}</p>
             <p style={{ margin: '3px 0' }}><strong>Teléfono:</strong> {reserva.clienteTelefono || 'N/A'}</p>
             <p style={{ margin: '3px 0' }}><strong>Correo:</strong> {reserva.clienteEmail || 'N/A'}</p>
           </div>
           <div>
-            <h4 style={{ color: '#000', borderBottom: '2px solid #dc2626', paddingBottom: '4px', marginBottom: '8px', fontSize: '13px', textTransform: 'uppercase' }}>🚗 Detalle del Alquiler</h4>
+            <h4 style={{ color: '#111', borderBottom: '2px solid #dc2626', paddingBottom: '4px', marginBottom: '8px', fontSize: '13px', textTransform: 'uppercase' }}>🚗 Detalle del Alquiler</h4>
             <p style={{ margin: '3px 0' }}><strong>Vehículo:</strong> {reserva.vehiculoNombre || 'N/A'}</p>
             <p style={{ margin: '3px 0' }}><strong>Retiro:</strong> {reserva.inicio || 'N/A'}</p>
             <p style={{ margin: '3px 0' }}><strong>Devolución:</strong> {reserva.fin || 'N/A'}</p>
@@ -196,22 +197,22 @@ export default function DetalleFacturaContrato() {
         </div>
 
         {/* Tabla de Cobro y Depósito */}
-        <h4 style={{ color: '#000', marginBottom: '8px', fontSize: '13px', textTransform: 'uppercase' }}>💳 Desglose Económico & Garantía</h4>
+        <h4 style={{ color: '#111', marginBottom: '8px', fontSize: '13px', textTransform: 'uppercase' }}>💳 Desglose Económico & Garantía</h4>
         <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '20px', fontSize: '13px' }}>
           <thead>
-            <tr style={{ backgroundColor: '#000', color: '#ffffff' }}>
+            <tr style={{ backgroundColor: '#111', color: '#ffffff' }}>
               <th style={{ padding: '10px 12px', textAlign: 'left' }}>Concepto</th>
               <th style={{ padding: '10px 12px', textAlign: 'center' }}>Plazo</th>
               <th style={{ padding: '10px 12px', textAlign: 'right' }}>Monto (USD)</th>
             </tr>
           </thead>
           <tbody>
-            <tr style={{ borderBottom: '1px solid #e2e8f0' }}>
+            <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
               <td style={{ padding: '10px 12px' }}>Alquiler de Vehículo ({reserva.vehiculoNombre || 'Lujo'})</td>
               <td style={{ padding: '10px 12px', textAlign: 'center' }}>{reserva.diasTotales || 1} días</td>
               <td style={{ padding: '10px 12px', textAlign: 'right' }}>${reserva.costoTotal || 0} USD</td>
             </tr>
-            <tr style={{ borderBottom: '1px solid #e2e8f0', backgroundColor: '#fef2f2' }}>
+            <tr style={{ borderBottom: '1px solid #e5e7eb', backgroundColor: '#fef2f2' }}>
               <td style={{ padding: '10px 12px' }}>
                 <strong style={{ color: '#991b1b' }}>Depósito de Garantía / Fianza (Reembolsable)</strong>
                 <div style={{ fontSize: '10px', color: '#666' }}>Retenido temporalmente para cubrir infracciones o daños, devuelto íntegramente al finalizar.</div>
@@ -224,25 +225,25 @@ export default function DetalleFacturaContrato() {
 
         {/* Total General */}
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '30px' }}>
-          <div style={{ width: '300px', fontSize: '13px', backgroundColor: '#000', color: '#fff', padding: '12px 15px', borderRadius: '6px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '3px 0', borderBottom: '1px solid #333' }}>
+          <div style={{ width: '300px', fontSize: '13px', backgroundColor: '#f8fafc', border: '1px solid #cbd5e1', color: '#111', padding: '12px 15px', borderRadius: '6px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '3px 0', borderBottom: '1px solid #e2e8f0' }}>
               <span>Alquiler:</span>
               <span>${reserva.costoTotal || 0} USD</span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '3px 0', borderBottom: '1px solid #333', paddingBottom: '6px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '3px 0', borderBottom: '1px solid #e2e8f0', paddingBottom: '6px' }}>
               <span>Depósito:</span>
               <span>${depositoGarantia} USD</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0 2px 0', fontWeight: 'bold', fontSize: '15px' }}>
               <span>Total Inicial:</span>
-              <span style={{ color: '#ef4444' }}>${(Number(reserva.costoTotal || 0) + Number(depositoGarantia))} USD</span>
+              <span style={{ color: '#dc2626' }}>${(Number(reserva.costoTotal || 0) + Number(depositoGarantia))} USD</span>
             </div>
           </div>
         </div>
 
         {/* Términos y Condiciones */}
-        <div style={{ borderTop: '2px solid #000', paddingTop: '15px', fontSize: '10.5px', color: '#4b5563' }}>
-          <h4 style={{ color: '#000', fontSize: '12px', marginBottom: '6px', textTransform: 'uppercase' }}>📜 Cláusulas y Políticas del Servicio</h4>
+        <div style={{ borderTop: '2px solid #111', paddingTop: '15px', fontSize: '10.5px', color: '#4b5563' }}>
+          <h4 style={{ color: '#111', fontSize: '12px', marginBottom: '6px', textTransform: 'uppercase' }}>📜 Cláusulas y Políticas del Servicio</h4>
           <p style={{ margin: '3px 0' }}><strong>1. Recepción en el País:</strong> El vehículo se entrega en óptimas condiciones en el punto acordado. El cliente y nuestro representante validarán el estado físico al recibirlo.</p>
           <p style={{ margin: '3px 0' }}><strong>2. Combustible:</strong> Se entrega con el tanque especificado y debe ser retornado en idénticas condiciones para evitar cargos adicionales de reabastecimiento.</p>
           <p style={{ margin: '3px 0' }}><strong>3. Depósito de Garantía:</strong> La fianza de ${depositoGarantia} USD es totalmente reembolsable tras la inspección de devolución sin novedad.</p>
@@ -252,11 +253,11 @@ export default function DetalleFacturaContrato() {
         {/* Firmas */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px', marginTop: '40px', textAlign: 'center', fontSize: '12px' }}>
           <div>
-            <div style={{ borderTop: '2px solid #000', paddingTop: '6px', fontWeight: 'bold' }}>MÓNACO LUXURY RENT CAR</div>
+            <div style={{ borderTop: '2px solid #111', paddingTop: '6px', fontWeight: 'bold' }}>MÓNACO LUXURY RENT CAR</div>
             <div style={{ fontSize: '10px', color: '#666' }}>Firma Autorizada</div>
           </div>
           <div>
-            <div style={{ borderTop: '2px solid #000', paddingTop: '6px', fontWeight: 'bold' }}>{reserva.clienteNombre || 'Firma del Cliente'}</div>
+            <div style={{ borderTop: '2px solid #111', paddingTop: '6px', fontWeight: 'bold' }}>{reserva.clienteNombre || 'Firma del Cliente'}</div>
             <div style={{ fontSize: '10px', color: '#666' }}>Acepto Términos y Condiciones</div>
           </div>
         </div>

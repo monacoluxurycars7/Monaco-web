@@ -45,21 +45,28 @@ export default function AdminDashboard() {
 
       const hoy = new Date();
       let ingresosMes = 0;
+      let gananciaNetaReservasMes = 0;
       let gastosMes = 0;
       let activos = 0;
       let devoluciones = [];
       let rentabilidadAutos = {};
 
-      // Calcular Ingresos del Mes Actual
+      // Calcular Ingresos y Ganancias del Mes Actual
       reservas.forEach((res) => {
         const fechaInicio = new Date(res.inicio);
         const fechaFin = new Date(res.fin);
 
-        // Ganancia neta para Mónaco (comisión si es tercero, costo total si es propio)
-        const gananciaReserva = res.gananciaNetaMonaco !== undefined ? Number(res.gananciaNetaMonaco) : Number(res.costoTotal || res.costoTotalFinal || 0);
+        // Ingreso Bruto total cobrado al cliente en esta reserva
+        const ingresoBrutoReserva = Number(res.costoTotal || res.costoTotalFinal || 0);
+
+        // Ganancia neta para Mónaco (comisión si es tercero, o total si es propio)
+        const gananciaReserva = res.gananciaNetaMonaco !== undefined 
+          ? Number(res.gananciaNetaMonaco) 
+          : ingresoBrutoReserva;
 
         if (fechaInicio.getMonth() === hoy.getMonth() && fechaInicio.getFullYear() === hoy.getFullYear()) {
-          ingresosMes += gananciaReserva;
+          ingresosMes += ingresoBrutoReserva;
+          gananciaNetaReservasMes += gananciaReserva;
         }
 
         // Alquileres Activos
@@ -73,12 +80,12 @@ export default function AdminDashboard() {
           devoluciones.push(res);
         }
 
-        // Acumular rentabilidad por vehículo
+        // Acumular rentabilidad por vehículo basada en la ganancia neta de Mónaco
         const nombreAuto = res.vehiculoNombre || res.vehiculoId || 'Vehículo sin nombre';
         if (!rentabilidadAutos[nombreAuto]) {
-          rentabilidadAutos[nombreAuto] = { totalIngresos: 0, vecesRentado: 0 };
+          rentabilidadAutos[nombreAuto] = { totalGanancia: 0, vecesRentado: 0 };
         }
-        rentabilidadAutos[nombreAuto].totalIngresos += gananciaReserva;
+        rentabilidadAutos[nombreAuto].totalGanancia += gananciaReserva;
         rentabilidadAutos[nombreAuto].vecesRentado += 1;
       });
 
@@ -92,15 +99,15 @@ export default function AdminDashboard() {
         }
       });
 
-      // Ganancia Neta Real del Mes (Ingresos menos Gastos de mantenimiento/seguros)
-      const gananciaNetaMes = ingresosMes - gastosMes;
+      // Ganancia Neta Real del Mes (Ganancia neta de reservas menos Gastos de mantenimiento)
+      const gananciaNetaMes = gananciaNetaReservasMes - gastosMes;
 
       // Convertir el objeto a un array ordenado de mayor a menor ganancia
       const rankingArray = Object.keys(rentabilidadAutos).map((auto) => ({
         nombre: auto,
-        ingresos: rentabilidadAutos[auto].totalIngresos,
+        ganancia: rentabilidadAutos[auto].totalGanancia,
         veces: rentabilidadAutos[auto].vecesRentado
-      })).sort((a, b) => b.ingresos - a.ingresos);
+      })).sort((a, b) => b.ganancia - a.ganancia);
 
       const ocupacion = totalVehiculos > 0 ? Math.round((activos / totalVehiculos) * 100) : 0;
 
@@ -193,7 +200,7 @@ export default function AdminDashboard() {
 
             {/* SECCIÓN DE RANKING DE AUTOS MÁS RENTABLES */}
             <div style={{ backgroundColor: '#111', padding: '20px', borderRadius: '6px', border: '1px solid #222', marginBottom: '25px' }}>
-              <h2 style={{ fontSize: '15px', color: '#d4af37', marginTop: 0, marginBottom: '15px' }}>🏆 Ranking de Autos Más Rentables</h2>
+              <h2 style={{ fontSize: '15px', color: '#d4af37', marginTop: 0, marginBottom: '15px' }}>🏆 Ranking de Autos Más Rentables (Ganancia Real)</h2>
               {metricas.rankingAutos.length === 0 ? (
                 <p style={{ color: '#666', fontSize: '13px', margin: 0 }}>No hay datos suficientes para calcular la rentabilidad.</p>
               ) : (
@@ -206,7 +213,7 @@ export default function AdminDashboard() {
                         <span style={{ color: '#888', marginLeft: '10px' }}>({auto.veces} {auto.veces === 1 ? 'reserva' : 'reservas'})</span>
                       </div>
                       <div style={{ color: '#22c55e', fontWeight: 'bold' }}>
-                        USD ${auto.ingresos.toLocaleString()}
+                        USD ${auto.ganancia.toLocaleString()}
                       </div>
                     </div>
                   ))}

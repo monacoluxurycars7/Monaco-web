@@ -150,7 +150,7 @@ export default function Login() {
         zIndex: 1
       }}>
         <img 
-          src="/logo.png" 
+          src="/logo sin fondo.png" 
           alt="Monaco Logo Top 1" 
           style={{
             position: 'absolute',
@@ -161,7 +161,7 @@ export default function Login() {
           }}
         />
         <img 
-          src="/logo.png" 
+          src="/logo sin fondo.png" 
           alt="Monaco Logo Top 2" 
           style={{
             position: 'absolute',
@@ -185,7 +185,7 @@ export default function Login() {
         zIndex: 1
       }}>
         <img 
-          src="/logo.png" 
+          src="/logo sin fondo.png" 
           alt="Monaco Logo Bottom 1" 
           style={{
             position: 'absolute',
@@ -197,7 +197,7 @@ export default function Login() {
           }}
         />
         <img 
-          src="/logo.png" 
+          src="/logo sin fondo.png" 
           alt="Monaco Logo Bottom 2" 
           style={{
             position: 'absolute',

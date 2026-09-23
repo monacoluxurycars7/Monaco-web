@@ -3,7 +3,7 @@ import { initializeApp, getApps } from 'firebase/app';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { getFirestore, collection, addDoc, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
 import { useRouter } from 'next/router';
-import emailjs from '@emailjs/browser'; // <--- 1. Importar EmailJS
+import emailjs from '@emailjs/browser';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -31,14 +31,14 @@ export default function NuevaReservaManual() {
     tipoCliente: 'residente',
     documentoCliente: '',
     vehiculoNombre: 'Kia Picanto 2023',
-    esTercero: false, // false = Propio Monaco, true = Intermediario
-    comisionDiariaMonaco: 5, // Comisión por día si es de tercero
+    esTercero: false,
+    comisionDiariaMonaco: 5,
     precioPorDia: 40,
     inicio: '',
     fin: '',
     seguroFull: false,
     precioSeguroPorDia: 20,
-    depositoGarantia: 400, // Campo editable de Depósito de Garantía
+    depositoGarantia: 400,
     lugarEntrega: 'Oficina Monaco Luxury ($0 USD)',
     costoEntrega: 0,
     clienteDireccionRD: '',
@@ -58,7 +58,6 @@ export default function NuevaReservaManual() {
     return () => unsubscribe();
   }, [router]);
 
-  // Al cambiar el estado de seguroFull, ajustamos automáticamente el depósito si el usuario lo desea, pero permitiendo editarlo
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     
@@ -78,7 +77,6 @@ export default function NuevaReservaManual() {
     });
   };
 
-  // Cálculo automático de días y totales
   const calcularDias = () => {
     if (!formData.inicio || !formData.fin) return 1;
     try {
@@ -98,10 +96,8 @@ export default function NuevaReservaManual() {
   const costoEntregaVal = Number(formData.costoEntrega);
   const depositoGarantiaVal = Number(formData.depositoGarantia) || 0;
   
-  // Facturación total cobrada al cliente
   const costoTotalFinal = subtotalAlquiler + subtotalSeguro + costoEntregaVal;
 
-  // CÁLCULO DE GANANCIA NETA Y PAGO A PROPIETARIO
   const comisionDiaria = Number(formData.comisionDiariaMonaco);
   const gananciaNetaMonaco = formData.esTercero
     ? (totalDias * comisionDiaria) + subtotalSeguro + costoEntregaVal
@@ -119,7 +115,6 @@ export default function NuevaReservaManual() {
     }
 
     try {
-      // 1. Verificación en la colección 'clientes' por teléfono exacto o documento
       let estaBloqueado = false;
       let motivoBloqueo = '';
 
@@ -132,7 +127,6 @@ export default function NuevaReservaManual() {
         }
       }
 
-      // Si no se encontró por teléfono, revisamos haciendo un query general a clientes para buscar por cédula/documento
       if (!estaBloqueado && formData.documentoCliente) {
         const clientesSnap = await getDocs(collection(db, 'clientes'));
         clientesSnap.forEach(docSnap => {
@@ -146,7 +140,7 @@ export default function NuevaReservaManual() {
 
       if (estaBloqueado) {
         alert(`🚨 ATENCIÓN: Este cliente se encuentra en la LISTA NEGRA.\nMotivo: ${motivoBloqueo}\nNo se puede procesar la reserva.`);
-        return; // Detiene el registro por completo
+        return;
       }
     } catch (error) {
       console.error('Error al verificar lista negra:', error);
@@ -167,26 +161,36 @@ export default function NuevaReservaManual() {
         firmaUrl: null
       };
 
-      // Guardar en Firebase
       await addDoc(collection(db, 'reservas'), nuevaReserva);
 
-      // 2. Enviar correo al cliente si escribió su email
+      // Envío de correo usando EmailJS con tus credenciales y variables completas
       if (formData.clienteEmail) {
         const templateParams = {
           to_name: formData.clienteNombre,
           to_email: formData.clienteEmail,
+          cliente_nombre: formData.clienteNombre,
           vehiculo: formData.vehiculoNombre,
+          tipo_cliente: formData.tipoCliente === 'residente' ? 'Residente RD' : 'Turista / Extranjero',
+          documento_cliente: formData.documentoCliente || 'No especificado',
           fecha_inicio: formData.inicio,
           fecha_fin: formData.fin,
-          costo_total: costoTotalFinal,
-          lugar_entrega: formData.lugarEntrega
+          dias_totales: totalDias,
+          precio_por_dia: formData.precioPorDia,
+          seguro_full: formData.seguroFull ? `Sí ($${subtotalSeguro} USD)` : 'No',
+          depositoGarantia: depositoGarantiaVal,
+          lugarEntrega: formData.lugarEntrega,
+          costoEntrega: costoEntregaVal,
+          costoTotalFinal: costoTotalFinal,
+          cuentas_bancarias: 'Banco Popular Dominicano: C/A 123-45678-9<br/>Banco BHD León: C/A 987-65432-1',
+          contrato_texto: 'El cliente se compromete a devolver el vehículo en las mismas condiciones óptimas de entrega...',
+          firma_url: '' // Al ser manual por administración sin pantalla de firma física adjunta por ahora
         };
 
         await emailjs.send(
-          'service_av3mxdg',   // <--- Tu Service ID de EmailJS
-          'template_d2myfzs',  // <--- Tu Template ID de EmailJS
+          'service_av3mxdg',
+          'template_d2myfzs',
           templateParams,
-          'bn6WeQnxOIluVFxfB'    // <--- Tu Public Key de EmailJS
+          'bn6WeQnxOIluVFxfB'
         );
       }
 
@@ -194,7 +198,7 @@ export default function NuevaReservaManual() {
       router.push('/admin');
     } catch (error) {
       console.error('Error al guardar la reserva o enviar correo:', error);
-      alert('La reserva se guardó, pero hubo un error al procesar o enviar el correo.');
+      alert('La reserva se guardó, pero hubo un error al enviar el correo.');
     } finally {
       setGuardando(false);
     }
@@ -216,7 +220,6 @@ export default function NuevaReservaManual() {
 
       <form onSubmit={handleSubmit} style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
         
-        {/* Información del Cliente */}
         <fieldset style={{ border: '1px solid #333', padding: '15px', borderRadius: '8px' }}>
           <legend style={{ color: '#d4af37', padding: '0 8px', fontWeight: 'bold' }}>Datos del Cliente</legend>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
@@ -246,7 +249,6 @@ export default function NuevaReservaManual() {
           </div>
         </fieldset>
 
-        {/* Detalles del Vehículo y Propiedad */}
         <fieldset style={{ border: '1px solid #333', padding: '15px', borderRadius: '8px' }}>
           <legend style={{ color: '#d4af37', padding: '0 8px', fontWeight: 'bold' }}>Vehículo y Modalidad de Propiedad</legend>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
@@ -290,7 +292,6 @@ export default function NuevaReservaManual() {
           </div>
         </fieldset>
 
-        {/* Opciones Adicionales */}
         <fieldset style={{ border: '1px solid #333', padding: '15px', borderRadius: '8px' }}>
           <legend style={{ color: '#d4af37', padding: '0 8px', fontWeight: 'bold' }}>Seguro y Servicios Extra</legend>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -333,7 +334,6 @@ export default function NuevaReservaManual() {
           </div>
         </fieldset>
 
-        {/* Resumen Automático */}
         <div style={{ backgroundColor: '#181818', padding: '15px', borderRadius: '8px', border: '1px solid #d4af37' }}>
           <h3 style={{ margin: '0 0 10px 0', color: '#d4af37', fontSize: '14px' }}>Resumen Calculado:</h3>
           <p style={{ margin: '4px 0', fontSize: '13px' }}>• <strong>Días Totales:</strong> {totalDias} día(s)</p>

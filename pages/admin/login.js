@@ -222,24 +222,25 @@ export default function Login() {
           </div>
 
           <button
-  type="submit"
-  disabled={loading}
-  style={{
-    marginTop: '8px',
-    padding: '11px',
-    borderRadius: '6px',
-    border: '1px solid rgba(255, 255, 255, 0.3)', // <--- Aquí pusimos el borde blanco transparente
-    backgroundColor: '#d4af37',
-    color: '#000',
-    fontWeight: 'bold',
-    fontSize: '14px',
-    cursor: 'pointer',
-    boxShadow: '0 0 12px rgba(212, 175, 55, 0.5)',
-    opacity: loading ? 0.7 : 1
-  }}
->
-  {loading ? 'Ingresando...' : 'Iniciar Sesión'}
-</button>
+            type="submit"
+            disabled={loading}
+            style={{
+              marginTop: '8px',
+              padding: '11px',
+              borderRadius: '6px',
+              border: '1px solid rgba(255, 255, 255, 0.3)',
+              backgroundColor: '#d4af37',
+              color: '#000',
+              fontWeight: 'bold',
+              fontSize: '14px',
+              cursor: 'pointer',
+              boxShadow: '0 0 12px rgba(212, 175, 55, 0.5)',
+              opacity: loading ? 0.7 : 1
+            }}
+          >
+            {loading ? 'Ingresando...' : 'Iniciar Sesión'}
+          </button>
+        </form>
 
         {/* 3. BOTÓN PARA RESTABLECER CONTRASEÑA */}
         <button

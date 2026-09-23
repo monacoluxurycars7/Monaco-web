@@ -40,6 +40,7 @@ export default function AdminDashboard() {
 
   // Función auxiliar para obtener el mes anterior en formato 'YYYY-MM'
   const obtenerMesAnteriorStr = (mesStr) => {
+    if (!mesStr) return obtenerMesActualStr();
     const [anio, mes] = mesStr.split('-').map(Number);
     const fecha = new Date(anio, mes - 2, 1);
     return `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, '0')}`;
@@ -47,6 +48,8 @@ export default function AdminDashboard() {
 
   // Lógica de cálculo filtrada por un mes específico ('YYYY-MM')
   const calcularMetricasPorMes = (mesStr) => {
+    if (!mesStr) return { ingresosMes: 0, gastosMes: 0, gananciaNetaMes: 0, rankingArray: [], comisionesTercerosArray: [] };
+    
     const [anioFiltro, mesFiltro] = mesStr.split('-').map(Number);
     
     let ingresosMes = 0;
@@ -133,6 +136,7 @@ export default function AdminDashboard() {
   let activos = 0;
   let devoluciones = [];
   reservas.forEach((res) => {
+    if (!res.inicio || !res.fin) return;
     const fechaInicio = new Date(res.inicio);
     const fechaFin = new Date(res.fin);
     if (hoy >= fechaInicio && hoy <= fechaFin) {
@@ -150,7 +154,7 @@ export default function AdminDashboard() {
       
       {/* BARRA DE NAVEGACIÓN ADMINISTRATIVA */}
       <nav style={{ backgroundColor: '#111', padding: '15px 20px', borderBottom: '1px solid #222', display: 'flex', gap: '15px', alignItems: 'center', flexWrap: 'wrap' }}>
-        <span style={{ color: '#d4af37', fontWeight: 'bold', marginRight: '10px' }}>MONACA ADMIN</span>
+        <span style={{ color: '#d4af37', fontWeight: 'bold', marginRight: '10px' }}>MONACO ADMIN</span>
         <a href="/admin" style={{ color: '#ccc', textDecoration: 'none', fontSize: '13px' }}>📋 Reservas</a>
         <a href="/admin/vehiculos" style={{ color: '#ccc', textDecoration: 'none', fontSize: '13px' }}>🚗 Flota de Vehículos</a>
         <a href="/admin/dashboard" style={{ color: '#ccc', textDecoration: 'none', fontSize: '13px' }}>📊 Métricas</a>
@@ -248,11 +252,11 @@ export default function AdminDashboard() {
             {/* SECCIÓN DE RANKING DE AUTOS MÁS RENTABLES DEL MES */}
             <div style={{ backgroundColor: '#111', padding: '20px', borderRadius: '6px', border: '1px solid #222', marginBottom: '25px' }}>
               <h2 style={{ fontSize: '15px', color: '#d4af37', marginTop: 0, marginBottom: '15px' }}>🏆 Ranking de Autos Más Rentables ({mesSeleccionado})</h2>
-              {metricasActuales.rankingAutos.length === 0 ? (
+              {metricasActuales.rankingArray.length === 0 ? (
                 <p style={{ color: '#666', fontSize: '13px', margin: 0 }}>No hay rentabilidad registrada en este mes.</p>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  {metricasActuales.rankingAutos.map((auto, index) => (
+                  {metricasActuales.rankingArray.map((auto, index) => (
                     <div key={index} style={{ backgroundColor: '#181818', padding: '12px 15px', borderRadius: '4px', border: '1px solid #333', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px' }}>
                       <div>
                         <span style={{ color: '#d4af37', fontWeight: 'bold', marginRight: '10px' }}>#{index + 1}</span>

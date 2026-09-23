@@ -89,7 +89,7 @@ export default function Home() {
             largo: Number(data.seguro11MasDias) || 20
           },
           disponible: data.estado === 'disponible',
-          estado: data.estado || 'disponible'
+          estado: (data.estado || 'disponible').toLowerCase(),
         };
       }).filter(v => v.estado !== 'inactivo');
 

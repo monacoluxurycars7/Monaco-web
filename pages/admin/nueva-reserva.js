@@ -3,6 +3,7 @@ import { initializeApp, getApps } from 'firebase/app';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { getFirestore, collection, addDoc, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
 import { useRouter } from 'next/router';
+import emailjs from '@emailjs/browser'; // <--- 1. Importar EmailJS
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -166,12 +167,34 @@ export default function NuevaReservaManual() {
         firmaUrl: null
       };
 
+      // Guardar en Firebase
       await addDoc(collection(db, 'reservas'), nuevaReserva);
-      alert('Reserva creada exitosamente');
+
+      // 2. Enviar correo al cliente si escribió su email
+      if (formData.clienteEmail) {
+        const templateParams = {
+          to_name: formData.clienteNombre,
+          to_email: formData.clienteEmail,
+          vehiculo: formData.vehiculoNombre,
+          fecha_inicio: formData.inicio,
+          fecha_fin: formData.fin,
+          costo_total: costoTotalFinal,
+          lugar_entrega: formData.lugarEntrega
+        };
+
+        await emailjs.send(
+          'YOUR_SERVICE_ID',   // <--- Tu Service ID de EmailJS
+          'YOUR_TEMPLATE_ID',  // <--- Tu Template ID de EmailJS
+          templateParams,
+          'YOUR_PUBLIC_KEY'    // <--- Tu Public Key de EmailJS
+        );
+      }
+
+      alert('Reserva creada exitosamente y correo enviado al cliente');
       router.push('/admin');
     } catch (error) {
-      console.error('Error al guardar la reserva:', error);
-      alert('Ocurrió un error al guardar la reserva.');
+      console.error('Error al guardar la reserva o enviar correo:', error);
+      alert('La reserva se guardó, pero hubo un error al procesar o enviar el correo.');
     } finally {
       setGuardando(false);
     }
@@ -207,7 +230,7 @@ export default function NuevaReservaManual() {
             </div>
             <div>
               <label style={{ display: 'block', fontSize: '12px', color: '#aaa', marginBottom: '4px' }}>Correo Electrónico</label>
-              <input type="email" name="clienteEmail" value={formData.clienteEmail} onChange={handleChange} style={{ width: '100%', padding: '8px', backgroundColor: '#181818', border: '1px solid #333', color: '#fff', borderRadius: '4px' }} />
+              <input type="email" name="clienteEmail" value={formData.clienteEmail} onChange={handleChange} placeholder="Para enviarle la copia de su reserva" style={{ width: '100%', padding: '8px', backgroundColor: '#181818', border: '1px solid #333', color: '#fff', borderRadius: '4px' }} />
             </div>
             <div>
               <label style={{ display: 'block', fontSize: '12px', color: '#aaa', marginBottom: '4px' }}>Tipo Cliente</label>
@@ -335,7 +358,7 @@ export default function NuevaReservaManual() {
           disabled={guardando}
           style={{ padding: '12px', backgroundColor: '#d4af37', color: '#000', border: 'none', borderRadius: '6px', fontWeight: 'bold', fontSize: '15px', cursor: 'pointer', marginTop: '10px' }}
         >
-          {guardando ? 'Guardando Reserva...' : 'Guardar Reserva en el Sistema'}
+          {guardando ? 'Guardando Reserva y Enviando Correo...' : 'Guardar Reserva y Enviar Correo al Cliente'}
         </button>
 
       </form>

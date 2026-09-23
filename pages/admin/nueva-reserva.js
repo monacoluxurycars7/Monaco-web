@@ -57,7 +57,6 @@ export default function NuevaReservaManual() {
     return () => unsubscribe();
   }, [router]);
 
-  // Al cambiar el estado de seguroFull, ajustamos automáticamente el depósito si el usuario lo desea, pero permitiendo editarlo
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     
@@ -77,7 +76,6 @@ export default function NuevaReservaManual() {
     });
   };
 
-  // Cálculo automático de días y totales
   const calcularDias = () => {
     if (!formData.inicio || !formData.fin) return 1;
     try {
@@ -97,10 +95,8 @@ export default function NuevaReservaManual() {
   const costoEntregaVal = Number(formData.costoEntrega);
   const depositoGarantiaVal = Number(formData.depositoGarantia) || 0;
   
-  // Facturación total cobrada al cliente
   const costoTotalFinal = subtotalAlquiler + subtotalSeguro + costoEntregaVal;
 
-  // CÁLCULO DE GANANCIA NETA Y PAGO A PROPIETARIO
   const comisionDiaria = Number(formData.comisionDiariaMonaco);
   const gananciaNetaMonaco = formData.esTercero
     ? (totalDias * comisionDiaria) + subtotalSeguro + costoEntregaVal
@@ -118,7 +114,6 @@ export default function NuevaReservaManual() {
     }
 
     try {
-      // 1. Verificación en la colección 'clientes' por teléfono exacto o documento
       let estaBloqueado = false;
       let motivoBloqueo = '';
 
@@ -131,7 +126,6 @@ export default function NuevaReservaManual() {
         }
       }
 
-      // Si no se encontró por teléfono, revisamos haciendo un query general a clientes para buscar por cédula/documento
       if (!estaBloqueado && formData.documentoCliente) {
         const clientesSnap = await getDocs(collection(db, 'clientes'));
         clientesSnap.forEach(docSnap => {
@@ -145,7 +139,7 @@ export default function NuevaReservaManual() {
 
       if (estaBloqueado) {
         alert(`🚨 ATENCIÓN: Este cliente se encuentra en la LISTA NEGRA.\nMotivo: ${motivoBloqueo}\nNo se puede procesar la reserva.`);
-        return; // Detiene el registro por completo
+        return;
       }
     } catch (error) {
       console.error('Error al verificar lista negra:', error);
@@ -161,6 +155,8 @@ export default function NuevaReservaManual() {
         costoTotal: costoTotalFinal,
         gananciaNetaMonaco: gananciaNetaMonaco,
         pagoPropietario: pagoPropietario,
+        // CORRECCIÓN AQUÍ: Guardamos explícitamente el texto que lee la tabla de reservas
+        tipoPropiedad: formData.esTercero ? 'Subrentado' : 'Propio',
         fechaCreacion: new Date().toISOString(),
         registroManual: true,
         firmaUrl: null

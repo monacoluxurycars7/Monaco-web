@@ -183,10 +183,10 @@ export default function NuevaReservaManual() {
         };
 
         await emailjs.send(
-          'YOUR_SERVICE_ID',   // <--- Tu Service ID de EmailJS
-          'YOUR_TEMPLATE_ID',  // <--- Tu Template ID de EmailJS
+          'service_av3mxdg',   // <--- Tu Service ID de EmailJS
+          'template_d2myfzs',  // <--- Tu Template ID de EmailJS
           templateParams,
-          'YOUR_PUBLIC_KEY'    // <--- Tu Public Key de EmailJS
+          'bn6WeQnxOIluVFxfB'    // <--- Tu Public Key de EmailJS
         );
       }
 

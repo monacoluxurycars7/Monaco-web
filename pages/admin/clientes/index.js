@@ -84,6 +84,9 @@ export default function AdminClientes() {
             mapaClientes[telKey].enListaNegra = true;
             mapaClientes[telKey].motivoListaNegra = cliDir.motivoListaNegra;
           }
+          if (cliDir.cedula && cliDir.cedula !== 'No registrada') {
+            mapaClientes[telKey].cedula = cliDir.cedula;
+          }
         }
       });
 
@@ -125,31 +128,35 @@ export default function AdminClientes() {
     }
   };
 
-  // NUEVA FUNCIÓN: Agregar un infractor de WhatsApp o Telegram manualmente
+  // NUEVA FUNCIÓN: Agregar un infractor con Cédula y Descripción detallada
   const agregarNuevoListaNegra = async () => {
-    const nombre = prompt("Ingrese el Nombre o Alias del estafador reportado:");
+    const nombre = prompt("1/4. Ingrese el Nombre o Alias del estafador reportado:");
     if (!nombre) return;
 
-    const cedula = prompt("Ingrese la Cédula o Pasaporte (si la tiene):") || "No registrada";
-    const telefono = prompt("Ingrese el Teléfono (obligatorio como identificador único):");
+    const cedula = prompt("2/4. Ingrese la Cédula o Pasaporte del cliente:", "No registrada");
+    if (cedula === null) return;
+
+    const telefono = prompt("3/4. Ingrese el Teléfono (obligatorio como identificador único):");
     if (!telefono) {
       alert("El teléfono es obligatorio para registrarlo en el sistema.");
       return;
     }
-    const motivo = prompt("Ingrese el motivo o detalles del reporte (ej: Estafa reportada en grupo de WhatsApp):", "Reporte externo (WhatsApp/Telegram)");
+
+    const motivo = prompt("4/4. Ingrese la descripción o motivo detallado (ej: Estafa reportada en grupo de WhatsApp, no devolvió auto):", "Reporte externo (WhatsApp/Telegram)");
+    if (motivo === null) return;
 
     try {
       const clienteRef = doc(db, 'clientes', telefono);
       await setDoc(clienteRef, {
         nombre: nombre,
-        cedula: cedula,
+        cedula: cedula || 'No registrada',
         telefono: telefono,
         enListaNegra: true,
         motivoListaNegra: motivo || 'Reporte externo',
         fechaRegistro: new Date().toISOString()
       }, { merge: true });
 
-      alert("¡Estafador agregado a la Lista Negra exitosamente!");
+      alert("¡Estafador agregado a la Lista Negra con su documento y descripción exitosamente!");
       cargarClientesYHistorial(); // Recargar lista
     } catch (error) {
       console.error("Error al agregar a lista negra:", error);

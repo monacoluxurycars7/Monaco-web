@@ -68,7 +68,10 @@ export default function Login() {
       position: 'relative',
       minHeight: '100vh',
       width: '100vw',
-      backgroundColor: '#000000',
+      backgroundImage: 'url("/fondo admin.png")',
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -211,14 +214,15 @@ export default function Login() {
       <div style={{
         position: 'relative',
         zIndex: 10,
-        backgroundColor: '#000000',
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        backdropFilter: 'blur(8px)',
         padding: '28px 24px',
         borderRadius: '14px',
         width: '100%',
         maxWidth: '320px',
         textAlign: 'center',
-        border: '1px solid #222222',
-        boxShadow: '0 0 30px rgba(0, 0, 0, 1), 0 0 15px rgba(212, 175, 55, 0.2)'
+        border: '1px solid rgba(212, 175, 55, 0.3)',
+        boxShadow: '0 0 30px rgba(0, 0, 0, 0.9), 0 0 15px rgba(212, 175, 55, 0.2)'
       }}>
         <h2 className="glow-title" style={{
           marginBottom: '20px',

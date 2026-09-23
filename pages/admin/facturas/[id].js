@@ -75,10 +75,10 @@ export default function DetalleFacturaContrato() {
       };
 
       await emailjs.send(
-        'service_xxx', // Tu Service ID de EmailJS
-        'template_xxx', // Tu Template ID de EmailJS
+        'service_av3mxdg', // Tu Service ID de EmailJS
+        'template_d2myfzs', // Tu Template ID de EmailJS
         templateParams,
-        'public_key_xxx' // Tu Public Key de EmailJS
+        'bn6WeQnxOIluVFxfB' // Tu Public Key de EmailJS
       );
 
       setMensajeEstado('¡Factura y contrato enviados por correo exitosamente al cliente!');

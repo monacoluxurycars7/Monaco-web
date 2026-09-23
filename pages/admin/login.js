@@ -121,23 +121,18 @@ export default function Login() {
         }
       `}</style>
 
-      {/* CAJA DE LOGIN */}
+      {/* CONTENEDOR DE ACCESO (SIN CAJA / TRANSPARENTE) */}
       <div style={{
         position: 'relative',
         zIndex: 10,
-        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-        backdropFilter: 'blur(8px)',
-        padding: '28px 24px',
-        borderRadius: '14px',
         width: '100%',
         maxWidth: '320px',
         textAlign: 'center',
-        border: '1px solid rgba(212, 175, 55, 0.3)',
-        boxShadow: '0 0 30px rgba(0, 0, 0, 0.9), 0 0 15px rgba(212, 175, 55, 0.2)'
+        padding: '0 15px'
       }}>
         <h2 className="glow-title" style={{
           marginBottom: '20px',
-          fontSize: '20px',
+          fontSize: '22px',
           fontWeight: 'bold',
           color: '#ffffff',
           letterSpacing: '1px'
@@ -148,13 +143,14 @@ export default function Login() {
         {/* 1. MUESTRA ERRORES */}
         {error && (
           <div style={{
-            backgroundColor: 'rgba(255, 0, 0, 0.15)',
+            backgroundColor: 'rgba(255, 0, 0, 0.2)',
             border: '1px solid #ff4d4d',
             color: '#ff4d4d',
             padding: '8px',
             borderRadius: '6px',
             fontSize: '12px',
-            marginBottom: '14px'
+            marginBottom: '14px',
+            backdropFilter: 'blur(4px)'
           }}>
             {error}
           </div>
@@ -163,13 +159,14 @@ export default function Login() {
         {/* 2. MENSAJE DE ÉXITO */}
         {message && (
           <div style={{
-            backgroundColor: 'rgba(0, 255, 128, 0.15)',
+            backgroundColor: 'rgba(0, 255, 128, 0.2)',
             border: '1px solid #00ff80',
             color: '#00ff80',
             padding: '8px',
             borderRadius: '6px',
             fontSize: '12px',
-            marginBottom: '14px'
+            marginBottom: '14px',
+            backdropFilter: 'blur(4px)'
           }}>
             {message}
           </div>
@@ -189,11 +186,12 @@ export default function Login() {
                 width: '100%',
                 padding: '10px 12px',
                 borderRadius: '6px',
-                border: '1px solid #333',
-                backgroundColor: '#0a0a0a',
+                border: '1px solid rgba(212, 175, 55, 0.4)',
+                backgroundColor: 'rgba(10, 10, 10, 0.85)',
                 color: '#fff',
                 fontSize: '13px',
                 outline: 'none',
+                backdropFilter: 'blur(5px)',
                 boxShadow: 'inset 0 0 5px rgba(0,0,0,0.8)'
               }}
             />
@@ -212,11 +210,12 @@ export default function Login() {
                 width: '100%',
                 padding: '10px 12px',
                 borderRadius: '6px',
-                border: '1px solid #333',
-                backgroundColor: '#0a0a0a',
+                border: '1px solid rgba(212, 175, 55, 0.4)',
+                backgroundColor: 'rgba(10, 10, 10, 0.85)',
                 color: '#fff',
                 fontSize: '13px',
                 outline: 'none',
+                backdropFilter: 'blur(5px)',
                 boxShadow: 'inset 0 0 5px rgba(0,0,0,0.8)'
               }}
             />
@@ -235,7 +234,7 @@ export default function Login() {
               fontWeight: 'bold',
               fontSize: '14px',
               cursor: 'pointer',
-              boxShadow: '0 0 12px rgba(212, 175, 55, 0.4)',
+              boxShadow: '0 0 12px rgba(212, 175, 55, 0.5)',
               opacity: loading ? 0.7 : 1
             }}
           >
@@ -254,7 +253,8 @@ export default function Login() {
             fontSize: '12px',
             marginTop: '15px',
             cursor: 'pointer',
-            textDecoration: 'underline'
+            textDecoration: 'underline',
+            textShadow: '0 0 5px rgba(0,0,0,0.8)'
           }}
         >
           ¿Olvidaste tu contraseña?

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { initializeApp, getApps } from 'firebase/app';
+import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getFirestore, doc, getDoc } from 'firebase/firestore';
 import { useRouter } from 'next/router';
 import emailjs from '@emailjs/browser';
@@ -13,8 +13,11 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
 };
 
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
-const db = getFirestore(app);
+// Inicialización segura para evitar errores en el servidor de Vercel
+function getFirebaseDb() {
+  const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+  return getFirestore(app);
+}
 
 export default function FacturaReserva() {
   const router = useRouter();
@@ -26,9 +29,11 @@ export default function FacturaReserva() {
   const [copiado, setCopiado] = useState(false);
 
   useEffect(() => {
-    if (!id) return;
+    if (!router.isReady || !id) return;
+    
     const fetchReserva = async () => {
       try {
+        const db = getFirebaseDb();
         const docRef = doc(db, 'reservas', id);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
@@ -43,14 +48,14 @@ export default function FacturaReserva() {
       }
     };
     fetchReserva();
-  }, [id]);
+  }, [router.isReady, id]);
 
   const handlePrint = () => {
     window.print();
   };
 
   const handleEnviarCorreo = async () => {
-    if (!reserva.clienteEmail) {
+    if (!reserva?.clienteEmail) {
       alert('Este cliente no tiene un correo registrado en esta reserva.');
       return;
     }
@@ -95,7 +100,6 @@ export default function FacturaReserva() {
     }
   };
 
-  // Mensaje profesional generado automáticamente para copiar y enviar
   const mensajeProfesional = reserva ? `Estimado/a ${reserva.clienteNombre}, 
 
 Le saludamos desde Mónaco Luxury. Nos complace confirmarle los detalles de su reserva para el vehículo ${reserva.vehiculoNombre}.
@@ -125,7 +129,7 @@ Por favor, envíenos el comprobante de pago por esta vía para dejar su unidad t
   return (
     <div style={{ backgroundColor: '#121212', color: '#e0e0e0', minHeight: '100vh', padding: '20px', fontFamily: 'sans-serif' }}>
       
-      {/* Botones de acción (No se imprimen gracias al CSS media print) */}
+      {/* Botones de acción */}
       <div className="no-print" style={{ maxWidth: '800px', margin: '0 auto 20px auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
         <button 
           onClick={() => router.push('/admin/facturas')}
@@ -150,7 +154,7 @@ Por favor, envíenos el comprobante de pago por esta vía para dejar su unidad t
         </div>
       </div>
 
-      {/* Contenedor de la Factura / Constancia */}
+      {/* Contenedor de la Factura */}
       <div style={{ maxWidth: '800px', margin: '0 auto', backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px', padding: '40px', boxShadow: '0 4px 15px rgba(0,0,0,0.5)' }} id="factura-print">
         
         {/* Cabecera */}
@@ -239,15 +243,14 @@ Por favor, envíenos el comprobante de pago por esta vía para dejar su unidad t
           </div>
         </div>
 
-        {/* Métodos de Pago / Cuentas Bancarias */}
+        {/* Cuentas Bancarias */}
         <div style={{ marginBottom: '25px', backgroundColor: '#161616', padding: '15px', borderRadius: '6px', border: '1px solid #262626' }}>
           <h3 style={{ color: '#d4af37', fontSize: '14px', margin: '0 0 8px 0' }}>MÉTODOS DE PAGO / CUENTAS BANCARIAS</h3>
           <p style={{ margin: '4px 0', fontSize: '13px' }}>• <strong>Banco Popular Dominicano:</strong> C/A 123-45678-9 (Mónaco Luxury SRL)</p>
           <p style={{ margin: '4px 0', fontSize: '13px' }}>• <strong>Banco BHD León:</strong> C/A 987-65432-1 (Mónaco Luxury SRL)</p>
-          <p style={{ margin: '4px 0', fontSize: '12px', color: '#aaa', marginTop: '6px' }}>Favor enviar el comprobante de transferencia por WhatsApp o correo electrónico para confirmar la vigencia definitiva de la reserva.</p>
         </div>
 
-        {/* Términos y Contrato abreviado */}
+        {/* Términos y Contrato */}
         <div style={{ borderTop: '1px solid #333', paddingTop: '15px' }}>
           <h3 style={{ color: '#d4af37', fontSize: '14px', margin: '0 0 6px 0' }}>TÉRMINOS Y CONDICIONES DEL CONTRATO</h3>
           <p style={{ fontSize: '11px', color: '#999', lineHeight: '1.4', margin: 0 }}>
@@ -260,7 +263,7 @@ Por favor, envíenos el comprobante de pago por esta vía para dejar su unidad t
 
       </div>
 
-      {/* SECCIÓN NUEVA: Generador de Mensaje Profesional para Copiar y Enviar */}
+      {/* Generador de Mensaje Profesional */}
       <div className="no-print" style={{ maxWidth: '800px', margin: '30px auto 0 auto', backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px', padding: '25px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
           <h3 style={{ color: '#d4af37', fontSize: '15px', margin: 0 }}>💬 Mensaje Profesional para Cliente (WhatsApp / Correo)</h3>
@@ -271,7 +274,6 @@ Por favor, envíenos el comprobante de pago por esta vía para dejar su unidad t
             {copiado ? '¡Copiado con éxito! ✅' : '📋 Copiar Mensaje'}
           </button>
         </div>
-        <p style={{ fontSize: '12px', color: '#aaa', marginBottom: '10px' }}>Este texto incluye toda la información de la reserva de forma impecable y educada. Solo haz clic en copiar y pégaselo al cliente:</p>
         <textarea
           readOnly
           value={mensajeProfesional}
@@ -280,32 +282,16 @@ Por favor, envíenos el comprobante de pago por esta vía para dejar su unidad t
         />
       </div>
 
-      {/* Estilos CSS para ocultar secciones al imprimir en papel o guardar como PDF */}
       <style jsx global>{`
         @media print {
-          .no-print {
-            display: none !important;
-          }
-          body {
-            background-color: #fff !important;
-            color: #000 !important;
-          }
-          div#factura-print {
-            background-color: #fff !important;
-            color: #000 !important;
-            border: none !important;
-            box-shadow: none !important;
-            padding: 0 !important;
-          }
-          h1, h2, h3, strong {
-            color: #000 !important;
-          }
-          p, span, td, th {
-            color: #333 !important;
-          }
+          .no-print { display: none !important; }
+          body { background-color: #fff !important; color: #000 !important; }
+          div#factura-print { background-color: #fff !important; color: #000 !important; border: none !important; box-shadow: none !important; padding: 0 !important; }
+          h1, h2, h3, strong { color: #000 !important; }
+          p, span, td, th { color: #333 !important; }
         }
       `}</style>
 
     </div>
   );
-}[id].js
+}

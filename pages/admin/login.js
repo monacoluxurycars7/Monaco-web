@@ -249,7 +249,7 @@ export default function Login() {
           style={{
             background: 'none',
             border: 'none',
-            color: '#d4af37',
+            color: '#FF1E00',
             fontSize: '12px',
             marginTop: '15px',
             cursor: 'pointer',

@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { initializeApp, getApps } from 'firebase/app';
-import { getFirestore, collection, getDocs, query, orderBy } from 'firebase/firestore';
+import { initializeApp, getApps, getApp } from 'firebase/app';
+import { getFirestore, collection, getDocs } from 'firebase/firestore';
 import { useRouter } from 'next/router';
-import Head from 'next/head';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -13,128 +12,116 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
 };
 
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
-const db = getFirestore(app);
+function getFirebaseDb() {
+  const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+  return getFirestore(app);
+}
 
 export default function ListaFacturas() {
   const router = useRouter();
   const [reservas, setReservas] = useState([]);
-  const [busqueda, setBusqueda] = useState('');
   const [loading, setLoading] = useState(true);
+  const [busqueda, setBusqueda] = useState('');
 
   useEffect(() => {
-    async function fetchReservas() {
+    const fetchReservas = async () => {
       try {
-        const q = query(collection(db, 'reservas'), orderBy('createdAt', 'desc'));
-        const querySnapshot = await getDocs(q);
-        const lista = [];
-        querySnapshot.forEach((doc) => {
-          lista.push({ id: doc.id, ...doc.data() });
-        });
+        const db = getFirebaseDb();
+        const querySnapshot = await getDocs(collection(db, 'reservas'));
+        const lista = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
         setReservas(lista);
       } catch (error) {
-        console.error("Error al cargar facturas:", error);
+        console.error('Error al cargar reservas:', error);
       } finally {
         setLoading(false);
       }
-    }
+    };
     fetchReservas();
   }, []);
 
-  // Filtro inteligente por Cédula o Pasaporte (también busca por nombre o apellido por comodidad)
-  const reservasFiltradas = reservas.filter((res) => {
+  const reservasFiltradas = reservas.filter(res => {
     const texto = busqueda.toLowerCase();
-    const cedulaPasaporte = (res.cedula || res.pasaporte || res.documento || '').toLowerCase();
-    const clienteNombre = (res.nombreCliente || res.cliente || '').toLowerCase();
-    return cedulaPasaporte.includes(texto) || clienteNombre.includes(texto);
+    return (
+      (res.clienteNombre && res.clienteNombre.toLowerCase().includes(texto)) ||
+      (res.vehiculoNombre && res.vehiculoNombre.toLowerCase().includes(texto)) ||
+      (res.documentoCliente && res.documentoCliente.toLowerCase().includes(texto)) ||
+      res.id.toLowerCase().includes(texto)
+    );
   });
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-100 p-6 md:p-10 font-sans">
-      <Head>
-        <title>Control de Facturas y Contratos | Admin</title>
-      </Head>
-
-      <div className="max-w-7xl mx-auto">
-        {/* Encabezado */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 border-b border-neutral-800 pb-6">
-          <div>
-            <h1 className="text-3xl font-bold tracking-wide text-amber-400">Historial de Facturas y Contratos</h1>
-            <p className="text-neutral-400 text-sm mt-1">Busca, gestiona e imprime los documentos generados automáticamente por cada reserva.</p>
-          </div>
-          <button
-            onClick={() => router.push('/admin/dashboard')}
-            className="px-4 py-2 bg-neutral-900 border border-neutral-700 hover:border-amber-400 rounded-lg text-sm transition"
-          >
-            ← Volver al Dashboard
-          </button>
+    <div style={{ backgroundColor: '#121212', color: '#e0e0e0', minHeight: '100vh', padding: '30px', fontFamily: 'sans-serif' }}>
+      
+      {/* Cabecera */}
+      <div style={{ maxWidth: '1000px', margin: '0 auto 30px auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px' }}>
+        <div>
+          <h1 style={{ color: '#d4af37', margin: 0, fontSize: '24px' }}>Historial de Facturas y Contratos</h1>
+          <p style={{ color: '#aaa', margin: '5px 0 0 0', fontSize: '13px' }}>Busca, gestiona e imprime los documentos generados automáticamente por cada reserva.</p>
         </div>
+        <button 
+          onClick={() => router.push('/admin')}
+          style={{ padding: '10px 16px', backgroundColor: '#333', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
+        >
+          ← Volver al Dashboard
+        </button>
+      </div>
 
-        {/* Barra de Búsqueda por Cédula o Pasaporte */}
-        <div className="mb-8">
-          <div className="relative max-w-xl">
-            <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-neutral-500">
-              🔍
-            </span>
-            <input
-              type="text"
-              placeholder="Buscar por Cédula, Pasaporte o Nombre del cliente..."
-              value={busqueda}
-              onChange={(e) => setBusqueda(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 bg-neutral-900 border border-neutral-800 rounded-xl text-neutral-100 placeholder-neutral-500 focus:outline-none focus:border-amber-400 transition shadow-inner"
-            />
-          </div>
-          <p className="text-xs text-neutral-500 mt-2 ml-1">La búsqueda filtra de forma instantánea a medida que escribes el documento de identidad.</p>
-        </div>
+      {/* Buscador */}
+      <div style={{ maxWidth: '1000px', margin: '0 auto 20px auto' }}>
+        <input 
+          type="text"
+          placeholder="🔍 Buscar por cliente, vehículo, cédula o ID..."
+          value={busqueda}
+          onChange={(e) => setBusqueda(e.target.value)}
+          style={{ width: '100%', padding: '12px 16px', backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '6px', color: '#fff', fontSize: '14px' }}
+        />
+        <p style={{ fontSize: '11px', color: '#888', marginTop: '4px' }}>La búsqueda filtra de forma instantánea a medida que escribes.</p>
+      </div>
 
-        {/* Tabla de Resultados */}
+      {/* Contenido principal / Tabla */}
+      <div style={{ maxWidth: '1000px', margin: '0 auto', backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px', overflow: 'hidden', boxShadow: '0 4px 15px rgba(0,0,0,0.5)' }}>
         {loading ? (
-          <div className="text-center py-20 text-neutral-400 animate-pulse">Cargando registros del sistema...</div>
+          <p style={{ textAlign: 'center', padding: '40px', color: '#aaa' }}>Cargando reservas desde Firebase...</p>
         ) : reservasFiltradas.length === 0 ? (
-          <div className="text-center py-20 bg-neutral-900/50 rounded-2xl border border-neutral-800/80">
-            <p className="text-neutral-400 text-lg">No se encontraron facturas con ese criterio de búsqueda.</p>
-          </div>
+          <p style={{ textAlign: 'center', padding: '40px', color: '#aaa' }}>No se encontraron facturas o reservas registradas.</p>
         ) : (
-          <div className="overflow-x-auto rounded-xl border border-neutral-800 shadow-xl bg-neutral-900/40">
-            <table className="w-full text-left border-collapse">
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
               <thead>
-                <tr className="border-b border-neutral-800 bg-neutral-900/80 text-neutral-400 text-xs uppercase tracking-wider">
-                  <th className="p-4">Fecha / ID</th>
-                  <th className="p-4">Cliente</th>
-                  <th className="p-4">Cédula / Pasaporte</th>
-                  <th className="p-4">Vehículo</th>
-                  <th className="p-4 text-right">Total / Estado</th>
-                  <th className="p-4 text-center">Acciones</th>
+                <tr style={{ backgroundColor: '#222', color: '#d4af37', borderBottom: '1px solid #333' }}>
+                  <th style={{ padding: '12px 15px' }}>Ref / ID</th>
+                  <th style={{ padding: '12px 15px' }}>Cliente</th>
+                  <th style={{ padding: '12px 15px' }}>Vehículo</th>
+                  <th style={{ padding: '12px 15px' }}>Fechas</th>
+                  <th style={{ padding: '12px 15px', textAlign: 'right' }}>Total</th>
+                  <th style={{ padding: '12px 15px', textAlign: 'center' }}>Acciones</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-neutral-800 text-sm">
-                {reservasFiltradas.map((item) => (
-                  <tr key={item.id} className="hover:bg-neutral-900/70 transition">
-                    <td className="p-4">
-                      <div className="font-medium text-neutral-200">{item.fechaReserva || 'N/D'}</div>
-                      <div className="text-xs text-neutral-500 font-mono">ID: {item.id.slice(0, 8)}...</div>
+              <tbody>
+                {reservasFiltradas.map((res) => (
+                  <tr key={res.id} style={{ borderBottom: '1px solid #262626' }}>
+                    <td style={{ padding: '12px 15px', color: '#d4af37', fontWeight: 'bold' }}>#{res.id.slice(-6).toUpperCase()}</td>
+                    <td style={{ padding: '12px 15px' }}>
+                      <div style={{ fontWeight: 'bold' }}>{res.clienteNombre || 'Sin nombre'}</div>
+                      <div style={{ fontSize: '11px', color: '#888' }}>{res.documentoCliente || res.clienteTelefono || 'Sin documento'}</div>
                     </td>
-                    <td className="p-4 font-semibold text-white">
-                      {item.nombreCliente || item.cliente || 'Cliente sin nombre'}
+                    <td style={{ padding: '12px 15px' }}>{res.vehiculoNombre || 'Vehículo no especificado'}</td>
+                    <td style={{ padding: '12px 15px', fontSize: '12px', color: '#ccc' }}>
+                      {res.inicio || 'N/A'} al {res.fin || 'N/A'}
+                      <div style={{ color: '#888' }}>({res.diasTotales || 0} días)</div>
                     </td>
-                    <td className="p-4 font-mono text-amber-300/90">
-                      {item.cedula || item.pasaporte || item.documento || 'No especificada'}
+                    <td style={{ padding: '12px 15px', textAlign: 'right', fontWeight: 'bold', color: '#22c55e' }}>
+                      ${res.costoTotal || 0} USD
                     </td>
-                    <td className="p-4 text-neutral-300">
-                      {item.vehiculo || item.auto || 'Vehículo estándar'}
-                    </td>
-                    <td className="p-4 text-right">
-                      <div className="font-bold text-white">${item.total || item.monto || '0.00'}</div>
-                      <span className="inline-block px-2 py-0.5 text-xs rounded bg-emerald-950 text-emerald-400 border border-emerald-800 mt-1">
-                        Generada
-                      </span>
-                    </td>
-                    <td className="p-4 text-center">
+                    <td style={{ padding: '12px 15px', textAlign: 'center' }}>
                       <button
-                        onClick={() => router.push(`/admin/factura/${item.id}`)}
-                        className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-neutral-950 font-semibold rounded-lg text-xs transition shadow"
+                        onClick={() => router.push(`/admin/facturas/${res.id}`)}
+                        style={{ padding: '6px 12px', backgroundColor: '#d4af37', color: '#000', border: 'none', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer', fontSize: '12px' }}
                       >
-                        Ver Factura y Contrato
+                        Ver Factura 📄
                       </button>
                     </td>
                   </tr>
@@ -144,6 +131,7 @@ export default function ListaFacturas() {
           </div>
         )}
       </div>
+
     </div>
   );
 }

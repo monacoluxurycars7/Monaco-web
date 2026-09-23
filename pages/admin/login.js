@@ -174,7 +174,7 @@ export default function Login() {
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px', textAlign: 'left' }}>
           <div>
-            <label className="glow-label" style={{ display: 'block', fontSize: '12px', color: '#fff', fontWeight: '600', marginBottom: '6px' }}>
+            <label className="glow-label" style={{ display: 'block', fontSize: '12px', color: '#FF1E00', fontWeight: '600', marginBottom: '6px' }}>
               Correo Electrónico:
             </label>
             <input
@@ -198,7 +198,7 @@ export default function Login() {
           </div>
 
           <div>
-            <label className="glow-label" style={{ display: 'block', fontSize: '12px', color: '#fff', fontWeight: '600', marginBottom: '6px' }}>
+            <label className="glow-label" style={{ display: 'block', fontSize: '12px', color: '#FF1E00', fontWeight: '600', marginBottom: '6px' }}>
               Contraseña:
             </label>
             <input

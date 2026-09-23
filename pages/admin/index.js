@@ -183,29 +183,13 @@ export default function AdminDashboard() {
           </div>
           
           <div style={{ display: 'flex', gap: '10px' }}>
-           {/* Botón de acceso al Historial de Facturas y Contratos */}
-<button 
-  onClick={() => router.push('/admin/facturas')}
-  style={{
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '8px 12px',
-    backgroundColor: '#d4af37',
-    color: '#000',
-    border: 'none',
-    borderRadius: '6px',
-    cursor: 'pointer',
-    fontWeight: 'bold',
-    fontSize: '12px',
-    textAlign: 'center',
-    lineHeight: '1.2'
-  }}
->
-  <span style={{ fontSize: '15px', marginBottom: '2px' }}>
-  <span>📄Facturas</span>
-</button>
+            <button 
+              onClick={() => router.push('/admin/facturas')}
+              style={{ padding: '8px 16px', backgroundColor: '#d4af37', color: '#000', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
+            >
+              📄 Facturas
+            </button>
+
             <button 
               onClick={() => router.push('/admin/vehiculos')}
               style={{ padding: '8px 16px', backgroundColor: '#181818', color: '#fff', border: '1px solid #333', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}

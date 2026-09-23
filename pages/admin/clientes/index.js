@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { collection, getDocs, doc, setDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, setDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '../../../lib/firebase';
 import { useRouter } from 'next/router';
 
@@ -102,7 +102,7 @@ export default function AdminClientes() {
     }
   };
 
-  const cambiarEstadoListaNegra = async (telefono, estadoActual, motivoActual) => {
+  const cambiarEstadoListaNegra = async (idCli, telefono, estadoActual, motivoActual) => {
     const nuevoEstado = !estadoActual;
     let motivo = motivoActual;
 
@@ -115,14 +115,17 @@ export default function AdminClientes() {
     }
 
     try {
-      const clienteRef = doc(db, 'clientes', telefono);
+      // Usamos el id o el teléfono como referencia en la colección 'clientes'
+      const docId = telefono && telefono !== 'No registrado' && telefono !== 'sin-telefono' ? telefono : idCli;
+      const clienteRef = doc(db, 'clientes', docId);
+      
       await setDoc(clienteRef, {
         enListaNegra: nuevoEstado,
         motivoListaNegra: motivo,
         actualizadoEn: new Date().toISOString()
       }, { merge: true });
 
-      setClientes(clientes.map(c => c.telefono === telefono ? { ...c, enListaNegra: nuevoEstado, motivoListaNegra: motivo } : c));
+      setClientes(clientes.map(c => c.id === idCli ? { ...c, enListaNegra: nuevoEstado, motivoListaNegra: motivo } : c));
       alert("Estado de lista negra actualizado correctamente.");
     } catch (error) {
       console.error("Error al actualizar lista negra:", error);
@@ -130,7 +133,52 @@ export default function AdminClientes() {
     }
   };
 
-  // NUEVA FUNCIÓN: Guarda desde la lista larga sin requerir teléfono obligatorio
+  // FUNCIÓN PARA EDITAR DATOS DEL CLIENTE / REPORTE
+  const editarCliente = async (cli) => {
+    const nuevoNombreEdit = prompt("Editar Nombre o Alias:", cli.nombre);
+    if (nuevoNombreEdit === null) return;
+
+    const nuevaCedulaEdit = prompt("Editar Cédula o Pasaporte:", cli.cedula);
+    if (nuevaCedulaEdit === null) return;
+
+    const nuevoMotivoEdit = prompt("Editar Motivo / Descripción de Lista Negra:", cli.motivoListaNegra);
+    if (nuevoMotivoEdit === null) return;
+
+    try {
+      const docId = cli.telefono && cli.telefono !== 'No registrado' && cli.telefono !== 'sin-telefono' ? cli.telefono : cli.id;
+      const clienteRef = doc(db, 'clientes', docId);
+
+      await setDoc(clienteRef, {
+        nombre: nuevoNombreEdit,
+        cedula: nuevaCedulaEdit,
+        motivoListaNegra: nuevoMotivoEdit,
+        actualizadoEn: new Date().toISOString()
+      }, { merge: true });
+
+      alert("¡Información actualizada correctamente!");
+      cargarClientesYHistorial();
+    } catch (error) {
+      console.error("Error al editar cliente:", error);
+      alert("Hubo un error al actualizar los datos.");
+    }
+  };
+
+  // FUNCIÓN PARA BORRAR REGISTRO DE CLIENTE / LISTA NEGRA
+  const eliminarCliente = async (cli) => {
+    if (!confirm(`¿Estás seguro de eliminar permanentemente a "${cli.nombre}" del registro?`)) return;
+
+    try {
+      const docId = cli.telefono && cli.telefono !== 'No registrado' && cli.telefono !== 'sin-telefono' ? cli.telefono : cli.id;
+      await deleteDoc(doc(db, 'clientes', docId));
+
+      alert("Registro eliminado exitosamente.");
+      cargarClientesYHistorial();
+    } catch (error) {
+      console.error("Error al eliminar cliente:", error);
+      alert("Hubo un error al intentar eliminar el registro.");
+    }
+  };
+
   const guardarNuevoListaNegra = async (e) => {
     e.preventDefault();
     if (!nuevoNombre.trim()) {
@@ -138,7 +186,6 @@ export default function AdminClientes() {
       return;
     }
 
-    // Si no hay teléfono, generamos un identificador único basado en la fecha o la cédula
     const idUnico = nuevoTelefono.trim() || (nuevaCedula.trim() ? `cedula-${nuevaCedula.trim()}` : `reporte-${Date.now()}`);
 
     try {
@@ -153,7 +200,6 @@ export default function AdminClientes() {
       }, { merge: true });
 
       alert("¡Estafador agregado a la Lista Negra exitosamente!");
-      // Limpiar y cerrar formulario
       setNuevoNombre('');
       setNuevaCedula('');
       setNuevoTelefono('');
@@ -208,7 +254,7 @@ export default function AdminClientes() {
           </div>
         </div>
 
-        {/* LISTA LARGA / FORMULARIO INTEGRADO PARA AGREGAR A LISTA NEGRA */}
+        {/* FORMULARIO INTEGRADO PARA AGREGAR A LISTA NEGRA */}
         {mostrarFormulario && (
           <form onSubmit={guardarNuevoListaNegra} style={{ backgroundColor: '#161616', border: '1px solid #ef4444', borderRadius: '8px', padding: '20px', marginBottom: '25px' }}>
             <h3 style={{ color: '#ef4444', marginTop: 0, marginBottom: '15px', fontSize: '16px' }}>🚨 Registrar Nuevo Reporte / Estafador en Lista Negra</h3>
@@ -302,17 +348,34 @@ export default function AdminClientes() {
                   </div>
                 </div>
 
-                <div style={{ borderTop: '1px solid #222', paddingTop: '15px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <button
-                    onClick={() => router.push(`/admin/clientes/${encodeURIComponent(cli.telefono)}`)}
-                    style={{ backgroundColor: '#181818', color: '#fff', border: '1px solid #444', padding: '6px 12px', borderRadius: '4px', fontSize: '12px', cursor: 'pointer', fontWeight: 'bold' }}
-                  >
-                    📂 Ver Historial
-                  </button>
+                {/* ACCIONES Y BOTONES DE GESTIÓN (Ver, Editar, Borrar, Cambiar Estado) */}
+                <div style={{ borderTop: '1px solid #222', paddingTop: '15px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: '5px' }}>
+                    <button
+                      onClick={() => router.push(`/admin/clientes/${encodeURIComponent(cli.telefono)}`)}
+                      style={{ backgroundColor: '#181818', color: '#fff', border: '1px solid #444', padding: '6px 10px', borderRadius: '4px', fontSize: '11px', cursor: 'pointer', fontWeight: 'bold', flex: 1 }}
+                    >
+                      📂 Historial
+                    </button>
+
+                    <button
+                      onClick={() => editarCliente(cli)}
+                      style={{ backgroundColor: '#3b82f6', color: '#fff', border: 'none', padding: '6px 10px', borderRadius: '4px', fontSize: '11px', cursor: 'pointer', fontWeight: 'bold', flex: 1 }}
+                    >
+                      ✏️ Editar
+                    </button>
+
+                    <button
+                      onClick={() => eliminarCliente(cli)}
+                      style={{ backgroundColor: '#6b7280', color: '#fff', border: 'none', padding: '6px 10px', borderRadius: '4px', fontSize: '11px', cursor: 'pointer', fontWeight: 'bold', flex: 1 }}
+                    >
+                      🗑️ Borrar
+                    </button>
+                  </div>
 
                   <button
-                    onClick={() => cambiarEstadoListaNegra(cli.telefono, cli.enListaNegra, cli.motivoListaNegra)}
-                    style={{ backgroundColor: cli.enListaNegra ? '#22c55e' : '#ef4444', color: '#fff', border: 'none', padding: '6px 12px', borderRadius: '4px', fontSize: '12px', cursor: 'pointer', fontWeight: 'bold' }}
+                    onClick={() => cambiarEstadoListaNegra(cli.id, cli.telefono, cli.enListaNegra, cli.motivoListaNegra)}
+                    style={{ backgroundColor: cli.enListaNegra ? '#22c55e' : '#ef4444', color: '#fff', border: 'none', padding: '7px 12px', borderRadius: '4px', fontSize: '12px', cursor: 'pointer', fontWeight: 'bold', width: '100%' }}
                   >
                     {cli.enListaNegra ? '✅ Quitar Lista Negra' : '🚨 Marcar Lista Negra'}
                   </button>

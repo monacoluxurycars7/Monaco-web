@@ -81,35 +81,62 @@ export default function Login() {
     }}>
       
       {/* Audio ambiental */}
-      <audio ref={audioRef} src="/musica.mp3" loop preload="auto" />
+<audio ref={audioRef} src="/musica.mp3" loop autoPlay preload="auto" />
+  
+      {/* Botón y control de volumen de música ambiental */}
+<div style={{
+  position: 'fixed',
+  bottom: '15px',
+  right: '15px',
+  zIndex: 100,
+  backgroundColor: 'rgba(212, 175, 55, 0.15)',
+  border: '1px solid #d4af37',
+  color: '#d4af37',
+  padding: '8px 14px',
+  borderRadius: '30px',
+  cursor: 'pointer',
+  fontSize: '12px',
+  fontWeight: 'bold',
+  backdropFilter: 'blur(5px)',
+  display: 'flex',
+  alignItems: 'center',
+  gap: '8px',
+  boxShadow: '0 0 15px rgba(212, 175, 55, 0.3)'
+}}>
+  <button 
+    onClick={toggleAudio}
+    type="button"
+    style={{
+      background: 'transparent',
+      border: 'none',
+      color: '#d4af37',
+      cursor: 'pointer',
+      fontWeight: 'bold',
+      fontSize: '14px',
+      padding: 0
+    }}
+  >
+    {isPlaying ? '⏸' : '▶'}
+  </button>
 
-      {/* Botón de música ambiental */}
-      <button 
-        onClick={toggleAudio}
-        type="button"
-        style={{
-          position: 'fixed',
-          bottom: '15px',
-          right: '15px',
-          zIndex: 100,
-          backgroundColor: 'rgba(212, 175, 55, 0.15)',
-          border: '1px solid #d4af37',
-          color: '#d4af37',
-          padding: '8px 14px',
-          borderRadius: '30px',
-          cursor: 'pointer',
-          fontSize: '12px',
-          fontWeight: 'bold',
-          backdropFilter: 'blur(5px)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '6px',
-          boxShadow: '0 0 15px rgba(212, 175, 55, 0.3)'
-        }}
-      >
-        <span>{isPlaying ? '🔊 Pausar Música' : '🎵 Música Ambiental'}</span>
-      </button>
+  <span>{isPlaying ? 'Música Activa' : 'Pausado'}</span>
 
+  {/* Barra para bajar o subir volumen */}
+  <input 
+    type="range" 
+    min="0" 
+    max="1" 
+    step="0.05" 
+    defaultValue="0.5"
+    onChange={(e) => {
+      if (audioRef.current) {
+        audioRef.current.volume = e.target.value;
+      }
+    }}
+    style={{ width: '55px', cursor: 'pointer', accentColor: '#d4af37' }}
+    title="Ajustar volumen"
+  />
+</div>
       {/* Estilos para textos con brillo */}
       <style jsx global>{`
         .glow-title {

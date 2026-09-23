@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+pimport React, { useState, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
 import { app } from '../../lib/firebase';
@@ -121,7 +121,7 @@ export default function Login() {
         }
       `}</style>
 
-      {/* CONTENEDOR DE ACCESO (SIN CAJA / TRANSPARENTE) */}
+      {/* CONTENEDOR DE ACCESO */}
       <div style={{
         position: 'relative',
         zIndex: 10,

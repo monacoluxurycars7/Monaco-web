@@ -203,8 +203,8 @@ export default function AdminDashboard() {
     lineHeight: '1.2'
   }}
 >
-  <span style={{ fontSize: '15px', marginBottom: '2px' }}>📄</span>
-  <span>Facturas</span>
+  <span style={{ fontSize: '15px', marginBottom: '2px' }}>
+  <span>📄Facturas</span>
 </button>
             <button 
               onClick={() => router.push('/admin/vehiculos')}

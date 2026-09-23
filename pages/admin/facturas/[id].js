@@ -168,7 +168,7 @@ export default function DetalleFacturaContrato() {
             />
             <div>
               <h1 style={{ color: '#111', margin: 0, fontSize: '22px', letterSpacing: '0.5px', fontWeight: '900' }}>MÓNACO LUXURY</h1>
-              <p style={{ color: '#dc2626', margin: '2px 0 0 0', fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px' }}>Rent Car & Services</p>
+              <p style={{ color: '#dc2626', margin: '2px 0 0 0', fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px' }}>Rent a Car & VIP Services</p>
             </div>
           </div>
           <div style={{ textAlign: 'right' }}>

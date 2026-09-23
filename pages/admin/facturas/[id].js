@@ -64,27 +64,40 @@ export default function DetalleFacturaContrato() {
     setMensajeEstado('');
 
     try {
+      const depositoGarantiaVal = reserva.depositoGarantia || 300;
+      const costoTotalFinalVal = Number(reserva.costoTotal || 0) + Number(depositoGarantiaVal);
+
       const templateParams = {
-        to_email: reserva.clienteEmail,
-        to_name: reserva.clienteNombre || 'Estimado cliente',
+        cliente_email: reserva.clienteEmail,
+        cliente_nombre: reserva.clienteNombre || 'Estimado cliente',
         vehiculo: reserva.vehiculoNombre || 'Vehículo de lujo',
-        inicio: reserva.inicio || '',
-        fin: reserva.fin || '',
-        total: reserva.costoTotal || '0',
-        referencia: reserva.id
+        tipo_cliente: reserva.tipoCliente || reserva.documentoTipo || 'Residente',
+        documento_cliente: reserva.documentoCliente || 'N/A',
+        fecha_inicio: reserva.inicio || '',
+        fecha_fin: reserva.fin || '',
+        dias_totales: reserva.diasTotales || 1,
+        precio_por_dia: reserva.precioPorDia || (reserva.costoTotal / (reserva.diasTotales || 1)).toFixed(2),
+        seguro_full: reserva.seguroFull || 'NO',
+        depositoGarantia: depositoGarantiaVal,
+        lugarEntrega: reserva.lugarEntrega || 'Oficina Monaco Luxury',
+        costoEntrega: reserva.costoEntrega || 0,
+        costoTotalFinal: costoTotalFinalVal,
+        cuentas_bancarias: reserva.cuentasBancarias || 'Transferencia bancaria directa o pago en oficina.',
+        contrato_texto: reserva.contratoTexto || 'Aplica contrato estándar de alquiler y políticas de Mónaco Luxury Rent Car.',
+        firma_url: reserva.firmaUrl || ''
       };
 
       await emailjs.send(
-        'service_av3mxdg', // Tu Service ID de EmailJS
-        'template_d2myfzs', // Tu Template ID de EmailJS
+        'service_av3mxdg',
+        'template_d2myfzs',
         templateParams,
-        'bn6WeQnxOIluVFxfB' // Tu Public Key de EmailJS
+        'bn6WeQnxOIluVFxfB'
       );
 
       setMensajeEstado('¡Factura y contrato enviados por correo exitosamente al cliente!');
     } catch (error) {
       console.error('Error al enviar correo:', error);
-      setMensajeEstado('Hubo un error al enviar el correo. Verifica tus credenciales de EmailJS.');
+      setMensajeEstado('Hubo un error al enviar el correo. Revisa la consola para más detalles.');
     } finally {
       setEnviandoEmail(false);
     }

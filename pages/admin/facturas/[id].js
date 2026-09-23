@@ -93,7 +93,7 @@ export default function DetalleFacturaContrato() {
   const handleCopiarWhatsApp = () => {
     if (!reserva) return;
     const deposito = reserva.depositoGarantia || 300;
-    const texto = `Estimado/a *${reserva.clienteNombre}*, le compartimos el resumen de su reserva en *Mónaco Luxury Car*:\n\n🚗 *Vehículo:* ${reserva.vehiculoNombre}\n📅 *Del:* ${reserva.inicio} *al* ${reserva.fin}\n💰 *Alquiler Total:* $${reserva.costoTotal} USD\n🔒 *Depósito de Garantía:* $${deposito} USD (Reembolsable)\n\nRef: #${reserva.id}. ¡Todo listo para recibirle en el país!`;
+    const texto = `Estimado/a *${reserva.clienteNombre}*, le compartimos el resumen de su reserva en *Mónaco Luxury Car*:\n\n🚗 *Vehículo:* ${reserva.vehiculoNombre}\n📅 *Del:* ${reserva.inicio} *al* ${reserva.fin}\n💰 *Alquiler Total:* $${reserva.costoTotal} USD\n🔒 *Depósito de Garantía:* $${deposito} USD (Reembolsable)\n\nRef: #${reserva.id}. ¡Todo listo para entregarle!`;
     navigator.clipboard.writeText(texto);
     alert('¡Mensaje detallado copiado al portapapeles para WhatsApp!');
   };

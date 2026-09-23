@@ -110,23 +110,8 @@ export default function Login() {
         <span>{isPlaying ? '🔊 Pausar Música' : '🎵 Música Ambiental'}</span>
       </button>
 
-      {/* Animaciones CSS para marquesina continua */}
+      {/* Estilos para textos con brillo */}
       <style jsx global>{`
-        @keyframes scrollHorizontal {
-          0% {
-            transform: translateX(0);
-          }
-          100% {
-            transform: translateX(-50%);
-          }
-        }
-
-        .marquee-track {
-          display: flex;
-          width: 200%;
-          animation: scrollHorizontal 25s linear infinite;
-        }
-
         .glow-title {
           text-shadow: 0 0 10px rgba(255, 255, 255, 0.9), 0 0 18px rgba(212, 175, 55, 0.6);
         }
@@ -135,60 +120,6 @@ export default function Login() {
           text-shadow: 0 0 6px rgba(255, 255, 255, 0.6);
         }
       `}</style>
-
-      {/* FRANJA SUPERIOR: Logos pequeños en movimiento */}
-      <div style={{
-        position: 'absolute',
-        top: '6%',
-        left: '0',
-        width: '100vw',
-        overflow: 'hidden',
-        pointerEvents: 'none',
-        zIndex: 1
-      }}>
-        <div className="marquee-track">
-          {[...Array(14)].map((_, i) => (
-            <img 
-              key={`top-${i}`}
-              src="/logo sin fondo.png" 
-              alt="Monaco Logo Top" 
-              style={{
-                width: '100px',
-                height: 'auto',
-                marginRight: '50px',
-                opacity: 0.9
-              }}
-            />
-          ))}
-        </div>
-      </div>
-
-      {/* FRANJA INFERIOR: Logos pequeños en movimiento (sentido inverso) */}
-      <div style={{
-        position: 'absolute',
-        bottom: '12%',
-        left: '0',
-        width: '100vw',
-        overflow: 'hidden',
-        pointerEvents: 'none',
-        zIndex: 1
-      }}>
-        <div className="marquee-track" style={{ animationDirection: 'reverse' }}>
-          {[...Array(14)].map((_, i) => (
-            <img 
-              key={`bottom-${i}`}
-              src="/logo sin fondo.png" 
-              alt="Monaco Logo Bottom" 
-              style={{
-                width: '100px',
-                height: 'auto',
-                marginRight: '50px',
-                opacity: 0.9
-              }}
-            />
-          ))}
-        </div>
-      </div>
 
       {/* CAJA DE LOGIN */}
       <div style={{

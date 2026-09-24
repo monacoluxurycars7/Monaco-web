@@ -1,44 +1,53 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { auth } from '../../lib/firebase';
-import { updateEmail, updatePassword, updateProfile } from 'firebase/auth';
+import { updateEmail, updatePassword, onAuthStateChanged } from 'firebase/auth';
 
 export default function GestionCuenta() {
-  const usuarioActual = auth.currentUser;
-  
-  const [email, setEmail] = useState(usuarioActual?.email || '');
+  const [usuario, setUsuario] = useState(null);
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [telefono, setTelefono] = useState(usuarioActual?.phoneNumber || '');
+  const [telefono, setTelefono] = useState('');
   const [mensaje, setMensaje] = useState('');
   const [cargando, setCargando] = useState(false);
 
+  // Escuchar cuando el usuario ya cargó en el navegador
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUsuario(user);
+        setEmail(user.email || '');
+        setTelefono(user.phoneNumber || '');
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
   const handleActualizarCuenta = async (e) => {
     e.preventDefault();
+    if (!usuario) {
+      setMensaje('No hay una sesión activa.');
+      return;
+    }
+
     setCargando(true);
     setMensaje('');
 
     try {
-      if (!usuarioActual) {
-        alert("No hay sesión activa.");
-        return;
-      }
-
       // Actualizar Correo si cambió
-      if (email !== usuarioActual.email) {
-        await updateEmail(usuarioActual, email);
+      if (email !== usuario.email) {
+        await updateEmail(usuario, email);
       }
 
       // Actualizar Contraseña si se escribió una nueva
       if (password.trim() !== '') {
-        await updatePassword(usuarioActual, password);
+        await updatePassword(usuario, password);
       }
 
-      // Guardar teléfono (puedes guardarlo en Firestore o perfil)
-      // ...
-
       setMensaje('¡Datos de cuenta actualizados correctamente!');
+      setPassword(''); // Limpiar campo de contraseña
     } catch (error) {
       console.error("Error al actualizar cuenta:", error);
-      setMensaje('Error: Asegúrate de haber iniciado sesión recientemente para realizar cambios sensibles.');
+      setMensaje('Error: Vuelve a iniciar sesión recientemente para aplicar cambios sensibles.');
     }
     setCargando(false);
   };

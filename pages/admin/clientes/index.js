@@ -7,7 +7,6 @@ export default function AdminClientes() {
   const [clientes, setClientes] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [busqueda, setBusqueda] = useState('');
-  const [soloPendientes, setSoloPendientes] = useState(false); // Estado para el botón de filtro rápido
   
   // Estados para formulario de Agregar
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
@@ -41,24 +40,17 @@ export default function AdminClientes() {
       });
 
       let mapaClientes = {};
-      const mesActualKey = new Date().toISOString().slice(0, 7); // Ejemplo: "2026-09"
 
       // 1. Procesar reservas
       reservas.forEach((res, index) => {
         const telefonoKey = res.clienteTelefono || res.telefono || `reserva-${index}`;
         const nombre = res.clienteNombre || res.nombre || 'Cliente sin nombre';
-        const cedula = res.documentoCliente || res.cedula || res.pasaporte || res.documento || res.clienteCedula || res.clientePasaporte || 'No registrada';        
+        const cedula = res.documentoCliente || res.cedula || res.pasaporte || res.documento || res.clienteCedula || res.clientePasaporte || 'No registrada';       
         const licencia = res.licencia || res.clienteLicencia || 'No registrada';
         const gananciaReserva = res.gananciaNetaMonaco !== undefined ? Number(res.gananciaNetaMonaco) : Number(res.costoTotal || res.costoTotalFinal || 0);
 
+        // Ver si existe configuración directa o si fue borrado en Firestore
         const infoDirecta = clientesDirectos[telefonoKey] || clientesDirectos[cedula] || {};
-
-        // Reinicio automático si el mes guardado es distinto al mes actual
-        let mesUltimoEnvio = infoDirecta.mesUltimoEnvioVIP || '';
-        let estadoMensaje = infoDirecta.estadoMensajeVIP || 'pendiente';
-        if (mesUltimoEnvio !== mesActualKey) {
-          estadoMensaje = 'pendiente'; // Se reinicia automáticamente al cambiar de mes
-        }
 
         if (!mapaClientes[telefonoKey]) {
           mapaClientes[telefonoKey] = {
@@ -72,9 +64,7 @@ export default function AdminClientes() {
             autosFrecuentes: {},
             enListaNegra: infoDirecta.enListaNegra || false,
             motivoListaNegra: infoDirecta.motivoListaNegra || '',
-            eliminado: infoDirecta.eliminado || false,
-            estadoMensajeVIP: estadoMensaje,
-            mesUltimoEnvioVIP: mesUltimoEnvio
+            eliminado: infoDirecta.eliminado || false
           };
         }
 
@@ -85,14 +75,9 @@ export default function AdminClientes() {
         mapaClientes[telefonoKey].autosFrecuentes[auto] = (mapaClientes[telefonoKey].autosFrecuentes[auto] || 0) + 1;
       });
 
-      // 2. Procesar registros directos de la colección 'clientes'
+      // 2. Procesar registros directos de la colección 'clientes' (Lista negra o externos)
       Object.values(clientesDirectos).forEach(cliDir => {
         const key = cliDir.telefono && cliDir.telefono !== 'No registrado' ? cliDir.telefono : cliDir.id;
-        let mesUltimoEnvio = cliDir.mesUltimoEnvioVIP || '';
-        let estadoMensaje = cliDir.estadoMensajeVIP || 'pendiente';
-        if (mesUltimoEnvio !== mesActualKey) {
-          estadoMensaje = 'pendiente';
-        }
         
         if (!mapaClientes[key]) {
           mapaClientes[key] = {
@@ -106,47 +91,24 @@ export default function AdminClientes() {
             autosFrecuentes: {},
             enListaNegra: cliDir.enListaNegra || false,
             motivoListaNegra: cliDir.motivoListaNegra || '',
-            eliminado: cliDir.eliminado || false,
-            estadoMensajeVIP: estadoMensaje,
-            mesUltimoEnvioVIP: mesUltimoEnvio
+            eliminado: cliDir.eliminado || false
           };
         } else {
           mapaClientes[key].enListaNegra = cliDir.enListaNegra;
           mapaClientes[key].motivoListaNegra = cliDir.motivoListaNegra;
           mapaClientes[key].eliminado = cliDir.eliminado;
-          mapaClientes[key].estadoMensajeVIP = estadoMensaje;
-          mapaClientes[key].mesUltimoEnvioVIP = mesUltimoEnvio;
           if (cliDir.nombreOverride) mapaClientes[key].nombre = cliDir.nombreOverride;
           if (cliDir.cedulaOverride) mapaClientes[key].cedula = cliDir.cedulaOverride;
         }
       });
 
+      // Mostrar todos los que NO estén marcados explícitamente como eliminados
       const listaFinal = Object.values(mapaClientes).filter(c => !c.eliminado);
       setClientes(listaFinal);
     } catch (error) {
       console.error("Error cargando clientes:", error);
     } finally {
       setCargando(false);
-    }
-  };
-
-  const cambiarEstadoMensajeVIP = async (cli) => {
-    try {
-      const docId = cli.telefono && cli.telefono !== 'No registrado' ? cli.telefono : cli.id;
-      const clienteRef = doc(db, 'clientes', docId);
-      const mesActualKey = new Date().toISOString().slice(0, 7);
-
-      await setDoc(clienteRef, {
-        estadoMensajeVIP: 'enviado',
-        mesUltimoEnvioVIP: mesActualKey,
-        actualizadoEn: new Date().toISOString()
-      }, { merge: true });
-
-      // Actualizar estado localmente para que desaparezca la alerta al instante de la tarjeta
-      setClientes(clientes.map(c => c.id === cli.id ? { ...c, estadoMensajeVIP: 'enviado', mesUltimoEnvioVIP: mesActualKey } : c));
-    } catch (error) {
-      console.error("Error al actualizar estado del mensaje:", error);
-      alert("Hubo un error al actualizar el estado del mensaje.");
     }
   };
 
@@ -236,7 +198,7 @@ export default function AdminClientes() {
   const guardarNuevoListaNegra = async (e) => {
     e.preventDefault();
     if (!nuevoNombre.trim()) {
-      alert("Name is required");
+      alert("El nombre o alias es obligatorio.");
       return;
     }
 
@@ -267,17 +229,11 @@ export default function AdminClientes() {
     }
   };
 
-  // Filtrar clientes según búsqueda y el botón de "Promo Pendiente"
-  const clientesFiltrados = clientes.filter(c => {
-    const coincideBusqueda = c.nombre.toLowerCase().includes(busqueda.toLowerCase()) || 
-      c.telefono.includes(busqueda) || 
-      c.cedula.toLowerCase().includes(busqueda.toLowerCase());
-
-    if (soloPendientes) {
-      return coincideBusqueda && c.estadoMensajeVIP === 'pendiente';
-    }
-    return coincideBusqueda;
-  });
+  const clientesFiltrados = clientes.filter(c => 
+    c.nombre.toLowerCase().includes(busqueda.toLowerCase()) || 
+    c.telefono.includes(busqueda) || 
+    c.cedula.toLowerCase().includes(busqueda.toLowerCase())
+  );
 
   return (
     <div style={{ backgroundColor: '#0a0a0a', minHeight: '100vh', color: '#fff', fontFamily: 'sans-serif' }}>
@@ -296,23 +252,6 @@ export default function AdminClientes() {
           <h1 style={{ color: '#d4af37', fontSize: '20px', margin: 0, fontWeight: 'bold' }}>👥 Base de Datos de Clientes y CRM</h1>
           
           <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
-            
-            {/* BOTÓN PARA FILTRAR SOLAMENTE LOS PENDIENTES DE LA PROMO */}
-            <button
-              onClick={() => setSoloPendientes(!soloPendientes)}
-              style={{
-                backgroundColor: soloPendientes ? '#eab308' : '#222',
-                color: soloPendientes ? '#000' : '#eab308',
-                border: '1px solid #eab308',
-                padding: '10px 15px',
-                borderRadius: '6px',
-                fontSize: '13px',
-                cursor: 'pointer',
-                fontWeight: 'bold'
-              }}
-            >
-              {soloPendientes ? '👁️ Ver Todos los Clientes' : '⚠️ Ver solo Promo Pendiente'}
-            </button>
 
             <button
               onClick={() => setMostrarFormulario(!mostrarFormulario)}
@@ -396,135 +335,49 @@ export default function AdminClientes() {
           <p style={{ color: '#888', textAlign: 'center', padding: '40px' }}>Cargando historial de clientes...</p>
         ) : clientesFiltrados.length === 0 ? (
           <div style={{ backgroundColor: '#111', padding: '30px', textAlign: 'center', borderRadius: '8px', border: '1px solid #222' }}>
-            <p style={{ color: '#888', margin: 0 }}>No hay clientes con promociones pendientes.</p>
+            <p style={{ color: '#888', margin: 0 }}>No se encontraron clientes registrados.</p>
           </div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '20px' }}>
-            {clientesFiltrados.map((cli, index) => {
-              const mensajePendiente = cli.estadoMensajeVIP === 'pendiente';
-              const telefonoValido = cli.telefono && cli.telefono !== 'No registrado';
-              const mensajeWhatsApp = `¡Hola ${cli.nombre}! 🚗✨ En Monaco Luxury Rent A Car nos alegra mucho contar contigo. Queremos regalarte un descuento especial en tu próximo alquiler. Puedes ver nuestro catálogo y ofertas aquí: [ENLACE_FLYER]. ¡Esperamos verte pronto!`;
-              const urlWhatsApp = telefonoValido ? `https://wa.me/${cli.telefono.replace(/\D/g, '')}?text=${encodeURIComponent(mensajeWhatsApp)}` : '#';
+            {clientesFiltrados.map((cli, index) => (
+              <div key={index} style={{ backgroundColor: '#111', borderRadius: '8px', border: cli.enListaNegra ? '1px solid #ef4444' : '1px solid #222', padding: '20px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                
+                {cli.enListaNegra && (
+                  <div style={{ backgroundColor: 'rgba(239, 68, 68, 0.15)', color: '#ef4444', border: '1px solid #ef4444', padding: '6px 10px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold', marginBottom: '12px' }}>
+                    <span>🚨 LISTA NEGRA: {cli.motivoListaNegra || 'Sin motivo'}</span>
+                  </div>
+                )}
 
-              return (
-                <div key={index} style={{ backgroundColor: '#111', borderRadius: '8px', border: cli.enListaNegra ? '1px solid #ef4444' : '1px solid #222', padding: '20px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                  
-                  {cli.enListaNegra && (
-                    <div style={{ backgroundColor: 'rgba(239, 68, 68, 0.15)', color: '#ef4444', border: '1px solid #ef4444', padding: '6px 10px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold', marginBottom: '12px' }}>
-                      <span>🚨 LISTA NEGRA: {cli.motivoListaNegra || 'Sin motivo'}</span>
-                    </div>
-                  )}
-
-                  {/* ALERTA DE CAMPAÑA VIP (SOLO APARECE SI ESTÁ PENDIENTE ESTE MES) */}
-                  {mensajePendiente && (
-                    <div style={{ 
-                      backgroundColor: 'rgba(234, 179, 8, 0.12)', 
-                      border: '1px solid #eab308', 
-                      borderRadius: '6px', 
-                      padding: '10px', 
-                      marginBottom: '15px',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '8px'
-                    }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#eab308' }}>
-                          ⚠️ Alerta: Promo Pendiente
-                        </span>
-                        <button
-                          onClick={() => cambiarEstadoMensajeVIP(cli)}
-                          style={{
-                            backgroundColor: '#22c55e',
-                            color: '#fff',
-                            border: 'none',
-                            padding: '4px 8px',
-                            borderRadius: '4px',
-                            fontSize: '10px',
-                            cursor: 'pointer',
-                            fontWeight: 'bold'
-                          }}
-                        >
-                          ✔ Marcar Enviado
-                        </button>
-                      </div>
-
-                      <div style={{ display: 'flex', gap: '5px' }}>
-                        <a
-                          href={telefonoValido ? urlWhatsApp : '#'}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={(e) => {
-                            if (!telefonoValido) {
-                              e.preventDefault();
-                              alert("Este cliente no tiene un teléfono válido registrado.");
-                            }
-                          }}
-                          style={{
-                            flex: 1,
-                            backgroundColor: '#25d366',
-                            color: '#fff',
-                            textAlign: 'center',
-                            padding: '5px',
-                            borderRadius: '4px',
-                            fontSize: '11px',
-                            textDecoration: 'none',
-                            fontWeight: 'bold'
-                          }}
-                        >
-                          💬 Enviar WhatsApp
-                        </a>
-                        <a
-                          href="https://imgur.com" 
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          style={{
-                            backgroundColor: '#3b82f6',
-                            color: '#fff',
-                            textAlign: 'center',
-                            padding: '5px 8px',
-                            borderRadius: '4px',
-                            fontSize: '11px',
-                            textDecoration: 'none',
-                            fontWeight: 'bold'
-                          }}
-                        >
-                          🖼️ Flyer
-                        </a>
-                      </div>
-                    </div>
-                  )}
-
-                  <div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
-                      <h3 style={{ fontSize: '16px', color: '#fff', margin: 0, fontWeight: 'bold' }}>{cli.nombre}</h3>
-                      <span style={{ fontSize: '12px', backgroundColor: '#181818', padding: '4px 8px', borderRadius: '4px', color: '#d4af37', border: '1px solid #333' }}>
-                        {cli.totalAlquileres} {cli.totalAlquileres === 1 ? 'alquiler' : 'alquileres'}
-                      </span>
-                    </div>
-
-                    <div style={{ fontSize: '13px', color: '#aaa', display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '15px' }}>
-                      <p style={{ margin: 0 }}>📞 <strong>Teléfono:</strong> {cli.telefono}</p>
-                      <p style={{ margin: 0 }}>🪪 <strong>Cédula/Pasaporte:</strong> {cli.cedula}</p>
-                      <p style={{ margin: 0 }}>🚗 <strong>Licencia:</strong> {cli.licencia}</p>
-                      <p style={{ margin: 0, color: '#22c55e' }}>💰 <strong>Total Generado:</strong> USD ${cli.gastoTotal.toLocaleString()}</p>
-                    </div>
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
+                    <h3 style={{ fontSize: '16px', color: '#fff', margin: 0, fontWeight: 'bold' }}>{cli.nombre}</h3>
+                    <span style={{ fontSize: '12px', backgroundColor: '#181818', padding: '4px 8px', borderRadius: '4px', color: '#d4af37', border: '1px solid #333' }}>
+                      {cli.totalAlquileres} {cli.totalAlquileres === 1 ? 'alquiler' : 'alquileres'}
+                    </span>
                   </div>
 
-                  <div style={{ borderTop: '1px solid #222', paddingTop: '15px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: '5px' }}>
-                      <button onClick={() => router.push(`/admin/clientes/${encodeURIComponent(cli.telefono)}`)} style={{ backgroundColor: '#181818', color: '#fff', border: '1px solid #444', padding: '6px 10px', borderRadius: '4px', fontSize: '11px', cursor: 'pointer', fontWeight: 'bold', flex: 1 }}>📂 Historial</button>
-                      <button onClick={() => abrirEditor(cli)} style={{ backgroundColor: '#3b82f6', color: '#fff', border: 'none', padding: '6px 10px', borderRadius: '4px', fontSize: '11px', cursor: 'pointer', fontWeight: 'bold', flex: 1 }}>✏️ Editar</button>
-                      <button onClick={() => eliminarCliente(cli)} style={{ backgroundColor: '#6b7280', color: '#fff', border: 'none', padding: '6px 10px', borderRadius: '4px', fontSize: '11px', cursor: 'pointer', fontWeight: 'bold', flex: 1 }}>🗑️ Borrar</button>
-                    </div>
-
-                    <button onClick={() => cambiarEstadoListaNegra(cli, cli.enListaNegra, cli.motivoListaNegra)} style={{ backgroundColor: cli.enListaNegra ? '#22c55e' : '#ef4444', color: '#fff', border: 'none', padding: '7px 12px', borderRadius: '4px', fontSize: '12px', cursor: 'pointer', fontWeight: 'bold', width: '100%' }}>
-                      {cli.enListaNegra ? '✅ Quitar Lista Negra' : '🚨 Marcar Lista Negra'}
-                    </button>
+                  <div style={{ fontSize: '13px', color: '#aaa', display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '15px' }}>
+                    <p style={{ margin: 0 }}>📞 <strong>Teléfono:</strong> {cli.telefono}</p>
+                    <p style={{ margin: 0 }}>🪪 <strong>Cédula/Pasaporte:</strong> {cli.cedula}</p>
+                    <p style={{ margin: 0 }}>🚗 <strong>Licencia:</strong> {cli.licencia}</p>
+                    <p style={{ margin: 0, color: '#22c55e' }}>💰 <strong>Total Generado:</strong> USD ${cli.gastoTotal.toLocaleString()}</p>
                   </div>
-
                 </div>
-              );
-            })}
+
+                <div style={{ borderTop: '1px solid #222', paddingTop: '15px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: '5px' }}>
+                    <button onClick={() => router.push(`/admin/clientes/${encodeURIComponent(cli.telefono)}`)} style={{ backgroundColor: '#181818', color: '#fff', border: '1px solid #444', padding: '6px 10px', borderRadius: '4px', fontSize: '11px', cursor: 'pointer', fontWeight: 'bold', flex: 1 }}>📂 Historial</button>
+                    <button onClick={() => abrirEditor(cli)} style={{ backgroundColor: '#3b82f6', color: '#fff', border: 'none', padding: '6px 10px', borderRadius: '4px', fontSize: '11px', cursor: 'pointer', fontWeight: 'bold', flex: 1 }}>✏️ Editar</button>
+                    <button onClick={() => eliminarCliente(cli)} style={{ backgroundColor: '#6b7280', color: '#fff', border: 'none', padding: '6px 10px', borderRadius: '4px', fontSize: '11px', cursor: 'pointer', fontWeight: 'bold', flex: 1 }}>🗑️ Borrar</button>
+                  </div>
+
+                  <button onClick={() => cambiarEstadoListaNegra(cli, cli.enListaNegra, cli.motivoListaNegra)} style={{ backgroundColor: cli.enListaNegra ? '#22c55e' : '#ef4444', color: '#fff', border: 'none', padding: '7px 12px', borderRadius: '4px', fontSize: '12px', cursor: 'pointer', fontWeight: 'bold', width: '100%' }}>
+                    {cli.enListaNegra ? '✅ Quitar Lista Negra' : '🚨 Marcar Lista Negra'}
+                  </button>
+                </div>
+
+              </div>
+            ))}
           </div>
         )}
       </div>

@@ -4,8 +4,8 @@ export default function App({ Component, pageProps }) {
   return (
     <>
       <Head>
-        <link rel="icon" href="/BARRA.png" type="image/png" />
-        <link rel="apple-touch-icon" href="/BARRA.png" />
+        <link rel="icon" href="/barra.jpeg" type="image/png" />
+        <link rel="apple-touch-icon" href="/barra.jpeg" />
       </Head>
       <Component {...pageProps} />
     </>

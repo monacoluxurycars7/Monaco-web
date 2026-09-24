@@ -134,24 +134,37 @@ export default function AdminDashboard() {
   if (loading) return <p style={{ color: '#fff', textAlign: 'center', marginTop: '50px' }}>Cargando panel...</p>;
 
   const hoy = new Date();
-  hoy.setHours(0, 0, 0, 0);
+    hoy.setHours(0, 0, 0, 0);
 
-  let volumenTotalRentas = 0;
-  const pendientesEntrega = []; 
-  const proximasDevoluciones = []; 
+    // Definimos el mes y año actual
+    const mesActual = hoy.getMonth();
+    const anioActual = hoy.getFullYear();
 
-  reservations.forEach(res => {
-    const totalDias = calcularDias(res.inicio, res.fin, res.diasTotales);
-    const rentaPorDia = Number(res.precioPorDia) || Number(res.rentaPorDia) || 0;
-    const totalAlquiler = totalDias * rentaPorDia;
-    const tieneSeguroFull = res.seguroFull === true || res.seguroFull === 'si' || (typeof res.opcionSeguro === 'string' && res.opcionSeguro.includes('Seguro Full'));
-    const seguroPorDia = tieneSeguroFull ? (Number(res.precioSeguroPorDia) || Number(res.seguroPorDia) || 0) : 0;
-    const totalSeguro = totalDias * seguroPorDia;
-    const costoEntregaVal = Number(res.costoEntrega) || (typeof res.lugarEntrega === 'string' && res.lugarEntrega.toLowerCase().includes('puntacana') ? 150 : typeof res.lugarEntrega === 'string' && res.lugarEntrega.toLowerCase().includes('santiago') ? 100 : 0);
-    const totalCalculado = totalAlquiler + totalSeguro + costoEntregaVal;
-    const granTotal = res.costoTotal ? Number(res.costoTotal) : totalCalculado;
+    let volumenTotalRentas = 0;
+    const pendientesEntrega = [];
+    const proximasDevoluciones = [];
 
-    volumenTotalRentas += granTotal;
+    reservations.forEach(res => {
+      const totalDias = calcularDias(res.inicio, res.fin, res.diasTotales);
+      const rentaPorDia = Number(res.precioPorDia) || Number(res.rentaPorDia) || 0;
+      const totalAlquiler = totalDias * rentaPorDia;
+      const tieneSeguroFull = res.seguroFull === true || res.seguroFull === 'si' || (typeof res.opcionSeguro === 'string' && res.opcionSeguro.toLowerCase().includes('full'));
+      const seguroPorDia = tieneSeguroFull ? (Number(res.precioSeguroFull) || Number(res.seguroPorDia) || 0) : 0;
+      const totalSeguro = totalDias * seguroPorDia;
+      const costoEntregaVal = Number(res.costoEntrega) || (typeof res.costoEntrega === 'string' && res.costoEntrega.toLowerCase().includes('lugar') ? 0 : 0);
+      const totalCalculado = totalAlquiler + totalSeguro + costoEntregaVal;
+      const granTotal = res.costoTotal ? Number(res.costoTotal) : totalCalculado;
+
+      // === FILTRO DE MES EN CURSO PARA EL VOLUMEN ===
+      // Verificamos si la reserva pertenece al mes y año actual (usando 'res.inicio' o la fecha de creación)
+      if (res.inicio) {
+        const fechaReserva = new Date(res.inicio);
+        if (!isNaN(fechaReserva.getTime())) {
+          if (fechaReserva.getMonth() === mesActual && fechaReserva.getFullYear() === anioActual) {
+            volumenTotalRentas += granTotal;
+          }
+        }
+      }
 
     if (res.inicio && res.fin) {
       const fechaInicioRenta = new Date(res.inicio);

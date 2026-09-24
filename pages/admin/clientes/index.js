@@ -63,8 +63,12 @@ export default function AdminClientes() {
             autosFrecuentes: {},
             enListaNegra: infoDirecta.enListaNegra || false,
             motivoListaNegra: infoDirecta.motivoListaNegra || '',
-            eliminado: infoDirecta.eliminado || false
+            // Si tiene una reserva activa, forzamos que no esté eliminado
+            eliminado: false
           };
+        } else {
+          // Si ya existe en el mapa pero se genera nueva reserva, aseguramos que aparezca
+          mapaClientes[telefonoKey].eliminado = false;
         }
 
         mapaClientes[telefonoKey].totalAlquileres += 1;
@@ -95,7 +99,15 @@ export default function AdminClientes() {
         } else {
           mapaClientes[key].enListaNegra = cliDir.enListaNegra;
           mapaClientes[key].motivoListaNegra = cliDir.motivoListaNegra;
-          mapaClientes[key].eliminado = cliDir.eliminado;
+          
+          // CORRECCIÓN CLAVE: Si el cliente tiene una reserva registrada (pasó por el bloque 1),
+          // priorizamos que no esté oculto por un borrado anterior. De lo contrario respetamos el estado.
+          if (!mapaClientes[key].eliminado) {
+            mapaClientes[key].eliminado = false;
+          } else {
+            mapaClientes[key].eliminado = cliDir.eliminado;
+          }
+
           if (cliDir.nombreOverride) mapaClientes[key].nombre = cliDir.nombreOverride;
           if (cliDir.cedulaOverride) mapaClientes[key].cedula = cliDir.cedulaOverride;
         }
@@ -243,7 +255,6 @@ export default function AdminClientes() {
         <a href="/admin/dashboard" style={{ color: '#ccc', textDecoration: 'none', fontSize: '13px' }}>📊 Métricas</a>
         <a href="/admin/calendario" style={{ color: '#ccc', textDecoration: 'none', fontSize: '13px' }}>📅 Calendario</a>
         <a href="/admin/clientes" style={{ color: '#d4af37', textDecoration: 'none', fontSize: '13px', fontWeight: 'bold' }}>👥 Clientes / CRM</a>
-        {/* NUEVO BOTÓN PARA ACCEDER A LA CAMPAÑA VIP */}
         <a href="/admin/clientes/promo" style={{ backgroundColor: '#d4af37', color: '#000', padding: '6px 12px', borderRadius: '4px', textDecoration: 'none', fontSize: '12px', fontWeight: 'bold', marginLeft: 'auto' }}>🎁 Campaña Promo VIP</a>
       </nav>
 

@@ -251,10 +251,11 @@ export default function AdminClientes() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '15px' }}>
           <h1 style={{ color: '#d4af37', fontSize: '20px', margin: 0, fontWeight: 'bold' }}>👥 Base de Datos de Clientes y CRM</h1>
 
-            <button
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+          </button>
               onClick={() => setMostrarFormulario(!mostrarFormulario)}
               style={{ backgroundColor: '#ef4444', color: '#fff', border: 'none', padding: '10px 15px', borderRadius: '6px', fontSize: '13px', cursor: 'pointer', fontWeight: 'bold' }}
-            >
+           
               {mostrarFormulario ? '✖ Cancelar' : '🚨 + Agregar a Lista Negra'}
             </button>
 

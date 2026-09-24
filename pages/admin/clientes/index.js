@@ -63,11 +63,9 @@ export default function AdminClientes() {
             autosFrecuentes: {},
             enListaNegra: infoDirecta.enListaNegra || false,
             motivoListaNegra: infoDirecta.motivoListaNegra || '',
-            // Si tiene una reserva activa, forzamos que no esté eliminado
             eliminado: false
           };
         } else {
-          // Si ya existe en el mapa pero se genera nueva reserva, aseguramos que aparezca
           mapaClientes[telefonoKey].eliminado = false;
         }
 
@@ -100,8 +98,6 @@ export default function AdminClientes() {
           mapaClientes[key].enListaNegra = cliDir.enListaNegra;
           mapaClientes[key].motivoListaNegra = cliDir.motivoListaNegra;
           
-          // CORRECCIÓN CLAVE: Si el cliente tiene una reserva registrada (pasó por el bloque 1),
-          // priorizamos que no esté oculto por un borrado anterior. De lo contrario respetamos el estado.
           if (!mapaClientes[key].eliminado) {
             mapaClientes[key].eliminado = false;
           } else {
@@ -260,7 +256,15 @@ export default function AdminClientes() {
 
       <div style={{ padding: '25px', maxWidth: '1200px', margin: '0 auto' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '15px' }}>
-          <h1 style={{ color: '#d4af37', fontSize: '20px', margin: 0, fontWeight: 'bold' }}>👥 Base de Datos de Clientes y CRM</h1>
+          
+          {/* TÍTULO Y CONTADOR DE CLIENTES */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '15px', flexWrap: 'wrap' }}>
+            <h1 style={{ color: '#d4af37', fontSize: '20px', margin: 0, fontWeight: 'bold' }}>👥 Base de Datos de Clientes y CRM</h1>
+            <div style={{ backgroundColor: '#161616', border: '1px solid #333', padding: '5px 12px', borderRadius: '6px', fontSize: '13px', color: '#ccc' }}>
+              Total Clientes: <strong style={{ color: '#d4af37' }}>{clientes.length}</strong>
+              {busqueda && ` (Filtrados: ${clientesFiltrados.length})`}
+            </div>
+          </div>
           
           <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
             <button

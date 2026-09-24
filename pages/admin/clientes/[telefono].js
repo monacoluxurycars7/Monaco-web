@@ -61,13 +61,37 @@ export default function DetalleCliente() {
           totalAlquileres: filtradas.length,
           gastoTotal: gastoTotal,
           enListaNegra: infoExtra.enListaNegra || false,
-          motivoListaNegra: infoExtra.motivoListaNegra || ''
+          motivoListaNegra: infoExtra.motivoListaNegra || '',
+          mensajeEnviado: infoExtra.mensajeEnviado || false,
+          ultimoMensaje: infoExtra.ultimoMensaje || 'Nunca'
         });
       }
     } catch (error) {
       console.error("Error cargando detalle del cliente:", error);
     } finally {
       setCargando(false);
+    }
+  };
+
+  // Función para marcar como enviado y guardarlo en Firebase
+  const marcarMensajeEnviado = async () => {
+    try {
+      const hoy = new Date().toLocaleDateString();
+      const clienteRef = doc(db, 'clientes', telefono);
+      
+      await setDoc(clienteRef, {
+        mensajeEnviado: true,
+        ultimoMensaje: hoy
+      }, { merge: true });
+
+      setCliente(prev => ({
+        ...prev,
+        mensajeEnviado: true,
+        ultimoMensaje: hoy
+      }));
+    } catch (error) {
+      console.error("Error al actualizar el estado del mensaje:", error);
+      alert("Hubo un error al guardar el estado.");
     }
   };
 
@@ -113,7 +137,7 @@ export default function DetalleCliente() {
 
               <h1 style={{ color: '#d4af37', fontSize: '22px', margin: '0 0 15px 0', fontWeight: 'bold' }}>{cliente.nombre}</h1>
               
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px', fontSize: '14px', color: '#ccc' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px', fontSize: '14px', color: '#ccc', marginBottom: '20px' }}>
                 <div style={{ backgroundColor: '#181818', padding: '12px', borderRadius: '6px', border: '1px solid #222' }}>
                   <p style={{ margin: '0 0 5px 0', fontSize: '11px', color: '#888', textTransform: 'uppercase' }}>Teléfono</p>
                   <p style={{ margin: 0, fontWeight: 'bold', color: '#fff' }}>{cliente.telefono}</p>
@@ -134,6 +158,93 @@ export default function DetalleCliente() {
                   <p style={{ margin: 0, fontWeight: 'bold', color: '#22c55e' }}>{cliente.totalAlquileres} alquileres | USD ${cliente.gastoTotal.toLocaleString()}</p>
                 </div>
               </div>
+
+              {/* SECCIÓN DE FIDELIZACIÓN VIP CON FLYER */}
+              <div style={{
+                marginTop: '15px',
+                padding: '16px',
+                backgroundColor: 'rgba(212, 175, 55, 0.05)',
+                border: '1px solid rgba(212, 175, 55, 0.2)',
+                borderRadius: '8px'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <span style={{ fontSize: '13px', color: '#d4af37', fontWeight: 'bold' }}>
+                    ✨ Campaña de Fidelización VIP
+                  </span>
+                  <span style={{ fontSize: '11px', color: '#aaa' }}>
+                    Último contacto: {cliente.ultimoMensaje}
+                  </span>
+                </div>
+
+                <p style={{ fontSize: '12px', color: '#ccc', marginBottom: '14px', lineHeight: '1.4' }}>
+                  Mantén presencia con <strong>{cliente.nombre}</strong> enviándole su saludo de cortesía, oferta exclusiva y el flyer oficial de Mónaco.
+                </p>
+
+                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
+                  {/* Botón WhatsApp */}
+                  <a
+                    href={`https://wa.me/${cliente.telefono}?text=${encodeURIComponent(
+                      `¡Hola *${cliente.nombre}*! 🚗✨ De parte de toda la familia de *Monaco Luxury Rent a Car*, queremos agradecerte por ser parte de nuestra exclusiva experiencia. Queremos recordarte que tenemos vehículos disponibles para tu próxima escapada o compromiso en República Dominicana con tarifas preferenciales.\n\n🌐 Web: https://monacoluxuryrentacar.vercel.app\n📧 Correo: monacoluxurycars7@gmail.com\n\n¡Escríbenos por aquí para apartar tu vehículo con tiempo y darte una atención VIP! 🥂\n\n*(Recuerda adjuntar la imagen del flyer oficial)*`
+                    )}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      backgroundColor: '#25D366',
+                      color: '#fff',
+                      padding: '8px 12px',
+                      borderRadius: '6px',
+                      fontSize: '12px',
+                      textDecoration: 'none',
+                      fontWeight: 'bold',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '5px'
+                    }}
+                  >
+                    💬 Enviar Mensaje a WhatsApp
+                  </a>
+
+                  {/* Ver Flyer en public */}
+                  <a
+                    href="/flyer-fidelizacion.png"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      backgroundColor: 'rgba(212, 175, 55, 0.15)',
+                      border: '1px solid #d4af37',
+                      color: '#d4af37',
+                      padding: '8px 12px',
+                      borderRadius: '6px',
+                      fontSize: '12px',
+                      textDecoration: 'none',
+                      fontWeight: 'bold',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '5px'
+                    }}
+                  >
+                    🖼️ Ver Flyer Oficial
+                  </a>
+
+                  {/* Marcar como enviado */}
+                  <button
+                    onClick={marcarMensajeEnviado}
+                    style={{
+                      backgroundColor: cliente.mensajeEnviado ? '#00ff80' : 'transparent',
+                      border: '1px solid #00ff80',
+                      color: cliente.mensajeEnviado ? '#000' : '#00ff80',
+                      padding: '8px 12px',
+                      borderRadius: '6px',
+                      fontSize: '12px',
+                      cursor: 'pointer',
+                      fontWeight: 'bold'
+                    }}
+                  >
+                    {cliente.mensajeEnviado ? '✅ ¡Mensaje Enviado / Tachado!' : '📌 Marcar como Enviado'}
+                  </button>
+                </div>
+              </div>
+
             </div>
 
             {/* HISTORIAL DE ALQUILERES DETALLADO */}

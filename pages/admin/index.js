@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
-import Link from 'next/link';
+import React, { useState, useEffect } from 'react';
 import ContratoModal from './ContratoModal';
 import { initializeApp, getApps } from 'firebase/app';
 import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
@@ -26,8 +25,6 @@ export default function AdminDashboard() {
   const [reservations, setReservations] = useState([]);
   const [vehiculosMap, setVehiculosMap] = useState({});
   const router = useRouter();
-  const [menuAbierto, setMenuAbierto] = useState(false);
-  const menuRef = useRef(null);
 
   useEffect(() => {
     const auth = getAuth(app);
@@ -217,63 +214,6 @@ export default function AdminDashboard() {
             >
               + Nueva Reserva Manual
             </button>
-           {/* --- BOTÓN DE CONFIGURACIÓN Y MENÚ DESPLEGABLE --- */}
-            <div style={{ position: 'relative', display: 'inline-block' }} ref={menuRef}>
-              <button 
-                onClick={() => setMenuAbierto(!menuAbierto)}
-                style={{
-                  background: 'rgba(212, 175, 55, 0.15)',
-                  border: '1px solid #d4af37',
-                  color: '#d4af37',
-                  padding: '8px 16px',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  fontSize: '13px',
-                  fontWeight: 'bold',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  height: '100%'
-                }}
-              >
-                ⚙️ Configuración ▾
-              </button>
-
-              {menuAbierto && (
-                <div style={{
-                  position: 'absolute',
-                  right: 0,
-                  top: '40px',
-                  background: '#141414',
-                  border: '1px solid #333',
-                  borderRadius: '6px',
-                  boxShadow: '0 8px 24px rgba(0,0,0,0.6)',
-                  width: '160px',
-                  zIndex: 1000,
-                  overflow: 'hidden',
-                  display: 'flex',
-                  flexDirection: 'column'
-                }}>
-                  <Link 
-                    href="/admin/configuracion"
-                    style={{ padding: '10px 12px', color: '#fff', textDecoration: 'none', fontSize: '12px', borderBottom: '1px solid #222', display: 'block' }}
-                    onClick={() => setMenuAbierto(false)}
-                  >
-                    🎨 Personalización
-                  </Link>
-
-                  <Link 
-                    href="/admin/cuenta"
-                    style={{ padding: '10px 12px', color: '#fff', textDecoration: 'none', fontSize: '12px', display: 'block' }}
-                    onClick={() => setMenuAbierto(false)}
-                  >
-                    👤 Mi Cuenta
-                  </Link>
-                </div>
-              )}
-            </div>
-            {/* ------------------------------------------------ */}
-
             <button 
               onClick={() => signOut(getAuth(app))}
               style={{ padding: '8px 16px', backgroundColor: '#e53935', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}

@@ -214,6 +214,12 @@ export default function AdminDashboard() {
             >
               + Nueva Reserva Manual
             </button>
+                <button 
+              onClick={() => router.push('/admin/facturas')}
+              style={{ padding: '8px 16px', backgroundColor: '#d4af37', color: '#000', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
+            >
+              📄 Facturas
+            </button>
             <button 
               onClick={() => signOut(getAuth(app))}
               style={{ padding: '8px 16px', backgroundColor: '#e53935', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}

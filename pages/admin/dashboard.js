@@ -57,11 +57,11 @@ export default function AdminDashboard() {
     let rentabilidadAutos = {};
     let comisionesAutosTerceros = {};
 
-    reservas.forEach((res) => {
+   reservas.forEach((res) => {
       if (!res.inicio) return;
-      const fechaInicio = new Date(res.inicio);
+      const [anioInicio, mesInicio] = res.inicio.split('-').map(Number);
       
-      if (fechaInicio.getFullYear() === anioFiltro && (fechaInicio.getMonth() + 1) === mesFiltro) {
+      if (anioInicio === anioFiltro && mesInicio === mesFiltro) {
         const gananciaReserva = res.gananciaNetaMonaco !== undefined ? Number(res.gananciaNetaMonaco) : Number(res.costoTotal || res.costoTotalFinal || 0);
         ingresosMes += gananciaReserva;
 

@@ -64,8 +64,12 @@ export default function AdminClientes() {
             autosFrecuentes: {},
             enListaNegra: infoDirecta.enListaNegra || false,
             motivoListaNegra: infoDirecta.motivoListaNegra || '',
-            eliminado: infoDirecta.eliminado || false
+            // Si tiene una reserva activa, forzamos que eliminado sea false para que reaparezca
+            eliminado: false
           };
+        } else {
+          // Si ya existía pero vuelve a aparecer en reservas, nos aseguramos que no esté marcado como eliminado
+          mapaClientes[telefonoKey].eliminado = false;
         }
 
         mapaClientes[telefonoKey].totalAlquileres += 1;
@@ -96,7 +100,10 @@ export default function AdminClientes() {
         } else {
           mapaClientes[key].enListaNegra = cliDir.enListaNegra;
           mapaClientes[key].motivoListaNegra = cliDir.motivoListaNegra;
-          mapaClientes[key].eliminado = cliDir.eliminado;
+          // Mantenemos el estado de eliminado del documento directo si no viene de una reserva activa
+          if (!mapaClientes[key].totalAlquileres) {
+            mapaClientes[key].eliminado = cliDir.eliminado;
+          }
           if (cliDir.nombreOverride) mapaClientes[key].nombre = cliDir.nombreOverride;
           if (cliDir.cedulaOverride) mapaClientes[key].cedula = cliDir.cedulaOverride;
         }
@@ -244,6 +251,7 @@ export default function AdminClientes() {
         <a href="/admin/vehiculos" style={{ color: '#ccc', textDecoration: 'none', fontSize: '13px' }}>🚗 Flota</a>
         <a href="/admin/dashboard" style={{ color: '#ccc', textDecoration: 'none', fontSize: '13px' }}>📊 Métricas</a>
         <a href="/admin/calendario" style={{ color: '#ccc', textDecoration: 'none', fontSize: '13px' }}>📅 Calendario</a>
+        <a href="/admin/promo" style={{ color: '#ccc', textDecoration: 'none', fontSize: '13px' }}>📢 Promo</a>
         <a href="/admin/clientes" style={{ color: '#d4af37', textDecoration: 'none', fontSize: '13px', fontWeight: 'bold' }}>👥 Clientes / CRM</a>
       </nav>
 

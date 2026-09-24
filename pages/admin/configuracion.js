@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { db } from '../../../lib/firebase'; // Ajusta tu ruta de Firebase
+import { db } from '../lib/firebase'; 
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 export default function ConfigAdmin() {

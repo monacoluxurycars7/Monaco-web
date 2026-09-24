@@ -45,11 +45,10 @@ export default function AdminClientes() {
       reservas.forEach((res, index) => {
         const telefonoKey = res.clienteTelefono || res.telefono || `reserva-${index}`;
         const nombre = res.clienteNombre || res.nombre || 'Cliente sin nombre';
-        const cedula = res.documentoCliente || res.cedula || res.pasaporte || res.documento || res.clienteCedula || res.clientePasaporte || 'No registrada';       
+        const cedula = res.documentoCliente || res.cedula || res.pasaporte || res.documento || res.clienteCedula || res.clientePasaporte || 'No registrada';        
         const licencia = res.licencia || res.clienteLicencia || 'No registrada';
         const gananciaReserva = res.gananciaNetaMonaco !== undefined ? Number(res.gananciaNetaMonaco) : Number(res.costoTotal || res.costoTotalFinal || 0);
 
-        // Ver si existe configuración directa o si fue borrado en Firestore
         const infoDirecta = clientesDirectos[telefonoKey] || clientesDirectos[cedula] || {};
 
         if (!mapaClientes[telefonoKey]) {
@@ -75,7 +74,7 @@ export default function AdminClientes() {
         mapaClientes[telefonoKey].autosFrecuentes[auto] = (mapaClientes[telefonoKey].autosFrecuentes[auto] || 0) + 1;
       });
 
-      // 2. Procesar registros directos de la colección 'clientes' (Lista negra o externos)
+      // 2. Procesar registros directos de la colección 'clientes'
       Object.values(clientesDirectos).forEach(cliDir => {
         const key = cliDir.telefono && cliDir.telefono !== 'No registrado' ? cliDir.telefono : cliDir.id;
         
@@ -102,7 +101,6 @@ export default function AdminClientes() {
         }
       });
 
-      // Mostrar todos los que NO estén marcados explícitamente como eliminados
       const listaFinal = Object.values(mapaClientes).filter(c => !c.eliminado);
       setClientes(listaFinal);
     } catch (error) {
@@ -245,6 +243,8 @@ export default function AdminClientes() {
         <a href="/admin/dashboard" style={{ color: '#ccc', textDecoration: 'none', fontSize: '13px' }}>📊 Métricas</a>
         <a href="/admin/calendario" style={{ color: '#ccc', textDecoration: 'none', fontSize: '13px' }}>📅 Calendario</a>
         <a href="/admin/clientes" style={{ color: '#d4af37', textDecoration: 'none', fontSize: '13px', fontWeight: 'bold' }}>👥 Clientes / CRM</a>
+        {/* NUEVO BOTÓN PARA ACCEDER A LA CAMPAÑA VIP */}
+        <a href="/admin/clientes/promo" style={{ backgroundColor: '#d4af37', color: '#000', padding: '6px 12px', borderRadius: '4px', textDecoration: 'none', fontSize: '12px', fontWeight: 'bold', marginLeft: 'auto' }}>🎁 Campaña Promo VIP</a>
       </nav>
 
       <div style={{ padding: '25px', maxWidth: '1200px', margin: '0 auto' }}>
@@ -252,7 +252,6 @@ export default function AdminClientes() {
           <h1 style={{ color: '#d4af37', fontSize: '20px', margin: 0, fontWeight: 'bold' }}>👥 Base de Datos de Clientes y CRM</h1>
           
           <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
-
             <button
               onClick={() => setMostrarFormulario(!mostrarFormulario)}
               style={{ backgroundColor: '#ef4444', color: '#fff', border: 'none', padding: '10px 15px', borderRadius: '6px', fontSize: '13px', cursor: 'pointer', fontWeight: 'bold' }}

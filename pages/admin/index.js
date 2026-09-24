@@ -155,14 +155,16 @@ export default function AdminDashboard() {
       const totalCalculado = totalAlquiler + totalSeguro + costoEntregaVal;
       const granTotal = res.costoTotal ? Number(res.costoTotal) : totalCalculado;
 
-      // === FILTRO DE MES EN CURSO PARA EL VOLUMEN ===
-      // Verificamos si la reserva pertenece al mes y año actual (usando 'res.inicio' o la fecha de creación)
+     // === FILTRO EXACTO POR MES Y AÑO (EVITA DESFASES) ===
       if (res.inicio) {
-        const fechaReserva = new Date(res.inicio);
-        if (!isNaN(fechaReserva.getTime())) {
-          if (fechaReserva.getMonth() === mesActual && fechaReserva.getFullYear() === anioActual) {
-            volumenTotalRentas += granTotal;
-          }
+        const anioMesReserva = res.inicio.toString().substring(0, 7); 
+        
+        const anioActualStr = hoy.getFullYear();
+        const mesActualStr = String(hoy.getMonth() + 1).padStart(2, '0');
+        const mesAnioActual = `${anioActualStr}-${mesActualStr}`;
+
+        if (anioMesReserva === mesAnioActual) {
+          volumenTotalRentas += granTotal;
         }
       }
 

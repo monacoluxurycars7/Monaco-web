@@ -140,16 +140,32 @@ export default function DetalleCliente() {
               {reservasCliente.map((res, index) => {
                 const gananciaRes = res.gananciaNetaMonaco !== undefined ? Number(res.gananciaNetaMonaco) : Number(res.costoTotal || res.costoTotalFinal || 0);
                 
-                // Selector flexible para capturar la fecha sin importar el nombre del campo en Firebase
-                const fechaInicioVal = res.inicio || res.fechaInicio || res.desde || res.startDate || 'N/D';
-                const fechaFinVal = res.fin || res.fechaFin || res.hasta || res.endDate || 'N/D';
+                // Fechas
+                const fechaInicioVal = res.inicio || res.fechaInicio || res.desde || res.startDate || '';
+                const fechaFinVal = res.fin || res.fechaFin || res.hasta || res.endDate || '';
+
+                // Cálculo automático de días
+                let dias = 0;
+                if (fechaInicioVal && fechaFinVal) {
+                  const d1 = new Date(fechaInicioVal);
+                  const d2 = new Date(fechaFinVal);
+                  const diffTime = d2 - d1;
+                  const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+                  dias = diffDays > 0 ? diffDays : 1; // Mínimo 1 día por seguridad
+                }
+
+                // Precio por día (busca si existe en el objeto o lo calcula dividiendo el costo total / días)
+                const precioPorDia = res.precioPorDia || res.precioDia || (dias > 0 ? Math.round(gananciaRes / dias) : 0);
 
                 return (
                   <div key={index} style={{ backgroundColor: '#111', borderRadius: '8px', border: '1px solid #222', padding: '18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px' }}>
                     <div>
                       <h4 style={{ margin: '0 0 5px 0', color: '#d4af37', fontSize: '15px' }}>{res.vehiculoNombre || res.vehiculoId || 'Vehículo reservado'}</h4>
                       <p style={{ margin: '0 0 4px 0', fontSize: '13px', color: '#aaa' }}>
-                        📅 <strong>Del:</strong> {fechaInicioVal} <strong>al</strong> {fechaFinVal}
+                        📅 <strong>Del:</strong> {fechaInicioVal || 'N/D'} <strong>al</strong> {fechaFinVal || 'N/D'} {dias > 0 && <span style={{ color: '#d4af37' }}>({dias} {dias === 1 ? 'día' : 'días'})</span>}
+                      </p>
+                      <p style={{ margin: '0 0 4px 0', fontSize: '12px', color: '#888' }}>
+                        💵 <strong>Precio por día:</strong> USD ${precioPorDia.toLocaleString()}
                       </p>
                       <p style={{ margin: 0, fontSize: '12px', color: '#777' }}>
                         Estado: {res.estado || 'Registrada'}

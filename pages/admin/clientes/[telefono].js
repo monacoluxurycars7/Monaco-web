@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { collection, getDocs, doc, setDoc } from 'firebase/firestore';
+import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../../../lib/firebase';
 
 export default function DetalleCliente() {
@@ -19,7 +19,6 @@ export default function DetalleCliente() {
 
   const cargarDetalleCliente = async () => {
     try {
-      // 1. Obtener todas las reservas para filtrar las de este teléfono
       const reservasSnap = await getDocs(collection(db, 'reservas'));
       const todasLasReservas = reservasSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
@@ -30,11 +29,9 @@ export default function DetalleCliente() {
 
       setReservasCliente(filtradas);
 
-      // Si hay reservas, extraemos los datos base del cliente
       if (filtradas.length > 0) {
         const primera = filtradas[0];
         
-        // Buscar datos extra en la colección 'clientes' si existen
         let infoExtra = {};
         try {
           const clienteDocSnap = await getDocs(collection(db, 'clientes'));
@@ -56,7 +53,7 @@ export default function DetalleCliente() {
         setCliente({
           nombre: primera.clienteNombre || primera.nombre || 'Cliente sin nombre',
           telefono: telefono,
-          cedula: primera.documentoCliente || primera.cedula || primera.pasaporte || primera.documento || primera.clienteCedula || primera.clientePasaporte || 'No registrada',          
+          cedula: primera.documentoCliente || primera.cedula || primera.pasaporte || primera.documento || primera.clienteCedula || primera.clientePasaporte || 'No registrada',         
           licencia: primera.licencia || primera.clienteLicencia || 'No registrada',
           totalAlquileres: filtradas.length,
           gastoTotal: gastoTotal,
@@ -142,12 +139,17 @@ export default function DetalleCliente() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {reservasCliente.map((res, index) => {
                 const gananciaRes = res.gananciaNetaMonaco !== undefined ? Number(res.gananciaNetaMonaco) : Number(res.costoTotal || res.costoTotalFinal || 0);
+                
+                // Selector flexible para capturar la fecha sin importar el nombre del campo en Firebase
+                const fechaInicioVal = res.inicio || res.fechaInicio || res.desde || res.startDate || 'N/D';
+                const fechaFinVal = res.fin || res.fechaFin || res.hasta || res.endDate || 'N/D';
+
                 return (
                   <div key={index} style={{ backgroundColor: '#111', borderRadius: '8px', border: '1px solid #222', padding: '18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px' }}>
                     <div>
                       <h4 style={{ margin: '0 0 5px 0', color: '#d4af37', fontSize: '15px' }}>{res.vehiculoNombre || res.vehiculoId || 'Vehículo reservado'}</h4>
                       <p style={{ margin: '0 0 4px 0', fontSize: '13px', color: '#aaa' }}>
-                        📅 <strong>Del:</strong> {res.fechaInicio || 'N/D'} <strong>al</strong> {res.fechaFin || 'N/D'}
+                        📅 <strong>Del:</strong> {fechaInicioVal} <strong>al</strong> {fechaFinVal}
                       </p>
                       <p style={{ margin: 0, fontSize: '12px', color: '#777' }}>
                         Estado: {res.estado || 'Registrada'}
@@ -159,7 +161,7 @@ export default function DetalleCliente() {
                         USD ${gananciaRes.toLocaleString()}
                       </p>
                       <span style={{ fontSize: '11px', backgroundColor: '#181818', padding: '4px 8px', borderRadius: '4px', color: '#aaa', border: '1px solid #333' }}>
-                        ID: {res.id.slice(0, 8)}...
+                        ID: {res.id ? res.id.slice(0, 8) : 'N/D'}...
                       </span>
                     </div>
                   </div>

@@ -208,6 +208,12 @@ export default function AdminDashboard() {
             >
               👥 Clientes
             </button>
+             <button 
+              onClick={() => router.push('/admin/facturas')}
+              style={{ padding: '8px 16px', backgroundColor: '#d4af37', color: '#000', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
+            >
+              📄 Facturas
+            </button>
             <button 
               onClick={() => router.push('/admin/nueva-reserva')}
               style={{ padding: '8px 16px', backgroundColor: '#d4af37', color: '#000', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}

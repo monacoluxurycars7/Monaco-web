@@ -63,8 +63,13 @@ export default function AdminClientes() {
             autosFrecuentes: {},
             enListaNegra: infoDirecta.enListaNegra || false,
             motivoListaNegra: infoDirecta.motivoListaNegra || '',
-            eliminado: infoDirecta.eliminado || false
+            // CAMBIO CLAVE: Si tiene una reserva activa en este momento, 
+            // forzamos que 'eliminado' sea false para que reaparezca en el CRM.
+            eliminado: false 
           };
+        } else {
+          // Si por alguna razón ya estaba creado en el mapa pero tenía el flag viejo, lo reactivamos
+          mapaClientes[telefonoKey].eliminado = false;
         }
 
         mapaClientes[telefonoKey].totalAlquileres += 1;

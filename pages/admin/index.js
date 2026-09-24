@@ -269,29 +269,18 @@ export default function AdminDashboard() {
                   >
                     👤 Mi Cuenta
                   </Link>
-                {/* Opción de Cerrar Sesión dentro del menú */}
-                  <button 
-                    onClick={() => {
-                      setMenuAbierto(false);
-                      signOut(getAuth(app));
-                    }}
-                    style={{ 
-                      padding: '10px 12px', 
-                      backgroundColor: 'transparent', 
-                      color: '#e53935', 
-                      border: 'none', 
-                      textAlign: 'left', 
-                      fontSize: '12px', 
-                      fontWeight: 'bold', 
-                      cursor: 'pointer',
-                      width: '100%'
-                    }}
-                  >
-                    🚪 Cerrar Sesión
-                  </button>
                 </div>
               )}
             </div>
+            {/* ------------------------------------------------ */}
+
+            <button 
+              onClick={() => signOut(getAuth(app))}
+              style={{ padding: '8px 16px', backgroundColor: '#e53935', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
+            >
+              Cerrar Sesión
+            </button>
+          </div>
         </header>
 
         {/* TARJETAS DE FLUJO Y RESUMEN RÁPIDO */}
